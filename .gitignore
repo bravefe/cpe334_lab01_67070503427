@@ -12,4 +12,3 @@ server/prisma/*.db
 # logs & OS
 *.log
 .DS_Store
-package-lock.json
