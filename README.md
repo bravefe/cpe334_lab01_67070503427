@@ -2,7 +2,8 @@
 What We Are Building Across Labs 1 to 4 
 TokTickIT is an IT service desk application for Account and Access, Hardware, Software, and Network requests. Across seven individual sprints, each student will incrementally build the same product from a full-stack foundation into a polished local web application. The instructor acts as the stakeholder and product owner, releasing a new engineering contract for each sprint. Every contract defines the required behavior, UI, business rules, acceptance criteria, and tests. Students use AI coding agents to assist with implementation, but remain responsible for the specifications, code, tests, reviews, and final product quality. 
 
->Specification: defines the product behavior and design. Engineering contract: defines the specification plus the evidence required to prove it is complete. 
+>**Specification:** defines the product behavior and design. 
+>**Engineering contract:** defines the specification plus the evidence required to prove it is complete. 
 
 The final application will support three roles: Requester, IT Staff, and Administrator. A Ticket stores the current state of the request and contains related Public Comments, Internal Notes, Actions Taken, and Attachments. Requesters and IT Staff share some functions, such as public comments and attachments, while role-based rules control sensitive actions such as assignment, IT priority, status changes, internal notes, and user management. 
  
