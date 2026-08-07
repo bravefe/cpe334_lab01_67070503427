@@ -26,6 +26,10 @@ export default function App() {
         {state === "loading" ? "Loading…" : "Check System"}
       </button>
 
+      <h3 className="Bootstrap_is_installed" style={{ marginTop: 32 }}>
+        Bootstrap is installed
+      </h3>
+
       {/* TODO(Issue 4): render loading / success (Online + categories) / error (Offline) states. */}
     </div>
   );
