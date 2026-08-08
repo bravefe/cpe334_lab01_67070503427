@@ -43,7 +43,7 @@ export default function App() {
       )}
 
       {state === "success" && (
-        <div className="success">
+        <div className="success mt-3">
           <strong>System Status: Online</strong>
           <ul className="mt-2">
             {categories.map((category) => (
@@ -54,7 +54,7 @@ export default function App() {
       )}
 
       {state === "error" && (
-        <div className="error">
+        <div className="error mt-3">
           <strong>System Status: Offline</strong><br></br> Unable to connect to TokTickIT API
           <div>{error}</div>
         </div>
