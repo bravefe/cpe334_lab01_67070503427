@@ -11,6 +11,9 @@ export default function App() {
   void categories;
 
   async function handleCheck() {
+    // TODO(Issue 4): set loading, call checkSystem(), then either
+    //   - success: store categories and show Online + the list, or
+    //   - error: show Offline + a useful message.
     setState("loading");
     setError("");
 
@@ -23,9 +26,6 @@ export default function App() {
       setError(err instanceof Error ? err.message : "Unable to connect to the backend.");
       setState("error");
     }
-    // TODO(Issue 4): set loading, call checkSystem(), then either
-    //   - success: store categories and show Online + the list, or
-    //   - error: show Offline + a useful message.
   }
 
   return (
