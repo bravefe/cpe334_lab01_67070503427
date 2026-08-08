@@ -1,10 +1,45 @@
 # TokTickIT 
-What We Are Building Across Labs 1 to 4 
-TokTickIT is an IT service desk application for Account and Access, Hardware, Software, and Network requests. Across seven individual sprints, each student will incrementally build the same product from a full-stack foundation into a polished local web application. The instructor acts as the stakeholder and product owner, releasing a new engineering contract for each sprint. Every contract defines the required behavior, UI, business rules, acceptance criteria, and tests. Students use AI coding agents to assist with implementation, but remain responsible for the specifications, code, tests, reviews, and final product quality. 
+TokTickIT is a full-stack IT service desk application for managing Account & Access, Hardware, Software, and Network support requests. The project is built incrementally across multiple lab sprints, with each sprint adding new features, validation, testing, and UI improvements.
 
->**Specification:** defines the product behavior and design. 
->**Engineering contract:** defines the specification plus the evidence required to prove it is complete. 
+The application supports three user roles: Requester, IT Staff, and Administrator. Tickets include request details, public comments, internal notes, actions taken, and attachments, with role-based permissions controlling sensitive operations such as assignment, priority management, status updates, and user administration.
 
-The final application will support three roles: Requester, IT Staff, and Administrator. A Ticket stores the current state of the request and contains related Public Comments, Internal Notes, Actions Taken, and Attachments. Requesters and IT Staff share some functions, such as public comments and attachments, while role-based rules control sensitive actions such as assignment, IT priority, status changes, internal notes, and user management. 
- 
-By the end of Lab 4, every student should have a professional application running locally with responsive screens, consistent UI styling, clear validation and warnings, safe error handling, automated tests, GitHub Issues, feature branches, peer-reviewed Pull Requests, and complete documentation. CI/CD and cloud deployment will be introduced later during the team-project phase
+The goal is to produce a polished local web application with responsive design, consistent styling, validation, automated tests, GitHub workflows, and complete documentation.
+
+## Setup Guide
+Follow these steps to run the project locally.
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/your-username/TokTickIT.git
+cd TokTickIT
+```
+### 2. Install dependencies
+
+Open two terminals.
+
+#### Client
+```bash
+cd client
+npm install
+```
+#### Server
+```bash
+cd server
+npm install
+```
+
+### 3. Start the development servers
+
+Run both the client and server at the same time.
+
+#### Client
+```bash
+cd client
+npm run dev
+```
+#### Server
+```bash
+cd server
+npm run dev
+```
+The client and server should now be running locally in development mode.
