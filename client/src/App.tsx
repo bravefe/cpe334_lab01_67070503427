@@ -38,7 +38,7 @@ export default function App() {
         {state === "loading" ? "Loading…" : "Check System"}
       </button>
 
-      <h3 className="Bootstrap_is_installed mt-3"}>
+      <h3 className="Bootstrap_is_installed mt-3">
         Bootstrap is installed
       </h3>
 
