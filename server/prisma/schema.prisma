@@ -10,6 +10,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model category {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+}
+
 // ---------------------------------------------------------------------------
 // Issue 3 — Create and seed IT request categories
 // Define a Category model with:
