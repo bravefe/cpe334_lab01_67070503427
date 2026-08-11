@@ -10,12 +10,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Category {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  createdAt DateTime @default(now())
-}
-
 // ---------------------------------------------------------------------------
 // Issue 3 — Create and seed IT request categories
 // Define a Category model with:
@@ -24,5 +18,4 @@ model Category {
 //   createdAt DateTime @default(now())
 // Then run:  npx prisma migrate dev --name init
 // TODO(Issue 3): add the Category model below.
-// docker run --name toktickit-db -e POSTGRES_USER=toktickit -e POSTGRES_PASSWORD=toktickit -e POSTGRES_DB=toktickit -p 5432:5432 -d postgres:16-alpine
 // ---------------------------------------------------------------------------
