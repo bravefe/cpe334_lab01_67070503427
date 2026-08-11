@@ -21,7 +21,7 @@
    ```
 
    Creates the database schema and applies migrations.
-
+   Skip this step if alredy have migraions folder.
 4. **Generate the Prisma client**
 
    ```bash
