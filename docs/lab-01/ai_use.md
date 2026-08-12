@@ -12,11 +12,10 @@
 
 
 ### **LLM/agent used:** VScode Copilot Extension
-It does not specify the agent.
-
 | # | Prompt (summarised) | What I did with the result |
 |---|---------------------|----------------------------|
-| 1 | Asked how to implement `GET /api/categories`. Give context of `app.ts`| Added the Prisma query, ordered results by `id`, and returned a safe error response. |
+| 1 | Asked how to implement `GET /api/categories`. Give context of `app.ts` | Added the Prisma query, ordered results by `id`, and returned a safe error response. |
+| 2 | Asked to update `App.test.tsx` tests for Issue 4 with the required categories, tell the ai to not change the header or add other library. Give context of the categories, `App.tsx` and `api.ts`.| Added two tests, mocked `checkSystem` |
 
 ## Reflection
 Two or three sentences: what made your prompts better, and one place you had to
