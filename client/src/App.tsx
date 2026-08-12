@@ -49,18 +49,21 @@ export default function App() {
       {state === "success" && (
         <div className="success mt-3">
           <strong>System Status: Online</strong>
-          <ul className="mt-2">
-            {categories.map((category) => (
-              <li key={category.id}>{category.name}</li>  
-            ))}
-          </ul>
+          {categories.length === 0 ? (
+            <p>Failed to fetch category list.</p>
+          ) : (
+            <ul className="mt-2">
+              {categories.map((category) => (
+                <li key={category.id}>{category.name}</li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
 
       {state === "error" && (
         <div className="error mt-3">
-          <strong>System Status: Offline</strong><br></br> Unable to connect to TokTickIT API
-          <div>{error}</div>
+          <strong>System Status: Offline</strong>
         </div>
       )}
 
