@@ -20,9 +20,19 @@ export async function checkSystem(): Promise<SystemStatus> {
   if (!healthRes.ok) {
     throw new Error("Health check failed");
   }
-  
-  return {
-    online: true,
-    categories: [],
-  };
+
+  const categoriesRes = await fetch(`${API_URL}/api/categories`);
+  if (!categoriesRes.ok) {
+      return {
+        online: true,
+        categories: [],
+      };
+  }
+  else {
+    const categories: Category[] = await categoriesRes.json();
+    return {
+      online: true,
+      categories,
+    };
+  }
 }
