@@ -1,8 +1,7 @@
 # Lab 1 — Peer Review Record  (fill this in)
 
-**Author:** <your name> — <student id> — GitHub: @<username>
-**Peer reviewer:** <partner name> — <student id> — GitHub: @<username>
-
+**Author:** Patcharak Plipat — 67070503427 — bravefe
+**Peer reviewer:** Punnapob Wirojwongchai — 67070503425 — SaintCrois
 ## Pull Requests I authored (reviewed by my partner)
 | PR | Branch | Reviewer verdict |
 |----|--------|------------------|
@@ -36,8 +35,16 @@ Good job! You've even updated the README file. Prisma is good. Overall it is a g
 **How I responded:**  Add an md file fro the database and the `docker-compose.ymal` then merge into `lab1-staging`.
 
 ### feature/4-category-list
-**Reviewer comment I received:** <...>
-How I responded: <...>
+**Reviewer comment I received:** 
+Nice, great work. Everything looks good and ready to merge:
+
+- Backend Route: The GET /api/categories endpoint in server/src/app.ts correctly selects id and name, sorts by id: "asc", and properly handles error status codes (500).
+- Testing: The Supertest suite in categories.test.ts cleanly verifies both the HTTP 200 response and the exact order of the 4 seeded categories.
+- Documentation: docs/lab-01/ai_use.md and docs/lab-01/tests.md are updated
+Ok plz merge.
+
+Punnapob W.
+**How I responded:** Thankyou for the review. Then, merge with `lab1-staging
 
 ## Pull Requests I reviewed for my partner
 
@@ -58,4 +65,4 @@ How I responded: <...>
 
 ### feature/4-category-list
 **My comment:** All the code are being implemented, also include all the necessary document
-**Partner's response:**
+**Partner's response:** Heart Emoji, then proceed to merge.
