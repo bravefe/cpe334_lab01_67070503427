@@ -83,4 +83,3 @@ All test files live under server/tests/lab-01/ and client/tests/lab-01/.
    Start at  14:28:20
    Duration  5.75s (transform 167ms, setup 447ms, collect 774ms, tests 576ms, environment 2.81s, prepare 351ms)
 ```
-Paste your passing terminal output / screenshot below.
