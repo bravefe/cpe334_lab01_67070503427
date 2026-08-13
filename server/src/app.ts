@@ -12,6 +12,10 @@ export const app = express();
 app.use(cors());          // already wired: lets the Vite dev server call this API
 app.use(express.json());
 
+// app.get("/", (_req: Request, res: Response) => {
+//   res.send("TokTickIT API is running");
+// });
+
 // ---------------------------------------------------------------------------
 // Issue 2 — API health check
 // Make the test in tests/lab-01/health.test.ts pass.
@@ -19,7 +23,8 @@ app.use(express.json());
 // ---------------------------------------------------------------------------
 app.get("/api/health", (_req: Request, res: Response) => {
   // TODO(Issue 2): replace this stub with the required 200 response.
-  res.status(501).json({ error: "Not implemented yet" });
+  // res.status(501).json({ error: "Not implemented yet" });
+  res.status(200).json({ status: "ok", service: "TokTickIT API" });
 });
 
 // ---------------------------------------------------------------------------
@@ -29,6 +34,19 @@ app.get("/api/health", (_req: Request, res: Response) => {
 //   -> return each { id, name } in a predictable (id) order
 //   -> on failure, respond 500 with a safe message (no internal details)
 // TODO(Issue 4): implement the route here.
+app.get("/api/categories", async (_req: Request, res: Response) => {
+  try {
+    const categories = await getPrisma().category.findMany({
+      select: { id: true, name: true },
+      orderBy: { id: "asc" },
+    });
+
+    res.status(200).json(categories);
+  } catch (_error) {
+    res.status(500).json({ error: "Failed to fetch categories" });
+  }
+});
 // ---------------------------------------------------------------------------
+
 
 export default app;
