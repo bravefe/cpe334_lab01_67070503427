@@ -10,7 +10,7 @@ Follow these steps to run the project locally.
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/TokTickIT.git
+git clone https://github.com/bravefe/cpe334_lab01_67070503427.git
 cd TokTickIT
 ```
 ### 2. Install dependencies
