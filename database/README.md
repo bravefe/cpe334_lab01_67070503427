@@ -19,18 +19,13 @@
    ```bash
    npx prisma migrate dev --name init
    ```
-
-   Creates the database schema and applies migrations.
-   Skip this step if alredy have migraions folder.
-4. **Generate the Prisma client**
-
+   or 
    ```bash
    npx prisma generate
    ```
+   if alredy migrate the first time.
 
-   Generates the Prisma client for database access.
-
-5. **Seed the database**
+4. **Seed the database**
 
    ```bash
    npx prisma db seed
@@ -38,7 +33,7 @@
 
    Inserts the initial data into the database.
 
-6. **Open Prisma Studio**
+5. **Open Prisma Studio**
 
    ```bash
    npx prisma studio
