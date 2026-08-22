@@ -19,11 +19,7 @@
    ```bash
    npx prisma migrate dev --name init
    ```
-   or 
-   ```bash
-   npx prisma generate
-   ```
-   if alredy migrate the first time.
+   Applies the schema to the database.
 
 4. **Seed the database**
 
