@@ -14,15 +14,118 @@ model Category {
   id        Int      @id @default(autoincrement())
   name      String   @unique
   createdAt DateTime @default(now())
+
+  tickets Ticket[]
 }
 
-// ---------------------------------------------------------------------------
-// Issue 3 — Create and seed IT request categories
-// Define a Category model with:
-//   id        Int      @id @default(autoincrement())
-//   name      String   @unique
-//   createdAt DateTime @default(now())
-// Then run:  npx prisma migrate dev --name init
-// TODO(Issue 3): add the Category model below.
-// docker run --name toktickit-db -e POSTGRES_USER=toktickit -e POSTGRES_PASSWORD=toktickit -e POSTGRES_DB=toktickit -p 5432:5432 -d postgres:16-alpine
-// ---------------------------------------------------------------------------
+model Priority {
+  id                 Int      @id @default(autoincrement())
+  name               String   @unique
+  createdAt          DateTime @default(now())
+  requestedTickets   Ticket[] @relation("RequestedPriority")
+  prioritizedTickets Ticket[] @relation("ItPriority")
+}
+
+model Status {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  tickets   Ticket[]
+}
+
+model Employee {
+  id               Int               @id @default(autoincrement())
+  code             String            @unique
+  name             String
+  createdAt        DateTime          @default(now())
+  ownedTickets     Ticket[]          @relation("TicketOwner")
+  publicComments   PublicComment[]
+  internalComments InternalComment[]
+  attachments      Attachment[]
+  serviceActions   ServiceAction[]
+  eventLogs        EventLog[]
+}
+
+model Ticket {
+  id                  Int               @id @default(autoincrement())
+  code                String            @unique
+  createdAt           DateTime          @default(now())
+  summary             String
+  description         String
+  resolutionSummary   String?
+  categoryId          Int
+  requestedPriorityId Int
+  itPriorityId        Int
+  currentStatusId     Int
+  ticketOwnerId       Int
+  updatedAt           DateTime          @updatedAt
+
+  category          Category          @relation(fields: [categoryId], references: [id])
+  requestedPriority Priority         @relation("RequestedPriority", fields: [requestedPriorityId], references: [id])
+  itPriority        Priority         @relation("ItPriority", fields: [itPriorityId], references: [id])
+  currentStatus     Status            @relation(fields: [currentStatusId], references: [id])
+  ticketOwner       Employee          @relation("TicketOwner", fields: [ticketOwnerId], references: [id])
+  publicComments    PublicComment[]
+  internalComments  InternalComment[]
+  attachments       Attachment[]
+  serviceActions    ServiceAction[]
+  eventLogs         EventLog[]
+}
+
+model PublicComment {
+  id        Int      @id @default(autoincrement())
+  ticketId  Int
+  createdAt DateTime @default(now())
+  ownerId   Int
+  message   String
+
+  ticket Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  owner  Employee @relation(fields: [ownerId], references: [id])
+}
+
+model InternalComment {
+  id        Int      @id @default(autoincrement())
+  ticketId  Int
+  createdAt DateTime @default(now())
+  ownerId   Int
+  message   String
+
+  ticket Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  owner  Employee @relation(fields: [ownerId], references: [id])
+}
+
+model Attachment {
+  id            Int      @id @default(autoincrement())
+  ticketId      Int
+  createdAt     DateTime @default(now())
+  ownerId       Int
+  fileName      String
+  fileUrl       String
+  fileType      String
+  fileSizeBytes Int
+
+  ticket Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  owner  Employee @relation(fields: [ownerId], references: [id])
+}
+
+model ServiceAction {
+  id        Int      @id @default(autoincrement())
+  ticketId  Int
+  createdAt DateTime @default(now())
+  ownerId   Int
+  message   String
+
+  ticket Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  owner  Employee @relation(fields: [ownerId], references: [id])
+}
+
+model EventLog {
+  id        Int      @id @default(autoincrement())
+  ticketId  Int
+  createdAt DateTime @default(now())
+  ownerId   Int
+  message   String
+
+  ticket Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  owner  Employee @relation(fields: [ownerId], references: [id])
+}
