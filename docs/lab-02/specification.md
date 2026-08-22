@@ -1,5 +1,7 @@
-# CPE 334 Lab 2 Specification
+# Lab 2 Sprint Engineering Specification
 **Project:** TokTickIT — Requester Ticketing MVP with UI Foundation
+**Course:** CPE 334, Semester 1/2026
+**Status:** Draft for review — approve before implementation begins
 
 ---
 
@@ -206,186 +208,87 @@ Full detail lives in `docs/lab-02/ui-spec.md`; this section summarizes what it m
 
 ---
 
-## 7. Database Design
+## 7. Data Changes
 
-### 7.1 Overview
+### 7.1 Concepts and Fields
 
-The IT Ticketing System uses a relational database implemented with Prisma ORM. The schema centers on a `Ticket` entity that references lookup tables (`Category`, `Priority`, `Status`, `Employee`) and is extended by several child entities that record ticket activity (`Public Comment`, `Internal Comment`, `Attachment`, `Service Action`, `Event Log`).
+**DevRequester** *(Lab 2 testing identity — replaced by real user/auth model in Lab 3)*
+| Field | Type | Notes |
+|---|---|---|
+| id | Int/UUID PK | |
+| fullName | String | required |
+| email | String | unique |
+| isActive | Boolean | default `true`; inactive Requesters excluded from selector (BR-06, BR-28) |
+| createdAt | DateTime | |
+| updatedAt | DateTime | |
 
-### 7.2 Entity Definitions
+**Category**
+| Field | Type | Notes |
+|---|---|---|
+| id | Int PK | |
+| name | String | unique; seeded: Account and Access, Hardware, Software, Network |
+| isActive | Boolean | default `true` |
 
-#### 7.2.1 Ticket
+**RelatedSystem**
+| Field | Type | Notes |
+|---|---|---|
+| id | Int PK | |
+| name | String | unique; seeded with ≥ 6 systems (Email, Campus Wi-Fi, VPN, LEB2 App, Grade Submission App, Printer, Corporate Laptop) |
+| isActive | Boolean | default `true` |
 
-| Field | Type | Constraints |
-| :--- | :--- | :--- |
-| `id` | int | PK, Unique |
-| `code` | text | Unique (format `TCK-YYYY-XXXXXX`) |
-| `created_date` | datetime | Not Null |
-| `summary` | text | Not Null |
-| `description` | text | |
-| `resolution_summary` | text | |
-| `category_id` | int | FK → Category(id) |
-| `requested_priority_id` | int | FK → Priority(id) |
-| `it_priority_id` | int | FK → Priority(id) |
-| `current_status_id` | int | FK → Status(id) |
-| `ticket_owner_id` | int | FK → Employee(id) |
-| `last_updated_date` | datetime | Not Null |
+**Ticket**
+| Field | Type | Notes |
+|---|---|---|
+| id | Int/UUID PK | internal key |
+| ticketNumber | String | unique, indexed; format per BR-01 |
+| requesterId | FK → DevRequester | required; indexed for My Tickets queries |
+| categoryId | FK → Category | required; indexed for filtering |
+| relatedSystemId | FK → RelatedSystem | required |
+| summary | String(150) | required, trimmed (BR-16) |
+| description | Text(2000) | required, trimmed (BR-17) |
+| requestedPriority | Enum(LOW, MEDIUM, HIGH) | required |
+| itPriority | Enum(LOW, MEDIUM, HIGH) — nullable | reserved, unused in Lab 2 (BR-04) |
+| currentStatus | Enum(NEW, …future) | default `NEW`; indexed for filtering |
+| ownerId | FK → nullable | reserved for IT Staff assignment, unused in Lab 2 |
+| createdAt | DateTime | indexed; drives default sort |
+| updatedAt | DateTime | drives "Last Updated" |
 
-#### 7.2.2 Category
+**Attachment**
+| Field | Type | Notes |
+|---|---|---|
+| id | Int/UUID PK | |
+| ticketId | FK → Ticket | required; indexed |
+| originalFileName | String | as uploaded, display-only |
+| storedFileName | String | sanitized/randomized on-disk name, never derived from user input directly |
+| mimeType | String | validated against allow-list (BR-22) |
+| fileSizeBytes | Int | validated ≤ 5 MB (BR-23) |
+| status | Enum(ACTIVE, REMOVED) | soft-removal flag (BR-25); enum chosen over boolean for future extensibility |
+| removalReason | String — nullable | required when status = REMOVED (BR-26) |
+| removedAt | DateTime — nullable | |
+| uploadedAt | DateTime | |
 
-| Field | Type | Constraints |
-| :--- | :--- | :--- |
-| `id` | int | PK, Unique |
-| `name` | text | Unique, Not Null |
+### 7.2 Relationships
+- One `DevRequester` → many `Ticket` (one `Ticket` → one `DevRequester`).
+- One `Ticket` → many `Attachment`.
+- One `Category` → many `Ticket`.
+- One `RelatedSystem` → many `Ticket`.
 
-#### 7.2.3 Priority
+### 7.3 Indexes and Constraints
+- Unique: `Ticket.ticketNumber`, `DevRequester.email`, `Category.name`, `RelatedSystem.name`.
+- Foreign keys: `Ticket.requesterId`, `Ticket.categoryId`, `Ticket.relatedSystemId`,
+  `Attachment.ticketId` (all `onDelete: Restrict` — Lab 2 never deletes owning rows).
+- Indexes: `Ticket.requesterId` (My Tickets scoping — the most frequent query path),
+  `Ticket.createdAt` (default sort), `Ticket.categoryId` / `Ticket.requestedPriority` /
+  `Ticket.currentStatus` (filters), `Attachment.ticketId`, `Attachment.status`.
+- Nullability: `itPriority`, `ownerId`, `removalReason`, `removedAt` are the only nullable
+  business fields; all Requester-facing required fields are `NOT NULL`.
+- Justification (design decision): `Attachment.status` is modeled as an enum rather than an
+  `isRemoved` boolean specifically so Lab 3+ can add intermediate states (e.g.
+  `PENDING_VIRUS_SCAN`) without a schema migration that changes column type.
 
-| Field | Type | Constraints |
-| :--- | :--- | :--- |
-| `id` | int | PK, Unique |
-| `name` | text | Unique (High, Medium, Low) |
-
-#### 7.2.4 Status
-
-| Field | Type | Constraints |
-| :--- | :--- | :--- |
-| `id` | int | PK, Unique |
-| `name` | text | Unique (Open, In Progress, Pending, Resolved) |
-
-#### 7.2.5 Employee
-
-| Field | Type | Constraints |
-| :--- | :--- | :--- |
-| `id` | int | PK, Unique |
-| `code` | text | Unique |
-| `name` | text | Not Null |
-| `created_date` | datetime | Not Null |
-
-#### 7.2.6 Public Comment
-
-| Field | Type | Constraints |
-| :--- | :--- | :--- |
-| `id` | int | PK, Unique |
-| `ticket_id` | int | FK → Ticket(id) |
-| `created_date` | datetime | Not Null |
-| `owner_id` | int | FK → Employee(id) |
-| `message` | text | Not Null |
-
-#### 7.2.7 Internal Comment
-
-| Field | Type | Constraints |
-| :--- | :--- | :--- |
-| `id` | int | PK, Unique |
-| `ticket_id` | int | FK → Ticket(id) |
-| `created_date` | datetime | Not Null |
-| `owner_id` | int | FK → Employee(id) |
-| `message` | text | Not Null |
-
-#### 7.2.8 Attachment
-
-| Field | Type | Constraints |
-| :--- | :--- | :--- |
-| `id` | int | PK, Unique |
-| `ticket_id` | int | FK → Ticket(id) |
-| `created_date` | datetime | Not Null |
-| `owner_id` | int | FK → Employee(id) |
-| `file_name` | text | Not Null |
-| `file_url` | text | Stores file path / S3 link |
-| `file_type` | text | Allowed: `.jpg`, `.png`, `.webp`, `.pdf` |
-| `file_size_bytes` | int | Max 5,242,880 bytes (5 MB) |
-
-#### 7.2.9 Service Action
-
-| Field | Type | Constraints |
-| :--- | :--- | :--- |
-| `id` | int | PK, Unique |
-| `ticket_id` | int | FK → Ticket(id) |
-| `created_date` | datetime | Not Null |
-| `owner_id` | int | FK → Employee(id) |
-| `message` | text | Not Null |
-
-#### 7.2.10 Event Log
-
-| Field | Type | Constraints |
-| :--- | :--- | :--- |
-| `id` | int | PK, Unique |
-| `ticket_id` | int | FK → Ticket(id) |
-| `created_date` | datetime | Not Null |
-| `owner_id` | int | FK → Employee(id) |
-| `message` | text | Details of the state change |
-
-### 7.3 Entity Relationships
-
-| Relationship | Type | Description |
-| :--- | :--- | :--- |
-| Ticket → Category | Many-to-One | Each ticket belongs to one category; a category can apply to many tickets |
-| Ticket → Priority (requested) | Many-to-One | `requested_priority_id` links to the priority set by the requester |
-| Ticket → Priority (IT) | Many-to-One | `it_priority_id` links to the priority set by IT staff (dual relation to the same `Priority` table) |
-| Ticket → Status | Many-to-One | Each ticket has one current status |
-| Ticket → Employee (owner) | Many-to-One | Each ticket has one owning employee; an employee can own many tickets |
-| Ticket → Public Comment | One-to-Many | A ticket can have many public comments |
-| Ticket → Internal Comment | One-to-Many | A ticket can have many internal comments |
-| Ticket → Attachment | One-to-Many | A ticket can have many attachments |
-| Ticket → Service Action | One-to-Many | A ticket can have many service actions |
-| Ticket → Event Log | One-to-Many | A ticket can have many logged events |
-| Employee → Comments/Attachments/Actions/Logs | One-to-Many | An employee can be the `owner_id` on many records across all child tables |
-
-**Note on dual relations:** Because `Ticket` references `Priority` twice (`requested_priority_id` and `it_priority_id`), the Prisma schema must name each relation explicitly (e.g. `@relation("RequestedPriority")` and `@relation("ITPriority")`) so both foreign keys resolve without ambiguity.
-
-### 7.4 Enums
-
-The design uses two approaches for fixed-value sets, and the choice between them is a deliberate decision:
-
-| Value Set | Modeled As | Rationale |
-| :--- | :--- | :--- |
-| `Priority` (`High`, `Medium`, `Low`) | Lookup table, not a Prisma `enum` | Ticket has two FKs into this set (`requested_priority_id`, `it_priority_id`); a table lets both be modeled as normal relations with named `@relation` attributes, which native enums can't express as cleanly. |
-| `Status` (`Open`, `In Progress`, `Pending`, `Resolved`) | Lookup table, not a Prisma `enum` | Statuses are referenced by `current_status_id` and also appear in `Event Log.message` history; keeping it a table allows future statuses to be added via seed data without a schema migration. |
-| `Attachment.file_type` (`.jpg`, `.png`, `.webp`, `.pdf`) | Prisma `enum FileType` | Small, stable, closed set tied to a single column with no relational reuse — a true enum is simpler and enforces the constraint at the database level. |
-
-
-**Design decision:** `Priority` and `Status` are kept as relational lookup tables (not `enum`s) specifically because `Priority` requires two independent FKs from `Ticket`, and because both value sets may need to grow (e.g. adding a `Critical` priority or a `Reopened` status) without requiring a schema migration — only a seed/data update.
-
-### 7.5 Indexes
-
-| Table | Indexed Column(s) | Type | Reason |
-| :--- | :--- | :--- | :--- |
-| `Ticket` | `code` | Unique index | Primary lookup key for ticket search (`TCK-YYYY-XXXXXX`) |
-| `Ticket` | `category_id` | Index | Supports filtering/reporting by category |
-| `Ticket` | `requested_priority_id`, `it_priority_id` | Index | Supports filtering/sorting by priority |
-| `Ticket` | `current_status_id` | Index | Supports filtering ticket lists by status (most common query) |
-| `Ticket` | `ticket_owner_id` | Index | Supports "my tickets" queries per employee |
-| `Employee` | `code` | Unique index | Primary lookup key for employee identification |
-| `Category`, `Priority`, `Status` | `name` | Unique index | Enforces uniqueness of lookup values |
-| `Public Comment`, `Internal Comment`, `Attachment`, `Service Action`, `Event Log` | `ticket_id` | Index | All child tables are queried by parent ticket; this is the primary access pattern for a ticket detail view |
-| `Public Comment`, `Internal Comment`, `Attachment`, `Service Action`, `Event Log` | `owner_id` | Index | Supports activity lookups by employee |
-
-Composite index consideration: `(ticket_id, created_date)` on the comment/attachment/log tables would speed up the common "timeline for this ticket, most recent first" query pattern.
-
-### 7.6 Migration Decisions
-
-| Decision | Detail |
-| :--- | :--- |
-| **Tooling** | `npx prisma migrate dev` generates and applies migrations in development; each schema change produces a versioned SQL migration file under `prisma/migrations/`. |
-| **Sequencing** | Lookup tables (`Category`, `Priority`, `Status`, `Employee`) must be created and seeded before `Ticket`, since `Ticket` holds FKs into all of them. |
-| **Seeding** | `server/prisma/seed.ts` seeds `Priority` (High, Medium, Low), `Status` (Open, In Progress, Pending, Resolved), and the 10 required `Employee` records; seeding runs via `npx prisma db seed` after migration. |
-| **Dual relation handling** | The `requested_priority_id` and `it_priority_id` FKs on `Ticket` both reference `Priority`, so the migration must include two distinct foreign key constraints on the same target table, each named explicitly in the Prisma relation (e.g. `RequestedPriority`, `ITPriority`) to avoid ambiguous relation errors. |
-| **Non-breaking changes** | Migrations must not drop or rename columns/tables still referenced by existing FKs without a corresponding data migration step, to avoid breaking existing configurations (per acceptance criteria). |
-| **Verification** | After migration and seeding, `npx prisma studio` is used to visually confirm tables, relationships, constraints, and seeded data before considering the migration complete. |
-
-### 7.7 Non-Functional Constraints
-
-| Category | Constraint |
-| :--- | :--- |
-| **Data Integrity** | All foreign keys enforce referential integrity; orphaned child records (comments, attachments, actions, logs) must not exist without a valid parent `Ticket`. |
-| **Uniqueness** | `Ticket.code` and `Employee.code` must be unique and immutable once assigned. |
-| **File Constraints** | Attachments limited to `.jpg`, `.png`, `.webp`, `.pdf`; maximum file size 5 MB (5,242,880 bytes), enforced at both application and database/storage layer. |
-| **Auditability** | All state changes to a ticket must be captured in `Event Log` with `created_date` and `owner_id` to preserve a complete audit trail. |
-| **Scalability** | Schema should support growth in ticket volume without redesign; lookup tables (`Category`, `Priority`, `Status`) are extensible without breaking existing relations. |
-| **Availability** | Seed data (`Priority`, `Status`, and the 10 employee records) must be present and consistent across environments after `npx prisma db seed`. |
-| **Security** | `file_url` values must reference access-controlled storage (e.g. signed S3 URLs) rather than publicly exposed paths. |
-| **Maintainability** | Schema changes should be traceable through Prisma migration history to support rollback and review. |
-
-
+### 7.4 Seed Data
+Seed script is idempotent (upsert by unique key) and creates: the 4 required Categories, ≥ 6
+Related Systems, ≥ 4 active DevRequesters, and 1 inactive DevRequester, so it is safe to re-run.
 
 ---
 
