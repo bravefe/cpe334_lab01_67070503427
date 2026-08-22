@@ -212,7 +212,7 @@ Full detail lives in `docs/lab-02/ui-spec.md`; this section summarizes what it m
 
 ### 7.1 Concepts and Fields
 
-**DevRequester** *(Lab 2 testing identity — replaced by real user/auth model in Lab 3)*
+**Requester** *(Lab 2 testing identity — replaced by real user/auth model in Lab 3)*
 | Field | Type | Notes |
 |---|---|---|
 | id | Int/UUID PK | |
