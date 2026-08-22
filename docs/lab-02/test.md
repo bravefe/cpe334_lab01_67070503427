@@ -1,40 +1,119 @@
-# Lab 2 Test Plan and Results
+# TokTickIT — Lab 2 Test Plan
 
 ## 1. Test Strategy
 
-Lab 2 testing uses two automated layers for the Requester-facing surface only:
+This test plan is based on the Sprint Engineering Specification, API Spec, and UI Spec before implementation is complete (Test-DD). Testing follows a TDD approach: write the test, implement the required behavior, and keep the test passing.
 
-* **Server (API) tests** — `server/tests/lab-02/*.api.test.ts`. Test the Express/API layer directly using a seeded test database. Each file covers a resource and verifies status codes, response formats, validation rules (BR-xx), and ownership scoping (BR-11) from `api-spec.md`.
+Testing covers four levels: **Unit, API, UI, and E2E**. Tests are grouped by screen or endpoint and consolidated into the defined test files rather than creating a separate file for each scenario.
 
-* **Client (component) tests** — `client/.../lab-02 tests/*.test.tsx`. Test screens in isolation with React Testing Library and a mocked API client, covering rendered states, form validation, and empty/error states.
+Coverage includes:
+- Happy paths and successful operations
+- Validation and boundary conditions
+- Ownership and cross-Requester isolation
+- Server and network failure handling
+- Loading, empty, and no-results states
+- Accessibility and visual requirements
+- Attachment upload, download, and soft-removal lifecycle
 
-Out of scope: E2E/browser tests, IT Staff screens, and fields/endpoints marked "reserved, unused in Lab 2" (`itPriorityId`, `ownerId`, non-default `Status` rows, Service Action/Event Log writes).
+The **API tests** verify backend behavior, validation, persistence, ownership enforcement, and error responses. **UI tests** verify client-side validation, interaction, loading states, and screen behavior. **Style tests** verify required visual states such as badges and read-only fields. **Responsive tests** verify layouts at mobile viewport sizes. **E2E tests** verify complete Requester workflows across the frontend and backend.
 
-**Ownership violations must always return 404, never 403 (BR-11),** because Lab 2 does not reveal a ticket's existence to non-owners.
+No planned test is skipped, disabled, commented out, or intentionally left flaky. Every test starts as `Pending` and is updated to `Pass` or `Fail` after implementation and execution.
 
----
 
 ## 2. Planned Tests
 
-| Test file | Layer | Target | Key scenarios |
-|---|---|---|---|
-| `create-ticket.api.test.ts` | Server | `POST /api/tickets` | 201 on valid body with `requestedPriorityId`; 400 for each of `summary`/`description`/`categoryId`/`relatedSystemId`/`requestedPriorityId` missing or out of range (BR-16–BR-18); 400 for inactive/unknown `categoryId` or `relatedSystemId`; 400 for unknown `requestedPriorityId`; response has `currentStatusId` set to the default (`New`) Status and `itPriorityId: null`; `ticketNumber` format matches BR-01; missing `X-Dev-Requester-Id` header rejected |
-| `my-tickets.api.test.ts` | Server | `GET /api/tickets` | Returns only the requesting Requester's own Tickets; `search` matches ticket number and summary, case-insensitive partial (BR-12); `category`, `requestedPriorityId`, `currentStatusId` filters, individually and combined with AND logic (BR-13); default sort is `createdAt` desc with `ticketNumber` desc tiebreaker (BR-14); each `sortBy`/`sortDir` combination; invalid `page`/`pageSize` fall back to defaults rather than erroring (BR-15); pagination metadata (`page`, `pageSize`, `totalItems`, `totalPages`) is correct at page boundaries |
-| `ticket-detail.api.test.ts` | Server | `GET /api/tickets/:ticketNumber` | 200 with full detail (including nested `attachments`) for an owned Ticket; 404 for a Ticket that doesn't exist; 404 (not 403) for a Ticket owned by a different Requester (BR-11) |
-| `attachments.api.test.ts` | Server | `/api/tickets/:ticketNumber/attachments`, `/api/attachments/:id/download`, `/api/attachments/:id/remove` | 201 upload within limits; 415 for a disallowed file type by extension and by MIME (BR-22); 413 over 5 MB (BR-23); 422 on a 6th active attachment (BR-24); list returns both `ACTIVE` and `REMOVED` rows with `removalReason`/`removedAt` only on removed ones; download streams the file with correct `Content-Disposition` for an active attachment; download returns 404 for a `REMOVED` attachment (BR-27) and for a non-owned one; remove requires non-empty `reason` (400 otherwise, BR-26); remove on an already-removed attachment returns 409; all attachment endpoints return 404 (not 403) when the Ticket isn't owned by the caller |
-| `CreateTicket.test.tsx` | Client | Create Ticket screen | Category/Related System/Priority selects populate from the reference endpoints; submit disabled until required fields are valid; inline field errors render for each BR-16–BR-18 violation returned by the API; successful submit navigates to/shows the new ticket; server-side 400 (e.g. unknown priority) surfaces as a form error rather than a crash |
-| `MyTickets.test.tsx` | Client | My Tickets screen | Table/list renders returned tickets; search input debounces and triggers a re-fetch with the `search` param; category/priority/status filter controls each trigger a re-fetch with the matching param; column sort click toggles `sortBy`/`sortDir`; pagination controls trigger correct `page`/`pageSize`; empty-result state renders when `data` is `[]` |
-| `RequesterTicketDetail.test.tsx` | Client | Ticket Detail screen | Renders all read-only ticket fields (summary, description, category, related system, requested priority, status); renders the attachment list with active vs. removed styling; attempting to open/download a removed attachment is disabled or hidden in the UI; not-found/not-owned (404) response renders a not-found state rather than an error boundary |
+### `server/tests/lab-02/create-ticket.api.test.ts`
 
----
+| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
+|---|---|---|---|---|---|
+| API-01 | API | AC-01 | `POST /api/tickets` with valid data | 201; one Ticket saved; backend-generated Ticket Number returned | Pending |
+| UNIT-01 | Unit | BR-01 | Ticket Number generator format `TKT-<YYYY>-<6-digit seq>` | Generated code matches format and is unique per call | Pending |
+| API-02 | API | AC-05 | `POST /api/tickets` with empty `summary` | 400 with `fieldErrors` for `summary`; no Ticket persisted | Pending |
+| API-03 | API | AC-06 | `POST /api/tickets` with `description` < 20 chars | 400 naming the 20-char minimum | Pending |
+| API-04 | API | AC-07 | `POST /api/tickets` with `summary` = exactly 150 chars | 201; Ticket created (upper boundary passes) | Pending |
+| API-05 | API | AC-08 | `POST /api/tickets` with `summary` = 151 chars | 400; Ticket not created (upper boundary fails) | Pending |
+| API-06 | API | AC-14 | Ticket create succeeds, Attachment upload then fails | Ticket persists with its number; failed Attachment reported separately (BR-21) | Pending |
+| API-07 | API | AC-13 | `POST /api/tickets` when server errors after validation passes | 500 safe envelope; no Ticket row persisted (BR-20) | Pending |
 
-## 3. Test Commands
+### `server/tests/lab-02/attachments.api.test.ts`
 
-```bash
-cd server
-npm run test
-```
-```bash
-cd client
-npm run test
-```
+| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
+|---|---|---|---|---|---|
+| API-08 | API | AC-09 | Upload `.gif` Attachment | 415; rejected before storage | Pending |
+| API-09 | API | AC-10 | Upload valid PDF > 5 MB | 413; rejected with size message | Pending |
+| API-10 | API | AC-11 | Upload 6th Attachment to a Ticket with 5 active | 422; limit-reached error; removed Attachments excluded from count (BR-24) | Pending |
+| API-11 | API | AC-22 | Download an owned, active Attachment | 200; original file content and filename returned | Pending |
+| API-13 | API | AC-23 | `PATCH /api/attachments/:id/remove` with empty `reason` | 400; Attachment remains ACTIVE (BR-26) | Pending |
+| API-14 | API | AC-24 | `PATCH .../remove` with valid reason, then re-fetch Ticket Detail | Attachment shows status REMOVED with reason and removedAt (BR-25, BR-27) | Pending |
+| API-15 | API | AC-24 | Soft-remove an already-`REMOVED` Attachment | 409 conflict | Pending |
+
+### `server/tests/lab-02/my-tickets.api.test.ts`
+
+| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
+|---|---|---|---|---|---|
+| API-16 | API | AC-04 | `GET /api/tickets` as Requester B | List contains none of Requester A's Tickets | Pending |
+| API-17 | API | AC-15 | `GET /api/tickets?search=<partial ticket #>` | Only Tickets whose number contains the text (case-insensitive) returned | Pending |
+| API-18 | API | AC-16 | `GET /api/tickets?category=&requestedPriorityId=` combined | Only Tickets matching both filters returned (BR-13) | Pending |
+| API-19 | API | AC-17 | Toggle `sortDir` on `sortBy=createdAt` | List order reverses accordingly | Pending |
+| API-20 | API | AC-18 | Page forward beyond page size | Next set of Tickets loads; `page`/`totalPages` metadata correct | Pending |
+| API-21 | API | BR-15 | `page`/`pageSize` with invalid values (e.g. negative, non-numeric) | Falls back to defaults (page 1, size 10) instead of erroring | Pending |
+| API-22 | API | AC-25 | `GET /api/dev-requesters` with one inactive Requester seeded | Inactive Requester absent from response (BR-06) | Pending |
+
+### `server/tests/lab-02/ticket-detail.api.test.ts`
+
+| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
+|---|---|---|---|---|---|
+| API-23 | API | AC-03 | `GET /api/tickets/:ticketCode` for Requester A's Ticket while B is current | 404; no Ticket data returned (BR-11) | Pending |
+
+### `client/tests/lab-02/CreateTicket.test.tsx`
+
+| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
+|---|---|---|---|---|---|
+| UI-01 | UI | AC-02 | Navigate to Create Ticket with no Requester selected | Redirected to Requester Selection screen (BR-08) | Pending |
+| UI-02 | UI | AC-05 | Click Submit with Summary empty | Inline field message shown; no API call made | Pending |
+| UI-03 | UI | AC-06 | Type a 19-character Description and submit | Boundary message names the 20-char minimum | Pending |
+| UI-04 | UI | AC-12 | Click Submit on a valid form | Submit disabled + busy indicator until request resolves (BR-19) | Pending |
+| UI-05 | UI | AC-13 | Submit valid form while backend is unreachable | Safe error banner shown; all field values remain in the form | Pending |
+| UI-06 | UI | AC-28 | Tab through the Create Ticket form using keyboard only | Every control reachable in logical order with visible focus indicator | Pending |
+| UI-07 | UI | BR-01, BR-03 | Render Create Ticket system-generated fields (Ticket #, Date, Requester) | Read-only fields use distinct shading, no focus ring, not tab-stoppable | Pending |
+
+### `client/tests/lab-02/MyTickets.test.tsx`
+
+| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
+|---|---|---|---|---|---|
+| UI-11 | UI | AC-19 | Open My Tickets for a Requester with zero Tickets | Empty state (not No-Results) shown with Create Ticket CTA | Pending |
+| UI-12 | UI | AC-20 | Apply filters that match no owned Tickets | No-Results state shown with a Clear Filters action | Pending |
+| UI-13 | UI | AC-26 | Use Change Requester to pick a different active Requester | My Tickets reloads showing only the new Requester's Tickets (BR-07) | Pending |
+
+### `client/tests/lab-02/AttachmentSection.test.tsx`
+
+| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
+|---|---|---|---|---|---|
+| UI-08 | UI | AC-09, AC-10 | Select a `.gif` or an oversized PDF in the Attachment control | Rejected client-side before any upload call, with a clear message | Pending |
+| UI-09 | UI | AC-11 | Attachment control on a Ticket with 5 active Attachments | Remaining-slots indicator shows 0; a 6th file is blocked with a limit message | Pending |
+| UI-10 | UI | AC-23 | Click Remove on an Attachment without entering a reason | Removal blocked until a non-empty reason is entered | Pending |
+
+### `client/tests/lab-02/RequesterTicketDetail.test.tsx`
+
+| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
+|---|---|---|---|---|---|
+| UI-15 | UI | AC-21 | Add a valid Attachment from Ticket Detail | New Attachment appears in list as Active without a page reload | Pending |
+| UI-16 | UI | AC-24 | View Ticket Detail after an Attachment was soft-removed | Attachment shown greyed-out with metadata/reason; download control disabled | Pending |
+
+### `e2e/lab-02/requester-ticket-flow.spec.ts`
+
+| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
+|---|---|---|---|---|---|
+| E2E-01 | E2E | AC-01, AC-05 | Complete Requester selection → Create Ticket submission flow | Confirmation displays the backend-generated Ticket Number | Pending |
+| E2E-02 | E2E | AC-03, AC-04 | Requester A creates a Ticket; switch to Requester B and search My Tickets / open by number | Requester B never sees A's Ticket in list or detail | Pending |
+| E2E-03 | E2E | AC-21, AC-22, AC-23, AC-24 | Full Attachment lifecycle: add, download, soft-remove with reason | Attachment shows Active then Removed with metadata; download disabled after removal | Pending |
+| E2E-04 | E2E | AC-25, AC-26 | Open selector (inactive Requester seeded), select one, then Change Requester | Inactive Requester absent; switching reloads My Tickets to the new Requester's data only | Pending |
+
+## 3. Traceability Summary
+
+- 28 Acceptance Criteria are covered.
+- Ownership enforcement (BR-09–BR-11) is verified through API and E2E tests.
+- The full Attachment lifecycle is tested at API, UI, and E2E levels.
+- Responsive behavior is tested for both Create Ticket and My Tickets.
+- Server tests use 4 files; client tests use 4 files; all E2E and responsive tests use `requester-ticket-flow.spec.ts`.
+- All tests start as `Pending` and are updated to `Pass` or `Fail` after implementation and execution.

@@ -5,15 +5,15 @@
 ### 1.1 Color
 | Token | Hex | Usage |
 |---|---|---|
-| Primary green | `#006B3C` | Primary buttons, links, active nav, focus ring |
-| Secondary green | `#0B7A46` | Hover states, secondary accents |
-| Pale green | `#EAF6EF` | Selected rows, info banners, badge backgrounds |
-| Page background | `#F5F7F6` | App shell background |
-| Surface | `#FFFFFF` | Cards, panels, form containers, restrained shadow/border |
-| Text (primary) | dark charcoal-green | Body copy, headings |
-| Error | dark red | Validation messages, failure states |
-| Warning (amber) | amber | Non-decorative use only (e.g. "5 MB limit" hint), never alone to convey status |
-| Success | green + text label | Confirmation banners — always paired with a text label, never color alone |
+| Primary green | #006B3C | Primary buttons, links, active nav, focus ring |
+| Secondary green | #0B7A46 | Hover states, secondary accents |
+| Pale green | #EAF6EF | Selected rows, info banners, badge backgrounds |
+| Page background | #F5F7F6 | App shell background |
+| Surface | #FFFFFF | Cards, panels, form containers, restrained shadow/border |
+| Text (primary) | #173B2D | Body copy, headings |
+| Error | #B42318 | Validation messages, failure states |
+| Warning (amber) | #B54708 | Non-decorative use only (e.g. "5 MB limit" hint), never alone to convey status |
+| Success | #16803C | Confirmation banners — always paired with a text label, never color alone |
 
 Read-only fields get a visually distinct shading from editable fields (pale grey/green fill,
 no focus ring, not tab-stoppable as an input).
