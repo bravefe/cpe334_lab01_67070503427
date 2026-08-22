@@ -342,15 +342,6 @@ The design uses two approaches for fixed-value sets, and the choice between them
 | `Status` (`Open`, `In Progress`, `Pending`, `Resolved`) | Lookup table, not a Prisma `enum` | Statuses are referenced by `current_status_id` and also appear in `Event Log.message` history; keeping it a table allows future statuses to be added via seed data without a schema migration. |
 | `Attachment.file_type` (`.jpg`, `.png`, `.webp`, `.pdf`) | Prisma `enum FileType` | Small, stable, closed set tied to a single column with no relational reuse — a true enum is simpler and enforces the constraint at the database level. |
 
-Example Prisma enum:
-```prisma
-enum FileType {
-  JPG
-  PNG
-  WEBP
-  PDF
-}
-```
 
 **Design decision:** `Priority` and `Status` are kept as relational lookup tables (not `enum`s) specifically because `Priority` requires two independent FKs from `Ticket`, and because both value sets may need to grow (e.g. adding a `Critical` priority or a `Reopened` status) without requiring a schema migration — only a seed/data update.
 
