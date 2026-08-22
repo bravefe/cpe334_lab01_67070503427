@@ -31,5 +31,9 @@ add PublicComments, ServiceActions, EventLog Similar to atachments but only have
 
 | # | Prompt (summarised) | What I did with the result |
 | - | - | - | 
+| 1 | paste 7. + implement it to this 2 files
+step 1 write a prisma file for the database
+step 2 seed.ts with what writen in the seed part + 5 random devrequester and 
+10 ticket with code formate corect ly 1-10 leave itPriority id as null
 
 ## Reflection
