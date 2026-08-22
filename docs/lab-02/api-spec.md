@@ -67,7 +67,6 @@ Lists Statuses.
   ] }
   ```
   Only the `isDefault` row is reachable as a Ticket's `currentStatusId` in Lab 2, since no
-  status-transition endpoint exists yet — the same posture as `itPriorityId`.
 
 ### `GET /api/dev-requesters`
 Lists active Development Requesters for the Selection screen (FR-01, BR-06).
@@ -114,7 +113,6 @@ Creates a Ticket owned by the current Requester (FR-04).
       "categoryId": 2,
       "relatedSystemId": 7,
       "requestedPriorityId": 2,
-      "itPriorityId": null,
       "currentStatusId": 1,
       "createdAt": "2026-08-22T09:14:00Z",
       "updatedAt": "2026-08-22T09:14:00Z"
@@ -177,7 +175,6 @@ Full read-only detail for one owned Ticket (FR-11).
       "categoryId": 2,
       "relatedSystemId": 7,
       "requestedPriorityId": 2,
-      "itPriorityId": null,
       "currentStatusId": 1,
       "createdAt": "2026-08-22T09:14:00Z",
       "updatedAt": "2026-08-22T09:14:00Z",
@@ -187,28 +184,6 @@ Full read-only detail for one owned Ticket (FR-11).
           "originalFileName": "screenshot.png",
           "status": "ACTIVE",
           "uploadedAt": "2026-08-22T09:15:00Z"
-        }
-      ],
-      "publicComments": [
-        {
-          "id": 1,
-          "authorId": 12,
-          "message": "Any update on this?",
-          "createdAt": "2026-08-22T10:00:00Z"
-        }
-      ],
-      "serviceActions": [
-        {
-          "id": 1,
-          "message": "Escalated to hardware team.",
-          "createdAt": "2026-08-22T11:00:00Z"
-        }
-      ],
-      "eventLog": [
-        {
-          "id": 1,
-          "message": "Ticket created.",
-          "createdAt": "2026-08-22T09:14:00Z"
         }
       ]
     }
@@ -303,103 +278,15 @@ Soft-removes an active Attachment (FR-14).
 
 ---
 
-## 5. Public Comment Endpoints
-
-### `POST /api/tickets/:ticketCode/comments`
-Adds a Public Comment to an owned Ticket, authored by the current Requester.
-- **Auth:** `X-Dev-Requester-Id` required; rejects if not owner (404).
-- **Request body:**
-  ```json
-  { "message": "Any update on this?" }
-  ```
-- **Validation:** `message` required, non-empty, trimmed.
-- **Response 201:**
-  ```json
-  {
-    "data": {
-      "id": 1,
-      "ticketId": 42,
-      "authorId": 12,
-      "message": "Any update on this?",
-      "createdAt": "2026-08-22T10:00:00Z"
-    }
-  }
-  ```
-- **Response 400:** missing/empty `message`.
-- **Response 404:** Ticket not found / not owned.
-
-### `GET /api/tickets/:ticketCode/comments`
-Lists Public Comments (active + removed) for an owned Ticket.
-- **Auth:** rejects if not owner (404).
-- **Response 200:**
-  ```json
-  {
-    "data": [
-      { "id": 1, "authorId": 12, "message": "Any update on this?", "createdAt": "2026-08-22T10:00:00Z" },
-      { "id": 2, "authorId": 12, "message": "Never mind, resolved.", "createdAt": "2026-08-22T12:00:00Z", "removedAt": "2026-08-22T12:05:00Z" }
-    ]
-  }
-  ```
-
-### `PATCH /api/comments/:commentId/remove`
-Soft-removes a Public Comment.
-- **Auth:** rejects if not owner (404).
-- **Response 200:**
-  ```json
-  { "data": { "id": 1, "removedAt": "2026-08-22T12:05:00Z" } }
-  ```
-- **Response 404:** not owned / not found.
-- **Response 409:** already removed.
-
----
-
-## 6. Service Action Endpoints
-
-### `GET /api/tickets/:ticketCode/service-actions`
-Lists Service Actions (active + removed) for an owned Ticket.
-- **Auth:** rejects if not owner (404).
-- **Response 200:**
-  ```json
-  {
-    "data": [
-      { "id": 1, "message": "Escalated to hardware team.", "createdAt": "2026-08-22T11:00:00Z" }
-    ]
-  }
-  ```
-
-Creation is reserved for the IT Staff workflow introduced in Lab 3; this read endpoint lets
-the ticket-detail screen render the section now.
-
----
-
-## 7. Event Log Endpoints
-
-### `GET /api/tickets/:ticketCode/event-log`
-Lists Event Log entries (active + removed) for an owned Ticket.
-- **Auth:** rejects if not owner (404).
-- **Response 200:**
-  ```json
-  {
-    "data": [
-      { "id": 1, "message": "Ticket created.", "createdAt": "2026-08-22T09:14:00Z" }
-    ]
-  }
-  ```
-
-Entries are system-generated (e.g. "Ticket created", future "Status changed to Open"); there
-is no Requester-facing write endpoint.
-
----
-
 ## 8. Status Code Reference
 
 | Status | Used For |
 |---|---|
 | 200 | Successful retrieval (list, detail, attachment/comment/action/log metadata, download, remove) |
-| 201 | Ticket created; Attachment uploaded; Public Comment created |
-| 400 | Validation failure (missing/invalid field, bad query parameter after fallback rules, unknown `requestedPriorityId`) |
+| 201 | Ticket created; Attachment uploaded |
+| 400 | Validation failure |
 | 404 | Ticket/Attachment/Comment/Action/Log not found, or not owned by the current Requester (BR-11) |
-| 409 | Soft-remove attempted on an already-removed Attachment or Public Comment |
+| 409 | Soft-remove attempted on an already-removed Attachment |
 | 413 | Attachment exceeds 5 MB |
 | 415 | Attachment type not in the allowed list |
 | 422 | Upload would exceed the 5 active-Attachment limit |

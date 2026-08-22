@@ -71,7 +71,7 @@ No clipped labels, overlapping messages, or hidden buttons at any breakpoint (AC
 **Layout**
 - **System-generated fields** (Ticket Number, Ticket Date, Requester) shown read-only, visually
   distinct field styling — never editable, never sent by the client.
-- **Category / Related System / Requested Priority/ IT Priority** grouped together as a related field set.
+- **Category / Related System / Requested Priority** grouped together as a related field set.
 - **Summary** and **Description** given generous width (full-width on all breakpoints).
 - **Attachments** section below the main fields, reusing the shared upload control.
 - **Actions:** Submit (primary) and Cancel (secondary) at the bottom of the form.
@@ -99,9 +99,9 @@ No clipped labels, overlapping messages, or hidden buttons at any breakpoint (AC
 
 **Layout**
 - Search box (Ticket Number / Summary, case-insensitive partial).
-- Filters: Category, Requested Priority, IT Priority, Current Status — combinable.
+- Filters: Category, Requested Priority, Current Status — combinable.
 - **Clear Filters** action and **Create Ticket** action.
-- Columns: Ticket Number, Created Date, Summary(Unsortable), Category, Requested Priority, IT Priority
+- Columns: Ticket Number, Created Date, Summary(Unsortable), Category, Requested Priority
   Current Status, Ticket Owner, Last Updated — clicking a column header toggles sort direction and reverses
   order (AC-17).
 - Pagination controls with current page, page size, total items, total pages.
