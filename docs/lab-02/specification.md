@@ -1,7 +1,6 @@
 # Lab 2 Sprint Engineering Specification
 **Project:** TokTickIT — Requester Ticketing MVP with UI Foundation
 **Course:** CPE 334, Semester 1/2026
-**Status:** Draft for review — approve before implementation begins
 
 ---
 
