@@ -42,6 +42,33 @@ Lists active Related Systems.
   { "data": [ { "id": 7, "name": "Email" }, { "id": 3, "name": "VPN" } ] }
   ```
 
+### `GET /api/priorities`
+Lists Priorities, ordered by `sortOrder` ascending.
+- **Auth:** none
+- **Response 200:**
+  ```json
+  { "data": [
+    { "id": 1, "name": "Low", "sortOrder": 1 },
+    { "id": 2, "name": "Medium", "sortOrder": 2 },
+    { "id": 3, "name": "High", "sortOrder": 3 }
+  ] }
+  ```
+
+### `GET /api/statuses`
+Lists Statuses.
+- **Auth:** none
+- **Response 200:**
+  ```json
+  { "data": [
+    { "id": 1, "name": "New", "isDefault": true },
+    { "id": 2, "name": "Open", "isDefault": false },
+    { "id": 3, "name": "In Progress", "isDefault": false },
+    { "id": 4, "name": "Pending", "isDefault": false }
+  ] }
+  ```
+  Only the `isDefault` row is reachable as a Ticket's `currentStatusId` in Lab 2, since no
+  status-transition endpoint exists yet — the same posture as `itPriorityId`.
+
 ### `GET /api/dev-requesters`
 Lists active Development Requesters for the Selection screen (FR-01, BR-06).
 - **Auth:** none
@@ -66,7 +93,7 @@ Creates a Ticket owned by the current Requester (FR-04).
     "relatedSystemId": 7,
     "summary": "Laptop battery drains quickly",
     "description": "Battery drains fast even when idle, started after last update.",
-    "requestedPriority": "MEDIUM"
+    "requestedPriorityId": 2
   }
   ```
 - **Validation (BR-16–BR-18):**
@@ -76,7 +103,7 @@ Creates a Ticket owned by the current Requester (FR-04).
   | `description` | required, trimmed, 20–2000 chars |
   | `categoryId` | required, must reference an active Category |
   | `relatedSystemId` | required, must reference an active Related System |
-  | `requestedPriority` | required, one of `LOW`, `MEDIUM`, `HIGH` |
+  | `requestedPriorityId` | required, must reference an existing Priority |
 - **Response 201:**
   ```json
   {
@@ -86,15 +113,16 @@ Creates a Ticket owned by the current Requester (FR-04).
       "description": "Battery drains fast even when idle, started after last update.",
       "categoryId": 2,
       "relatedSystemId": 7,
-      "requestedPriority": "MEDIUM",
-      "currentStatus": "NEW",
+      "requestedPriorityId": 2,
+      "itPriorityId": null,
+      "currentStatusId": 1,
       "createdAt": "2026-08-22T09:14:00Z",
       "updatedAt": "2026-08-22T09:14:00Z"
     }
   }
   ```
 - **Response 400:** field-level validation errors (BR-16–BR-18), e.g. inactive/unknown
-  `categoryId`.
+  `categoryId`, unknown `requestedPriorityId`.
 - **Response 500:** no Ticket persisted (BR-20).
 
 ### `GET /api/tickets`
@@ -106,9 +134,9 @@ Paginated, searchable, filterable, sortable list of the current Requester's own 
   |---|---|---|
   | `search` | string | matches Ticket Number / Summary, case-insensitive partial (BR-12) |
   | `category` | int | Category id filter |
-  | `requestedPriority` | string | `LOW` \| `MEDIUM` \| `HIGH` |
-  | `currentStatus` | string | `NEW` (only reachable value in Lab 2) |
-  | `sortBy` | string | `createdAt` \| `ticketNumber` \| `summary` \| `requestedPriority` \| `currentStatus` \| `updatedAt` |
+  | `requestedPriorityId` | int | Priority id filter |
+  | `currentStatusId` | int | Status id filter (only the default `New` id is reachable in Lab 2) |
+  | `sortBy` | string | `createdAt` \| `ticketNumber` \| `summary` \| `requestedPriorityId` \| `currentStatusId` \| `updatedAt` |
   | `sortDir` | string | `asc` \| `desc`, default per BR-14 |
   | `page` | int | default 1; invalid falls back to default (BR-15) |
   | `pageSize` | int | default 10, capped 50; invalid falls back to default (BR-15) |
@@ -123,8 +151,8 @@ Paginated, searchable, filterable, sortable list of the current Requester's own 
         "ticketNumber": "TKT-2026-000042",
         "summary": "Laptop battery drains quickly",
         "categoryId": 2,
-        "requestedPriority": "MEDIUM",
-        "currentStatus": "NEW",
+        "requestedPriorityId": 2,
+        "currentStatusId": 1,
         "createdAt": "2026-08-22T09:14:00Z",
         "updatedAt": "2026-08-22T09:14:00Z"
       }
@@ -148,8 +176,9 @@ Full read-only detail for one owned Ticket (FR-11).
       "description": "Battery drains fast even when idle, started after last update.",
       "categoryId": 2,
       "relatedSystemId": 7,
-      "requestedPriority": "MEDIUM",
-      "currentStatus": "NEW",
+      "requestedPriorityId": 2,
+      "itPriorityId": null,
+      "currentStatusId": 1,
       "createdAt": "2026-08-22T09:14:00Z",
       "updatedAt": "2026-08-22T09:14:00Z",
       "attachments": [
@@ -158,6 +187,28 @@ Full read-only detail for one owned Ticket (FR-11).
           "originalFileName": "screenshot.png",
           "status": "ACTIVE",
           "uploadedAt": "2026-08-22T09:15:00Z"
+        }
+      ],
+      "publicComments": [
+        {
+          "id": 1,
+          "authorId": 12,
+          "message": "Any update on this?",
+          "createdAt": "2026-08-22T10:00:00Z"
+        }
+      ],
+      "serviceActions": [
+        {
+          "id": 1,
+          "message": "Escalated to hardware team.",
+          "createdAt": "2026-08-22T11:00:00Z"
+        }
+      ],
+      "eventLog": [
+        {
+          "id": 1,
+          "message": "Ticket created.",
+          "createdAt": "2026-08-22T09:14:00Z"
         }
       ]
     }
@@ -252,45 +303,104 @@ Soft-removes an active Attachment (FR-14).
 
 ---
 
-## 5. Status Code Reference
+## 5. Public Comment Endpoints
+
+### `POST /api/tickets/:ticketNumber/comments`
+Adds a Public Comment to an owned Ticket, authored by the current Requester.
+- **Auth:** `X-Dev-Requester-Id` required; rejects if not owner (404).
+- **Request body:**
+  ```json
+  { "message": "Any update on this?" }
+  ```
+- **Validation:** `message` required, non-empty, trimmed.
+- **Response 201:**
+  ```json
+  {
+    "data": {
+      "id": 1,
+      "ticketId": 42,
+      "authorId": 12,
+      "message": "Any update on this?",
+      "createdAt": "2026-08-22T10:00:00Z"
+    }
+  }
+  ```
+- **Response 400:** missing/empty `message`.
+- **Response 404:** Ticket not found / not owned.
+
+### `GET /api/tickets/:ticketNumber/comments`
+Lists Public Comments (active + removed) for an owned Ticket.
+- **Auth:** rejects if not owner (404).
+- **Response 200:**
+  ```json
+  {
+    "data": [
+      { "id": 1, "authorId": 12, "message": "Any update on this?", "createdAt": "2026-08-22T10:00:00Z" },
+      { "id": 2, "authorId": 12, "message": "Never mind, resolved.", "createdAt": "2026-08-22T12:00:00Z", "removedAt": "2026-08-22T12:05:00Z" }
+    ]
+  }
+  ```
+
+### `PATCH /api/comments/:commentId/remove`
+Soft-removes a Public Comment.
+- **Auth:** rejects if not owner (404).
+- **Response 200:**
+  ```json
+  { "data": { "id": 1, "removedAt": "2026-08-22T12:05:00Z" } }
+  ```
+- **Response 404:** not owned / not found.
+- **Response 409:** already removed.
+
+---
+
+## 6. Service Action Endpoints
+
+### `GET /api/tickets/:ticketNumber/service-actions`
+Lists Service Actions (active + removed) for an owned Ticket.
+- **Auth:** rejects if not owner (404).
+- **Response 200:**
+  ```json
+  {
+    "data": [
+      { "id": 1, "message": "Escalated to hardware team.", "createdAt": "2026-08-22T11:00:00Z" }
+    ]
+  }
+  ```
+
+Creation is reserved for the IT Staff workflow introduced in Lab 3; this read endpoint lets
+the ticket-detail screen render the section now.
+
+---
+
+## 7. Event Log Endpoints
+
+### `GET /api/tickets/:ticketNumber/event-log`
+Lists Event Log entries (active + removed) for an owned Ticket.
+- **Auth:** rejects if not owner (404).
+- **Response 200:**
+  ```json
+  {
+    "data": [
+      { "id": 1, "message": "Ticket created.", "createdAt": "2026-08-22T09:14:00Z" }
+    ]
+  }
+  ```
+
+Entries are system-generated (e.g. "Ticket created", future "Status changed to Open"); there
+is no Requester-facing write endpoint.
+
+---
+
+## 8. Status Code Reference
 
 | Status | Used For |
 |---|---|
-| 200 | Successful retrieval (list, detail, attachment metadata, download, remove) |
-| 201 | Ticket created; Attachment uploaded |
-| 400 | Validation failure (missing/invalid field, bad query parameter after fallback rules) |
-| 404 | Ticket/Attachment not found, or not owned by the current Requester (BR-11) |
-| 409 | Soft-remove attempted on an already-removed Attachment |
+| 200 | Successful retrieval (list, detail, attachment/comment/action/log metadata, download, remove) |
+| 201 | Ticket created; Attachment uploaded; Public Comment created |
+| 400 | Validation failure (missing/invalid field, bad query parameter after fallback rules, unknown `requestedPriorityId`) |
+| 404 | Ticket/Attachment/Comment/Action/Log not found, or not owned by the current Requester (BR-11) |
+| 409 | Soft-remove attempted on an already-removed Attachment or Public Comment |
 | 413 | Attachment exceeds 5 MB |
 | 415 | Attachment type not in the allowed list |
 | 422 | Upload would exceed the 5 active-Attachment limit |
 | 500 | Unexpected server error (generic, safe message only — no stack traces to client) |
-
-## 6. Data Schemas
-
-```ts
-type Priority = "LOW" | "MEDIUM" | "HIGH";
-type Status = "NEW"; // only reachable value in Lab 2
-type AttachmentStatus = "ACTIVE" | "REMOVED";
-
-interface Ticket {
-  ticketNumber: string;       // TKT-<YYYY>-<6-digit>, backend-generated, read-only
-  summary: string;            // 5-150 chars trimmed
-  description: string;        // 20-2000 chars trimmed
-  categoryId: number;
-  relatedSystemId: number;
-  requestedPriority: Priority;
-  currentStatus: Status;      // always NEW in Lab 2
-  createdAt: string;          // ISO 8601, system-generated, read-only
-  updatedAt: string;          // ISO 8601
-}
-
-interface Attachment {
-  attachmentId: number;
-  originalFileName: string;   // metadata only, never used as a filesystem path
-  status: AttachmentStatus;
-  uploadedAt: string;
-  removedAt?: string;         // present only when status === REMOVED
-  removalReason?: string;     // present only when status === REMOVED
-}
-```

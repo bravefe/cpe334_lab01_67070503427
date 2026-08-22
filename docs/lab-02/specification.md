@@ -212,7 +212,21 @@ Full detail lives in `docs/lab-02/ui-spec.md`; this section summarizes what it m
 
 ### 7.1 Concepts and Fields
 
-**DevRequester** *(Lab 2 testing identity — replaced by real user/auth model in Lab 3)*
+**Priority** 
+| Field | Type | Notes |
+|---|---|---|
+| id | Int PK | |
+| name | String | unique; seeded: High, Medium, Low |
+| sortOrder | Int | unique; 1=Low, 2=Medium, 3=High — drives correct low→high ordering in UI |
+
+**Status** 
+| Field | Type | Notes |
+|---|---|---|
+| id | Int PK | |
+| name | String | unique; seeded: New, Open, In Progress, Pending |
+| isDefault | Boolean | default `false`; exactly one row (`New`) has `true` — used as `Ticket.currentStatusId` on create |
+
+**DevRequester**
 | Field | Type | Notes |
 |---|---|---|
 | id | Int/UUID PK | |
@@ -236,7 +250,7 @@ Full detail lives in `docs/lab-02/ui-spec.md`; this section summarizes what it m
 | name | String | unique; seeded with ≥ 6 systems (Email, Campus Wi-Fi, VPN, LEB2 App, Grade Submission App, Printer, Corporate Laptop) |
 | isActive | Boolean | default `true` |
 
-**Ticket**
+**Ticket** 
 | Field | Type | Notes |
 |---|---|---|
 | id | Int/UUID PK | internal key |
@@ -246,10 +260,10 @@ Full detail lives in `docs/lab-02/ui-spec.md`; this section summarizes what it m
 | relatedSystemId | FK → RelatedSystem | required |
 | summary | String(150) | required, trimmed (BR-16) |
 | description | Text(2000) | required, trimmed (BR-17) |
-| requestedPriority | Enum(LOW, MEDIUM, HIGH) | required |
-| itPriority | Enum(LOW, MEDIUM, HIGH) — nullable | reserved, unused in Lab 2 (BR-04) |
-| currentStatus | Enum(NEW, …future) | default `NEW`; indexed for filtering |
-| ownerId | FK → nullable | reserved for IT Staff assignment, unused in Lab 2 |
+| requestedPriorityId | FK → Priority | required |
+| itPriorityId | FK → Priority — nullable | reserved, unused in Lab 2 (BR-04) |
+| currentStatusId | FK → Status | required; defaults to the `New` row; indexed for filtering |
+| ownerId | FK — nullable | reserved for IT Staff assignment, unused in Lab 2 |
 | createdAt | DateTime | indexed; drives default sort |
 | updatedAt | DateTime | drives "Last Updated" |
 
@@ -267,28 +281,68 @@ Full detail lives in `docs/lab-02/ui-spec.md`; this section summarizes what it m
 | removedAt | DateTime — nullable | |
 | uploadedAt | DateTime | |
 
+**PublicComment**
+| Field | Type | Notes |
+|---|---|---|
+| id | Int/UUID PK | |
+| ticketId | FK → Ticket | required; indexed |
+| authorId | FK → DevRequester | required (A1) |
+| message | Text | required, non-empty |
+| createdAt | DateTime | |
+| removedAt | DateTime — nullable | soft-remove marker only (A3); `null` = visible |
+
+**ServiceAction**
+| Field | Type | Notes |
+|---|---|---|
+| id | Int/UUID PK | |
+| ticketId | FK → Ticket | required; indexed |
+| message | Text | required, non-empty |
+| createdAt | DateTime | |
+| removedAt | DateTime — nullable | soft-remove marker only (A3) |
+
+**EventLog**
+| Field | Type | Notes |
+|---|---|---|
+| id | Int/UUID PK | |
+| ticketId | FK → Ticket | required; indexed |
+| message | Text | required, non-empty |
+| createdAt | DateTime | |
+| removedAt | DateTime — nullable | soft-remove marker only (A3) |
+
 ### 7.2 Relationships
 - One `DevRequester` → many `Ticket` (one `Ticket` → one `DevRequester`).
+- One `Priority` → many `Ticket.requestedPriorityId`; one `Priority` → many `Ticket.itPriorityId`.
+- One `Status` → many `Ticket`.
 - One `Ticket` → many `Attachment`.
+- One `Ticket` → many `PublicComment`; one `DevRequester` → many `PublicComment`.
+- One `Ticket` → many `ServiceAction`.
+- One `Ticket` → many `EventLog`.
 - One `Category` → many `Ticket`.
 - One `RelatedSystem` → many `Ticket`.
 
 ### 7.3 Indexes and Constraints
-- Unique: `Ticket.ticketNumber`, `DevRequester.email`, `Category.name`, `RelatedSystem.name`.
+- Unique: `Ticket.ticketNumber`, `DevRequester.email`, `Category.name`, `RelatedSystem.name`,
+  `Priority.name`, `Priority.sortOrder`, `Status.name`.
 - Foreign keys: `Ticket.requesterId`, `Ticket.categoryId`, `Ticket.relatedSystemId`,
-  `Attachment.ticketId` (all `onDelete: Restrict` — Lab 2 never deletes owning rows).
-- Indexes: `Ticket.requesterId` (My Tickets scoping — the most frequent query path),
-  `Ticket.createdAt` (default sort), `Ticket.categoryId` / `Ticket.requestedPriority` /
-  `Ticket.currentStatus` (filters), `Attachment.ticketId`, `Attachment.status`.
-- Nullability: `itPriority`, `ownerId`, `removalReason`, `removedAt` are the only nullable
-  business fields; all Requester-facing required fields are `NOT NULL`.
-- Justification (design decision): `Attachment.status` is modeled as an enum rather than an
-  `isRemoved` boolean specifically so Lab 3+ can add intermediate states (e.g.
-  `PENDING_VIRUS_SCAN`) without a schema migration that changes column type.
+  `Ticket.requestedPriorityId`, `Ticket.itPriorityId`, `Ticket.currentStatusId`,
+  `Attachment.ticketId`, `PublicComment.ticketId`, `PublicComment.authorId`,
+  `ServiceAction.ticketId`, `EventLog.ticketId` (all `onDelete: Restrict` — Lab 2 never
+  deletes owning rows).
+- Indexes: `Ticket.requesterId` (My Tickets scoping), `Ticket.createdAt` (default sort),
+  `Ticket.categoryId` / `Ticket.requestedPriorityId` / `Ticket.currentStatusId` (filters),
+  `Attachment.ticketId`, `Attachment.status`, `PublicComment.ticketId`,
+  `ServiceAction.ticketId`, `EventLog.ticketId`.
+- Nullability: `itPriorityId`, `ownerId`, `removalReason`, `removedAt` (Attachment),
+  `removedAt` (PublicComment/ServiceAction/EventLog) are the only nullable business fields;
+  all Requester-facing required fields are `NOT NULL`.
 
-### 7.4 Seed Data
-Seed script is idempotent (upsert by unique key) and creates: the 4 required Categories, ≥ 6
-Related Systems, ≥ 4 active DevRequesters, and 1 inactive DevRequester, so it is safe to re-run.
+### 7.4 Seed Data 
+Seed script remains idempotent (upsert by unique key) and now additionally creates:
+- **Priority**: `High` (sortOrder 3), `Medium` (sortOrder 2), `Low` (sortOrder 1).
+- **Status**: `New` (isDefault=true), `Open`, `In Progress`, `Pending`.
+
+Existing seed obligations (4 Categories, ≥6 Related Systems, ≥4 active + 1 inactive
+DevRequester) are unchanged.
 
 ---
 
