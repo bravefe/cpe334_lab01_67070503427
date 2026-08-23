@@ -34,6 +34,11 @@ add PublicComments, ServiceActions, EventLog Similar to atachments but only have
 | 1 | paste 7. + implement it to this 2 files
 step 1 write a prisma file for the database
 step 2 seed.ts with what writen in the seed part + 5 random devrequester and 
-10 ticket with code formate corect ly 1-10 leave itPriority id as null
+10 ticket with code formate corect ly 1-10 leave itPriority id as nul| |
+| 2 | pasted 7||
+| 3 | isActive Boolean @default(true) change it to enum read with ACTIVE
+REMOVED
+
+you will also need tochange the specificaiotn .md and api-spec.md||
 
 ## Reflection

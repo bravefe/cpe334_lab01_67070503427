@@ -37,3 +37,8 @@
    ```
 
    Opens a browser-based interface to view and edit database records.
+
+
+```bash
+npx prisma migrate reset
+```

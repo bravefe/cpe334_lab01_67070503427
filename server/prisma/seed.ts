@@ -61,12 +61,19 @@ async function main() {
   }
 
   const requesters = [
-    ["Narin Chaiyo", "narin.chaiyo@example.com"],
-    ["Pimchanok Rattanakul", "pimchanok.rattanakul@example.com"],
-    ["Kittisak Boonmee", "kittisak.boonmee@example.com"],
-    ["Suda Wongsawat", "suda.wongsawat@example.com"],
-    ["Thanawat Saelim", "thanawat.saelim@example.com"],
+    ["Frodo Baggins", "frodo.b@shiremail.example.com"],
+    ["Samwise Gamgee", "sam.gamgee@shiremail.example.com"],
+    ["Aragorn Elessar", "a.elessar@gondor.example.com"],
+    ["Legolas Greenleaf", "legolasg@woodland.example.com"],
+    ["Gimli Oakenshield", "gimli.o@erebor.example.com"],
+    ["Boromir Gondor", "boromir@gondor.example.com"],
+    ["Meriadoc Brandybuck", "merry.b@shiremail.example.com"],
+    ["Peregrin Took", "pippin.t@shiremail.example.com"],
+    ["Galadriel Lothlórien", "galadriel@lothlorien.example.com"],
+    ["Éowyn Rohan", "eowyn.r@rohan.example.com"],
+    ["Gandalf", "gandalf@istari.example.com"],
   ];
+  
   for (const [fullName, email] of requesters) {
     await prisma.devRequester.upsert({
       where: { email },
@@ -79,26 +86,56 @@ async function main() {
     prisma.status.findUniqueOrThrow({ where: { name: "New" } }),
     prisma.priority.findUniqueOrThrow({ where: { name: "Low" } }),
   ]);
+
   const requesterRows = await prisma.devRequester.findMany({
     where: { email: { in: requesters.map(([, email]) => email) } },
     orderBy: { id: "asc" },
   });
-  const categoryRows = await prisma.category.findMany({ orderBy: { id: "asc" } });
-  const systemRows = await prisma.relatedSystem.findMany({ orderBy: { id: "asc" } });
+
+  const categoryRows = await prisma.category.findMany({
+    where: { isActive: true },
+    orderBy: { id: "asc" },
+  });
+
+  const systemRows = await prisma.relatedSystem.findMany({
+    where: { isActive: true },
+    orderBy: { id: "asc" },
+  });
+
+  const statusRows = await prisma.status.findMany({
+    orderBy: { id: "asc" },
+  });
+
+  const priorityRows = await prisma.priority.findMany({
+    orderBy: { sortOrder: "desc" },
+  });
 
   for (let index = 0; index < 10; index += 1) {
     const ticketNumberTemp = index + 1;
     const ticketNumber = `TKT-2026-${String(ticketNumberTemp).padStart(6, "0")}`;
+
+    const requester =
+      requesterRows[Math.floor(Math.random() * requesterRows.length)];
+    const category =
+      categoryRows[Math.floor(Math.random() * categoryRows.length)];
+    const system =
+      systemRows[Math.floor(Math.random() * systemRows.length)];
+    const priority =
+      priorityRows[Math.floor(Math.random() * priorityRows.length)];
+    const status =
+      statusRows[Math.floor(Math.random() * statusRows.length)];
+
     const ticketData = {
-      requesterId: requesterRows[index % requesterRows.length].id,
-      categoryId: categoryRows[index % categoryRows.length].id,
-      relatedSystemId: systemRows[index % systemRows.length].id,
-      summary: `Development request ${ticketNumberTemp}`,
-      description: `Seed development request number ${ticketNumberTemp}.`,
-      requestedPriorityId: lowPriority.id,
-      currentStatusId: newStatus.id,
+      requesterId: requester.id,
+      categoryId: category.id,
+      relatedSystemId: system.id,
+      summary: `Issue with ${system.name}`,
+      description: `Requester reported an issue related to ${category.name.toLowerCase()} for ${system.name}.`,
+      requestedPriorityId: priority.id,
+      currentStatusId: status.id,
       ownerId: null,
     };
+
     await prisma.ticket.upsert({
       where: { ticketNumber },
       update: { ...ticketData, itPriorityId: null },
