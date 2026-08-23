@@ -87,22 +87,22 @@ async function main() {
   const systemRows = await prisma.relatedSystem.findMany({ orderBy: { id: "asc" } });
 
   for (let index = 0; index < 10; index += 1) {
-    const ticketNumber = index + 1;
-    const ticketCode = `TK-2026-${String(ticketNumber).padStart(6, "0")}`;
+    const ticketNumberTemp = index + 1;
+    const ticketNumber = `TKT-2026-${String(ticketNumberTemp).padStart(6, "0")}`;
     const ticketData = {
       requesterId: requesterRows[index % requesterRows.length].id,
       categoryId: categoryRows[index % categoryRows.length].id,
       relatedSystemId: systemRows[index % systemRows.length].id,
-      summary: `Development request ${ticketNumber}`,
-      description: `Seed development request number ${ticketNumber}.`,
+      summary: `Development request ${ticketNumberTemp}`,
+      description: `Seed development request number ${ticketNumberTemp}.`,
       requestedPriorityId: lowPriority.id,
       currentStatusId: newStatus.id,
       ownerId: null,
     };
     await prisma.ticket.upsert({
-      where: { ticketCode },
+      where: { ticketNumber },
       update: { ...ticketData, itPriorityId: null },
-      create: { ticketCode, ...ticketData },
+      create: { ticketNumber, ...ticketData },
     });
   }
 }

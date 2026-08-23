@@ -40,7 +40,6 @@ model DevRequester {
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   tickets        Ticket[]
-  publicComments PublicComment[]
 }
 
 model RelatedSystem {
@@ -52,7 +51,7 @@ model RelatedSystem {
 
 model Ticket {
   id                  Int             @id @default(autoincrement())
-  ticketCode          String          @unique
+  ticketNumber        String          @unique
   requesterId         Int
   categoryId          Int
   relatedSystemId     Int
@@ -71,21 +70,16 @@ model Ticket {
   itPriority          Priority?       @relation("ItPriority", fields: [itPriorityId], references: [id], onDelete: Restrict)
   currentStatus       Status          @relation(fields: [currentStatusId], references: [id], onDelete: Restrict)
   attachments         Attachment[]
-  publicComments      PublicComment[]
-  serviceActions      ServiceAction[]
-  eventLogs           EventLog[]
+  // publicComments      PublicComment[]
+  // serviceActions      ServiceAction[]
+  // eventLogs           EventLog[]
 
-  @@index([ticketCode])
+  @@index([ticketNumber])
   @@index([requesterId])
   @@index([categoryId])
   @@index([requestedPriorityId])
   @@index([currentStatusId])
   @@index([createdAt])
-}
-
-enum AttachmentStatus {
-  ACTIVE
-  REMOVED
 }
 
 model Attachment {
@@ -94,48 +88,47 @@ model Attachment {
   originalFileName String
   storedFileName   String
   mimeType         String
-  fileSizeBytes    Int
-  status           AttachmentStatus @default(ACTIVE)
+  fileSize          Int
+  isActive         Boolean          @default(true)
   removalReason    String?
   removedAt        DateTime?
   uploadedAt       DateTime         @default(now())
   ticket           Ticket           @relation(fields: [ticketId], references: [id], onDelete: Restrict)
 
   @@index([ticketId])
-  @@index([status])
 }
 
-model PublicComment {
-  id        Int          @id @default(autoincrement())
-  ticketId  Int
-  authorId  Int
-  message   String       @db.Text
-  createdAt DateTime     @default(now())
-  removedAt DateTime?
-  ticket    Ticket       @relation(fields: [ticketId], references: [id], onDelete: Restrict)
-  author    DevRequester @relation(fields: [authorId], references: [id], onDelete: Restrict)
+// model PublicComment {
+//   id        Int          @id @default(autoincrement())
+//   ticketId  Int
+//   authorId  Int
+//   message   String       @db.Text
+//   createdAt DateTime     @default(now())
+//   removedAt DateTime?
+//   ticket    Ticket       @relation(fields: [ticketId], references: [id], onDelete: Restrict)
+//   author    DevRequester @relation(fields: [authorId], references: [id], onDelete: Restrict)
 
-  @@index([ticketId])
-}
+//   @@index([ticketId])
+// }
 
-model ServiceAction {
-  id        Int      @id @default(autoincrement())
-  ticketId  Int
-  message   String   @db.Text
-  createdAt DateTime @default(now())
-  removedAt DateTime?
-  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Restrict)
+// model ServiceAction {
+//   id        Int      @id @default(autoincrement())
+//   ticketId  Int
+//   message   String   @db.Text
+//   createdAt DateTime @default(now())
+//   removedAt DateTime?
+//   ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Restrict)
 
-  @@index([ticketId])
-}
+//   @@index([ticketId])
+// }
 
-model EventLog {
-  id        Int      @id @default(autoincrement())
-  ticketId  Int
-  message   String   @db.Text
-  createdAt DateTime @default(now())
-  removedAt DateTime?
-  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Restrict)
+// model EventLog {
+//   id        Int      @id @default(autoincrement())
+//   ticketId  Int
+//   message   String   @db.Text
+//   createdAt DateTime @default(now())
+//   removedAt DateTime?
+//   ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Restrict)
 
-  @@index([ticketId])
-}
+//   @@index([ticketId])
+// }

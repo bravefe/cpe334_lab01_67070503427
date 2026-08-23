@@ -4,9 +4,6 @@
   - You are about to drop the column `createdAt` on the `Category` table. All the data in the column will be lost.
 
 */
--- CreateEnum
-CREATE TYPE "AttachmentStatus" AS ENUM ('ACTIVE', 'REMOVED');
-
 -- AlterTable
 ALTER TABLE "Category" DROP COLUMN "createdAt",
 ADD COLUMN     "isActive" BOOLEAN NOT NULL DEFAULT true;
@@ -53,7 +50,7 @@ CREATE TABLE "RelatedSystem" (
 -- CreateTable
 CREATE TABLE "Ticket" (
     "id" SERIAL NOT NULL,
-    "ticketCode" TEXT NOT NULL,
+    "ticketNumber" TEXT NOT NULL,
     "requesterId" INTEGER NOT NULL,
     "categoryId" INTEGER NOT NULL,
     "relatedSystemId" INTEGER NOT NULL,
@@ -76,47 +73,13 @@ CREATE TABLE "Attachment" (
     "originalFileName" TEXT NOT NULL,
     "storedFileName" TEXT NOT NULL,
     "mimeType" TEXT NOT NULL,
-    "fileSizeBytes" INTEGER NOT NULL,
-    "status" "AttachmentStatus" NOT NULL DEFAULT 'ACTIVE',
+    "fileSize" INTEGER NOT NULL,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
     "removalReason" TEXT,
     "removedAt" TIMESTAMP(3),
     "uploadedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Attachment_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "PublicComment" (
-    "id" SERIAL NOT NULL,
-    "ticketId" INTEGER NOT NULL,
-    "authorId" INTEGER NOT NULL,
-    "message" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "removedAt" TIMESTAMP(3),
-
-    CONSTRAINT "PublicComment_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "ServiceAction" (
-    "id" SERIAL NOT NULL,
-    "ticketId" INTEGER NOT NULL,
-    "message" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "removedAt" TIMESTAMP(3),
-
-    CONSTRAINT "ServiceAction_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "EventLog" (
-    "id" SERIAL NOT NULL,
-    "ticketId" INTEGER NOT NULL,
-    "message" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "removedAt" TIMESTAMP(3),
-
-    CONSTRAINT "EventLog_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -135,10 +98,10 @@ CREATE UNIQUE INDEX "DevRequester_email_key" ON "DevRequester"("email");
 CREATE UNIQUE INDEX "RelatedSystem_name_key" ON "RelatedSystem"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Ticket_ticketCode_key" ON "Ticket"("ticketCode");
+CREATE UNIQUE INDEX "Ticket_ticketNumber_key" ON "Ticket"("ticketNumber");
 
 -- CreateIndex
-CREATE INDEX "Ticket_ticketCode_idx" ON "Ticket"("ticketCode");
+CREATE INDEX "Ticket_ticketNumber_idx" ON "Ticket"("ticketNumber");
 
 -- CreateIndex
 CREATE INDEX "Ticket_requesterId_idx" ON "Ticket"("requesterId");
@@ -157,18 +120,6 @@ CREATE INDEX "Ticket_createdAt_idx" ON "Ticket"("createdAt");
 
 -- CreateIndex
 CREATE INDEX "Attachment_ticketId_idx" ON "Attachment"("ticketId");
-
--- CreateIndex
-CREATE INDEX "Attachment_status_idx" ON "Attachment"("status");
-
--- CreateIndex
-CREATE INDEX "PublicComment_ticketId_idx" ON "PublicComment"("ticketId");
-
--- CreateIndex
-CREATE INDEX "ServiceAction_ticketId_idx" ON "ServiceAction"("ticketId");
-
--- CreateIndex
-CREATE INDEX "EventLog_ticketId_idx" ON "EventLog"("ticketId");
 
 -- AddForeignKey
 ALTER TABLE "Ticket" ADD CONSTRAINT "Ticket_requesterId_fkey" FOREIGN KEY ("requesterId") REFERENCES "DevRequester"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -190,15 +141,3 @@ ALTER TABLE "Ticket" ADD CONSTRAINT "Ticket_currentStatusId_fkey" FOREIGN KEY ("
 
 -- AddForeignKey
 ALTER TABLE "Attachment" ADD CONSTRAINT "Attachment_ticketId_fkey" FOREIGN KEY ("ticketId") REFERENCES "Ticket"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "PublicComment" ADD CONSTRAINT "PublicComment_ticketId_fkey" FOREIGN KEY ("ticketId") REFERENCES "Ticket"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "PublicComment" ADD CONSTRAINT "PublicComment_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "DevRequester"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "ServiceAction" ADD CONSTRAINT "ServiceAction_ticketId_fkey" FOREIGN KEY ("ticketId") REFERENCES "Ticket"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "EventLog" ADD CONSTRAINT "EventLog_ticketId_fkey" FOREIGN KEY ("ticketId") REFERENCES "Ticket"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

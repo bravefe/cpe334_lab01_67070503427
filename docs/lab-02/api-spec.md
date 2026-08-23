@@ -107,7 +107,7 @@ Creates a Ticket owned by the current Requester (FR-04).
   ```json
   {
     "data": {
-      "ticketCode": "TKT-2026-000042",
+      "ticketNumber": "TKT-2026-000042",
       "summary": "Laptop battery drains quickly",
       "description": "Battery drains fast even when idle, started after last update.",
       "categoryId": 2,
@@ -134,7 +134,7 @@ Paginated, searchable, filterable, sortable list of the current Requester's own 
   | `category` | int | Category id filter |
   | `requestedPriorityId` | int | Priority id filter |
   | `currentStatusId` | int | Status id filter (only the default `New` id is reachable in Lab 2) |
-  | `sortBy` | string | `createdAt` \| `ticketCode` \| `summary` \| `requestedPriorityId` \| `currentStatusId` \| `updatedAt` |
+  | `sortBy` | string | `createdAt` \| `ticketNumber` \| `summary` \| `requestedPriorityId` \| `currentStatusId` \| `updatedAt` |
   | `sortDir` | string | `asc` \| `desc`, default per BR-14 |
   | `page` | int | default 1; invalid falls back to default (BR-15) |
   | `pageSize` | int | default 10, capped 50; invalid falls back to default (BR-15) |
@@ -146,7 +146,7 @@ Paginated, searchable, filterable, sortable list of the current Requester's own 
   {
     "data": [
       {
-        "ticketCode": "TKT-2026-000042",
+        "ticketNumber": "TKT-2026-000042",
         "summary": "Laptop battery drains quickly",
         "categoryId": 2,
         "requestedPriorityId": 2,
@@ -162,14 +162,14 @@ Paginated, searchable, filterable, sortable list of the current Requester's own 
   }
   ```
 
-### `GET /api/tickets/:ticketCode`
+### `GET /api/tickets/:ticketNumber`
 Full read-only detail for one owned Ticket (FR-11).
 - **Auth:** rejects if not owner — returns 404, never 403 (BR-11).
 - **Response 200:**
   ```json
   {
     "data": {
-      "ticketCode": "TKT-2026-000042",
+      "ticketNumber": "TKT-2026-000042",
       "summary": "Laptop battery drains quickly",
       "description": "Battery drains fast even when idle, started after last update.",
       "categoryId": 2,
@@ -195,7 +195,7 @@ Full read-only detail for one owned Ticket (FR-11).
 
 ## 4. Attachment Endpoints
 
-### `POST /api/tickets/:ticketCode/attachments`
+### `POST /api/tickets/:ticketNumber/attachments`
 Uploads an Attachment to an owned Ticket (FR-05, FR-12).
 - **Auth:** rejects if not owner (404).
 - **Request:** `multipart/form-data`, field `file`.
@@ -211,7 +211,7 @@ Uploads an Attachment to an owned Ticket (FR-05, FR-12).
     "data": {
       "attachmentId": 102,
       "originalFileName": "invoice.pdf",
-      "status": "ACTIVE",
+      "isActive": true,
       "uploadedAt": "2026-08-22T09:20:00Z"
     }
   }
@@ -221,7 +221,7 @@ Uploads an Attachment to an owned Ticket (FR-05, FR-12).
 - **Response 415:** type not in the allowed list.
 - **Response 422:** would exceed the 5 active-Attachment limit.
 
-### `GET /api/tickets/:ticketCode/attachments`
+### `GET /api/tickets/:ticketNumber/attachments`
 Lists Attachment metadata (active + removed) for an owned Ticket.
 - **Auth:** rejects if not owner (404).
 - **Response 200:**
@@ -231,7 +231,7 @@ Lists Attachment metadata (active + removed) for an owned Ticket.
       {
         "attachmentId": 101,
         "originalFileName": "screenshot.png",
-        "status": "ACTIVE",
+        "isActive": true,
         "uploadedAt": "2026-08-22T09:15:00Z"
       },
       {
@@ -266,9 +266,9 @@ Soft-removes an active Attachment (FR-14).
   {
     "data": {
       "attachmentId": 101,
-      "status": "REMOVED",
+      "isActive": false,
       "removedAt": "2026-08-22T10:00:00Z",
-      "removalReason": "Wrong file, replaced by newer screenshot."
+      "removalReason": "Removed"
     }
   }
   ```
