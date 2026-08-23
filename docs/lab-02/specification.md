@@ -249,7 +249,7 @@ Full detail lives in `docs/lab-02/ui-spec.md`; this section summarizes what it m
 | Field | Type | Notes |
 |---|---|---|
 | id | Int/UUID PK | internal key |
-| ticketCode | String | unique, indexed; format per TK-YYY-XXXXXX |
+| ticketNumber | String | unique, indexed; format per TKT-YYY-XXXXXX |
 | requesterId | FK → DevRequester | required; indexed for My Tickets queries |
 | categoryId | FK → Category | required; indexed for filtering |
 | relatedSystemId | FK → RelatedSystem | required |
@@ -270,13 +270,13 @@ Full detail lives in `docs/lab-02/ui-spec.md`; this section summarizes what it m
 | originalFileName | String | as uploaded, display-only |
 | storedFileName | String | sanitized/randomized on-disk name, never derived from user input directly |
 | mimeType | String | validated against allow-list (BR-22) |
-| fileSizeBytes | Int | validated ≤ 5 MB (BR-23) |
-| status | Enum(ACTIVE, REMOVED) | soft-removal flag (BR-25); enum chosen over boolean for future extensibility |
+| fileSize | Int | validated ≤ 5 MB (BR-23) |
+| status | AttachmentStatus enum | default `ACTIVE`; values: `ACTIVE`, `REMOVED` |
 | removalReason | String — nullable | required when status = REMOVED (BR-26) |
 | removedAt | DateTime — nullable | |
 | uploadedAt | DateTime | |
 
-**PublicComment**
+<!-- **PublicComment**
 | Field | Type | Notes |
 |---|---|---|
 | id | Int/UUID PK | |
@@ -302,33 +302,30 @@ Full detail lives in `docs/lab-02/ui-spec.md`; this section summarizes what it m
 | ticketId | FK → Ticket | required; indexed |
 | message | Text | required, non-empty |
 | createdAt | DateTime | |
-| removedAt | DateTime — nullable | soft-remove marker only (A3) |
+| removedAt | DateTime — nullable | soft-remove marker only (A3) | -->
 
 ### 7.2 Relationships
 - One `DevRequester` → many `Ticket` (one `Ticket` → one `DevRequester`).
 - One `Priority` → many `Ticket.requestedPriorityId`; one `Priority` → many `Ticket.itPriorityId`.
 - One `Status` → many `Ticket`.
 - One `Ticket` → many `Attachment`.
-- One `Ticket` → many `PublicComment`; one `DevRequester` → many `PublicComment`.
+<!-- - One `Ticket` → many `PublicComment`.
 - One `Ticket` → many `ServiceAction`.
-- One `Ticket` → many `EventLog`.
+- One `Ticket` → many `EventLog`. -->
 - One `Category` → many `Ticket`.
 - One `RelatedSystem` → many `Ticket`.
 
 ### 7.3 Indexes and Constraints
-- Unique: `Ticket.ticketCode`, `DevRequester.email`, `Category.name`, `RelatedSystem.name`,
+- Unique: `Ticket.ticketNumber`, `DevRequester.email`, `Category.name`, `RelatedSystem.name`,
   `Priority.name`, `Priority.sortOrder`, `Status.name`.
 - Foreign keys: `Ticket.requesterId`, `Ticket.categoryId`, `Ticket.relatedSystemId`,
   `Ticket.requestedPriorityId`, `Ticket.itPriorityId`, `Ticket.currentStatusId`,
-  `Attachment.ticketId`, `PublicComment.ticketId`, `PublicComment.authorId`,
-  `ServiceAction.ticketId`, `EventLog.ticketId` (all `onDelete: Restrict` — Lab 2 never
-  deletes owning rows).
+  `Attachment.ticketId`.
 - Indexes: `Ticket.requesterId` (My Tickets scoping), `Ticket.createdAt` (default sort),
   `Ticket.categoryId` / `Ticket.requestedPriorityId` / `Ticket.currentStatusId` (filters),
-  `Attachment.ticketId`, `Attachment.status`, `PublicComment.ticketId`,
-  `ServiceAction.ticketId`, `EventLog.ticketId`.
+  `Attachment.ticketId`, `Attachment.status`.
 - Nullability: `itPriorityId`, `ownerId`, `removalReason`, `removedAt` (Attachment),
-  `removedAt` (PublicComment/ServiceAction/EventLog) are the only nullable business fields;
+  `removedAt`;
   all Requester-facing required fields are `NOT NULL`.
 
 ### 7.4 Seed Data 
@@ -356,15 +353,15 @@ Full request/response bodies live in `docs/lab-02/api-spec.md`; this is the cont
 | `GET /api/dev-requesters` | List active Development Requesters | none |
 | `POST /api/tickets` | Create a Ticket for the current Requester | requester context required |
 | `GET /api/tickets` | Paginated, searchable, filterable, sortable list of the current Requester's own Tickets | scoped to `X-Dev-Requester-Id` |
-| `GET /api/tickets/:ticketCode` | Retrieve one owned Ticket's detail | rejects if not owner (BR-11) |
-| `POST /api/tickets/:ticketCode/attachments` | Upload an Attachment to an owned Ticket | rejects if not owner |
-| `GET /api/tickets/:ticketCode/attachments` | List Attachment metadata (active + removed) for an owned Ticket | rejects if not owner |
+| `GET /api/tickets/:ticketNumber` | Retrieve one owned Ticket's detail | rejects if not owner (BR-11) |
+| `POST /api/tickets/:ticketNumber/attachments` | Upload an Attachment to an owned Ticket | rejects if not owner |
+| `GET /api/tickets/:ticketNumber/attachments` | List Attachment metadata (active + removed) for an owned Ticket | rejects if not owner |
 | `GET /api/attachments/:attachmentId/download` | Download an active Attachment | rejects if not owner or not active |
 | `PATCH /api/attachments/:attachmentId/remove` | Soft-remove an active Attachment (body: `{ reason }`) | rejects if not owner |
 
 ### 8.3 `GET /api/tickets` Query Parameters
 `search`, `category`, `requestedPriority`, `currentStatus`, `sortBy`
-(`createdAt` \| `ticketCode` \| `summary` \| `requestedPriority` \| `currentStatus` \|
+(`createdAt` \| `ticketNumber` \| `summary` \| `requestedPriority` \| `currentStatus` \|
 `updatedAt`), `sortDir` (`asc` \| `desc`), `page`, `pageSize`. Response includes
 `{ data: Ticket[], page, pageSize, totalItems, totalPages }`.
 
