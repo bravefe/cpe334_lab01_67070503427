@@ -49,11 +49,6 @@ model RelatedSystem {
   tickets  Ticket[]
 }
 
-enum AttachmentStatus {
-  ACTIVE
-  REMOVED
-}
-
 model Ticket {
   id                  Int             @id @default(autoincrement())
   ticketNumber        String          @unique
@@ -86,6 +81,10 @@ model Ticket {
   @@index([currentStatusId])
   @@index([createdAt])
 }
+enum AttachmentStatus {
+  ACTIVE
+  REMOVED
+}
 
 model Attachment {
   id               Int              @id @default(autoincrement())
@@ -94,7 +93,7 @@ model Attachment {
   storedFileName   String
   mimeType         String
   fileSize          Int
-  isActive         AttachmentStatus @default(ACTIVE)
+  status           AttachmentStatus @default(ACTIVE)
   removalReason    String?
   removedAt        DateTime?
   uploadedAt       DateTime         @default(now())

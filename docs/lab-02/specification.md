@@ -236,7 +236,7 @@ Full detail lives in `docs/lab-02/ui-spec.md`; this section summarizes what it m
 |---|---|---|
 | id | Int PK | |
 | name | String | unique; seeded: Account and Access, Hardware, Software, Network |
-| isActive | AttachmentStatus enum | default `ACTIVE`; values: `ACTIVE`, `REMOVED` |
+| isActive | Boolean | default `true` |
 
 **RelatedSystem**
 | Field | Type | Notes |
@@ -271,7 +271,7 @@ Full detail lives in `docs/lab-02/ui-spec.md`; this section summarizes what it m
 | storedFileName | String | sanitized/randomized on-disk name, never derived from user input directly |
 | mimeType | String | validated against allow-list (BR-22) |
 | fileSize | Int | validated ≤ 5 MB (BR-23) |
-| isActive | Boolean | default `true` |
+| status | AttachmentStatus enum | default `ACTIVE`; values: `ACTIVE`, `REMOVED` |
 | removalReason | String — nullable | required when status = REMOVED (BR-26) |
 | removedAt | DateTime — nullable | |
 | uploadedAt | DateTime | |
@@ -323,7 +323,7 @@ Full detail lives in `docs/lab-02/ui-spec.md`; this section summarizes what it m
   `Attachment.ticketId`.
 - Indexes: `Ticket.requesterId` (My Tickets scoping), `Ticket.createdAt` (default sort),
   `Ticket.categoryId` / `Ticket.requestedPriorityId` / `Ticket.currentStatusId` (filters),
-  `Attachment.ticketId`, `Attachment.isActive`.
+  `Attachment.ticketId`, `Attachment.status`.
 - Nullability: `itPriorityId`, `ownerId`, `removalReason`, `removedAt` (Attachment),
   `removedAt`;
   all Requester-facing required fields are `NOT NULL`.
@@ -463,7 +463,7 @@ Full request/response bodies live in `docs/lab-02/api-spec.md`; this is the cont
 5. **Attachment storage.** Files are stored under a server-side path keyed by Ticket id, using a
    randomized `storedFileName`; the user-facing `originalFileName` is metadata only and is never
    used to construct a filesystem path (prevents path traversal / unsafe filenames).
-6. **Soft-delete representation.** `Attachment.isActive` is an enum (`ACTIVE`/`REMOVED`) rather than
+6. **Soft-delete representation.** `Attachment.status` is an enum (`ACTIVE`/`REMOVED`) rather than
    a boolean, to allow future intermediate states without a column-type migration.
 7. **Duplicate-submission prevention scope.** Limited to a client-side Submit lock (BR-19); no
    server-side idempotency key is implemented in Lab 2, since true duplicate-request protection

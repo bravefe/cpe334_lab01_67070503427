@@ -1,3 +1,8 @@
+          "status": "ACTIVE",
+  "status": "ACTIVE",
+  "status": "ACTIVE",
+  "status": "REMOVED",
+  "status": "REMOVED",
 # TokTickIT — API Specification (Lab2)
 
 ## 1. Conventions
@@ -182,7 +187,7 @@ Full read-only detail for one owned Ticket (FR-11).
         {
           "attachmentId": 101,
           "originalFileName": "screenshot.png",
-          "isActive": "ACTIVE",
+          "status": "ACTIVE",
           "uploadedAt": "2026-08-22T09:15:00Z"
         }
       ]
@@ -211,7 +216,7 @@ Uploads an Attachment to an owned Ticket (FR-05, FR-12).
     "data": {
       "attachmentId": 102,
       "originalFileName": "invoice.pdf",
-      "isActive": "ACTIVE",
+      "status": "ACTIVE",
       "uploadedAt": "2026-08-22T09:20:00Z"
     }
   }
@@ -231,13 +236,13 @@ Lists Attachment metadata (active + removed) for an owned Ticket.
       {
         "attachmentId": 101,
         "originalFileName": "screenshot.png",
-        "isActive": "ACTIVE",
+        "status": "ACTIVE",
         "uploadedAt": "2026-08-22T09:15:00Z"
       },
       {
         "attachmentId": 99,
         "originalFileName": "old-log.pdf",
-        "isActive": "REMOVED",
+        "status": "REMOVED",
         "uploadedAt": "2026-08-20T10:00:00Z",
         "removedAt": "2026-08-21T08:00:00Z",
         "removalReason": "Duplicate of screenshot.png"
@@ -266,7 +271,7 @@ Soft-removes an active Attachment (FR-14).
   {
     "data": {
       "attachmentId": 101,
-      "isActive": "REMOVED",
+      "status": "REMOVED",
       "removedAt": "2026-08-22T10:00:00Z",
       "removalReason": "Removed"
     }
