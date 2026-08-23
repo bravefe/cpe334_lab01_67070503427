@@ -71,9 +71,10 @@ async function main() {
     ["Peregrin Took", "pippin.t@shiremail.example.com"],
     ["Galadriel Lothlórien", "galadriel@lothlorien.example.com"],
     ["Éowyn Rohan", "eowyn.r@rohan.example.com"],
-    ["Gandalf", "gandalf@istari.example.com"],
+    ["Gandalf the Grey", "gandalf@istari.example.com"],
+    ["Gollum", "smeagol@goblinmail.example.com"],
   ];
-  
+
   for (const [fullName, email] of requesters) {
     await prisma.devRequester.upsert({
       where: { email },
