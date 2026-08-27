@@ -110,11 +110,7 @@ td {
   vertical-align: middle;
 }
 
-th:nth-child(1),
-td:nth-child(1) {
-  width: 10%;
-}
-td:nth-child(1) { width: 14%; }
+td:nth-child(1) { width: 10%; }
 th:nth-child(2),
 td:nth-child(2) { width: 13%; }
 th:nth-child(3),
@@ -125,11 +121,11 @@ td:nth-child(3) { width: 19%; }
   font-weight: 700;
 }
 
-.ticket-number,
+/* .ticket-number,
 .created-date {
   font-size: 13px;
   white-space: nowrap;
-}
+} */
 
 .summary {
   white-space: nowrap;
@@ -254,6 +250,12 @@ footer button.selected {
   td:nth-child(6):before { content: "Current Status"; }
   td:nth-child(7):before { content: "Ticket Owner"; }
   td:nth-child(8):before { content: "Last Updated"; }
+  
+  td:nth-child(1) { width: auto; }
+  th:nth-child(2),
+  td:nth-child(2) { width: auto; }
+  th:nth-child(3),
+  td:nth-child(3) { width: auto; }
 
   footer {
     display: block;
