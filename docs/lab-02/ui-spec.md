@@ -97,14 +97,700 @@ No clipped labels, overlapping messages, or hidden buttons at any breakpoint (AC
 ## 5. Screen: My Tickets
 ![My Tickets](photo/ui/example/Mytickets.png)
 
-**Layout**
-- Search box (Ticket Number / Summary, case-insensitive partial).
-- Filters: Category, Requested Priority, Current Status — combinable.
-- **Clear Filters** action and **Create Ticket** action.
-- Columns: Ticket Number, Created Date, Summary(Unsortable), Category, Requested Priority
-  Current Status, Ticket Owner, Last Updated — clicking a column header toggles sort direction and reverses
-  order (AC-17).
-- Pagination controls with current page, page size, total items, total pages.
+The **My Tickets** screen allows the requester to view, search, filter, sort, and navigate through their submitted support tickets.
+
+The layout should closely follow the provided My Tickets reference image, using a full-width green navigation bar at the top, followed by the page heading, action buttons, filter/search area, ticket table, and pagination.
+
+## 5.1 Overall Page Layout
+
+The page is arranged vertically in the following order:
+
+1. Top navigation bar
+2. Page title and description
+3. Top-right page actions
+4. Search and filter panel
+5. Ticket table
+6. Pagination and ticket count
+
+The main page content is centered horizontally with consistent left and right margins. The background is a very light gray/white, while the individual search/filter panel and ticket table use white backgrounds with subtle borders and shadows.
+
+---
+
+## 5.2 Top Navigation Bar
+
+A full-width navigation bar is positioned at the very top of the screen.
+
+The navigation bar has a dark green background and spans from the left edge to the right edge of the browser window.
+
+### Left side
+
+The application logo/name is positioned at the top-left.
+
+It contains:
+
+* A circular clock-style icon
+* Application name: **TikTockIT**
+
+The logo and application name are displayed horizontally and vertically centered inside the navigation bar.
+
+The logo area should have some padding from the left edge.
+
+### Navigation links
+
+Immediately to the right of the application name are the main navigation links.
+
+The links are arranged horizontally:
+
+**My Tickets**
+
+**Create Ticket**
+
+Each navigation item contains a small icon followed by its text.
+
+#### My Tickets
+
+Text:
+
+**My Tickets**
+
+Icon:
+
+A document/list-style icon.
+
+This is the currently selected page, so the **My Tickets** navigation item has a lighter/white active area underneath it.
+
+The active area visually connects to the page below and makes it clear that the user is currently viewing My Tickets.
+
+#### Create Ticket
+
+Text:
+
+**Create Ticket**
+
+Icon:
+
+A plus/add icon.
+
+This item is not selected.
+
+Clicking it should navigate to the Create Ticket screen.
+
+### Right side
+
+The user profile control is positioned at the far right of the navigation bar.
+
+It contains:
+
+* Circular user/profile icon
+* Text: **Profile**
+* Downward chevron/dropdown icon
+
+The elements are arranged horizontally and vertically centered.
+
+The profile control should have right-side padding from the edge of the browser.
+
+---
+
+# 5.3 Page Header
+
+Directly below the navigation bar is the main page content.
+
+The page header is positioned toward the upper-left of the content area.
+
+### Page title
+
+Large bold text:
+
+**My Tickets**
+
+This is the main heading of the page.
+
+It should be positioned near the left margin, with a small amount of spacing below the navigation bar.
+
+### Description
+
+Immediately below the title is the description:
+
+**View and track all of your support requests.**
+
+The description uses a smaller, lighter gray font than the page title.
+
+The title and description should be vertically aligned with the content below.
+
+---
+
+# 5.4 Page Actions
+
+Two action buttons are positioned on the same horizontal level as the page header, aligned to the upper-right of the content area.
+
+### Clear Filters button
+
+Text:
+
+**Clear Filters**
+
+The button is positioned first, on the left.
+
+It contains:
+
+* A small reset/refresh-style icon
+* Text: **Clear Filters**
+
+The button uses a light/white background with a subtle border.
+
+Clicking this button resets:
+
+* Search text
+* Category filter
+* Requested Priority filter
+* Current Status filter
+
+### Create Ticket button
+
+Text:
+
+**Create Ticket**
+
+The button is positioned immediately to the right of the Clear Filters button.
+
+It contains:
+
+* A plus icon
+* Text: **Create Ticket**
+
+The button uses the application's green primary color.
+
+Clicking this button opens the Create Ticket screen.
+
+---
+
+# 5.5 Search and Filter Panel
+
+Below the page header/actions is a large rectangular filter panel.
+
+The panel spans almost the full width of the main content area.
+
+It has:
+
+* White background
+* Light gray border
+* Slight rounded corners
+* Subtle shadow
+* Internal padding
+
+All search and filter controls are arranged in a single horizontal row on the desktop layout.
+
+---
+
+## 5.5.1 Search Box
+
+The search box is positioned on the far left of the filter panel.
+
+It is wider than each individual dropdown filter.
+
+### Search icon
+
+A small magnifying-glass icon is positioned inside the left side of the search field.
+
+### Placeholder text
+
+The search field displays:
+
+**Search by ticket number or summary...**
+
+The placeholder text is gray and appears inside the input field.
+
+### Search behavior
+
+The search supports:
+
+* Ticket Number
+* Summary
+
+Matching is:
+
+* Case-insensitive
+* Partial matching
+
+For example, searching for `vpn` should find a ticket whose summary contains `VPN`.
+
+---
+
+# 5.5.2 Category Filter
+
+The Category filter is positioned immediately to the right of the search box.
+
+A small label appears above the dropdown:
+
+**Category**
+
+The dropdown initially displays:
+
+**All Categories**
+
+The dropdown includes an arrow indicating that it can be opened.
+
+The filter should allow the user to select a specific ticket category or all categories.
+
+---
+
+# 5.5.3 Requested Priority Filter
+
+The Requested Priority filter is positioned immediately to the right of the Category filter.
+
+Label:
+
+**Requested Priority**
+
+The dropdown initially displays:
+
+**All Priorities**
+
+The dropdown includes a downward arrow.
+
+The available priority values are:
+
+* All Priorities
+* Low
+* Medium
+* High
+
+---
+
+# 5.5.4 Current Status Filter
+
+The Current Status filter is positioned to the right of the Requested Priority filter.
+
+Label:
+
+**Current Status**
+
+The dropdown initially displays:
+
+**All Statuses**
+
+The dropdown includes a downward arrow.
+
+The available status values should correspond to the supported ticket statuses.
+
+Multiple filters can be used at the same time.
+
+For example:
+
+* Category = Hardware
+* Requested Priority = High
+* Current Status = Open
+
+The table should then display only tickets matching all selected filters.
+
+---
+
+# 5.6 Ticket Table
+
+The ticket table is positioned directly below the search/filter panel.
+
+There should be a small vertical gap between the filter panel and the table.
+
+The table occupies almost the entire width of the content area.
+
+The table has:
+
+* White background
+* Thin light-gray border
+* Slight rounded corners
+* Subtle shadow
+* A light green-tinted header row
+
+---
+
+## 5.6.1 Table Columns
+
+The table contains the following columns from left to right:
+
+1. **Ticket No.**
+2. **Created Date**
+3. **Summary**
+4. **Category**
+5. **Requested Priority**
+6. **Current Status**
+7. **Ticket Owner**
+8. **Last Updated**
+
+There is **no IT Priority column** in this screen.
+
+---
+
+## 5.6.2 Ticket No. Column
+
+Header:
+
+**Ticket No.**
+
+The Ticket Number is displayed in green text.
+
+Example:
+
+**TKT-2025-001234**
+
+The Ticket Number column is sortable.
+
+A small sort indicator appears beside the column heading.
+
+Clicking the column header toggles the sorting direction.
+
+---
+
+## 5.6.3 Created Date Column
+
+Header:
+
+**Created Date**
+
+The date and time that the ticket was created are displayed.
+
+Example:
+
+**May 12, 2025 09:14 AM**
+
+The Created Date column is sortable.
+
+Clicking the column header toggles between ascending and descending order.
+
+---
+
+## 5.6.4 Summary Column
+
+Header:
+
+**Summary**
+
+The ticket summary is displayed as plain text.
+
+Example:
+
+**Laptop battery drains quickly**
+
+The Summary column is **not sortable**.
+
+There should be no sorting behavior associated with this column.
+
+If the summary is too long for the available column width, it should be visually constrained rather than causing the entire table to become excessively wide.
+
+---
+
+## 5.6.5 Category Column
+
+Header:
+
+**Category**
+
+The ticket category is displayed as text.
+
+Example values include:
+
+* Hardware
+* Network
+* Software
+* Access
+
+---
+
+## 5.6.6 Requested Priority Column
+
+Header:
+
+**Requested Priority**
+
+The requested priority is displayed as a small rounded badge.
+
+Example:
+
+**Low**
+
+**Medium**
+
+**High**
+
+The badge appearance should visually distinguish the priority levels.
+
+The Requested Priority column is sortable if sorting is supported for this field.
+
+---
+
+## 5.6.7 Current Status Column
+
+Header:
+
+**Current Status**
+
+The current ticket status is displayed as a small rounded status badge.
+
+Example values shown in the reference include:
+
+* Open
+* In Progress
+* Pending
+* Resolved
+
+The badge should use the application's status styling to make different statuses easy to recognize.
+
+---
+
+## 5.6.8 Ticket Owner Column
+
+Header:
+
+**Ticket Owner**
+
+The name of the person currently assigned as the ticket owner is displayed.
+
+Example:
+
+**Michael Brown**
+
+The name is displayed as normal text.
+
+---
+
+## 5.6.9 Last Updated Column
+
+Header:
+
+**Last Updated**
+
+The date and time when the ticket was most recently updated are displayed.
+
+Example:
+
+**May 13, 2025 10:30 AM**
+
+The Last Updated column is sortable.
+
+Clicking the column header toggles between ascending and descending order.
+
+---
+
+# 5.7 Sorting
+
+Sortable columns should provide a visual sorting indicator beside the column name.
+
+Clicking a sortable column header changes the sorting direction.
+
+For example:
+
+**Created Date ↑**
+
+means ascending order.
+
+Clicking it again changes it to:
+
+**Created Date ↓**
+
+means descending order.
+
+The sort order should be reversed each time the same sortable column is clicked.
+
+The **Summary** column must not be sortable.
+
+Sorting should not remove or reset the user's currently selected search or filters.
+
+---
+
+# 5.8 Ticket Rows
+
+Each ticket is displayed as one row underneath the table header.
+
+Rows should have consistent height and spacing.
+
+The following information should appear in each row:
+
+**Ticket Number → Created Date → Summary → Category → Requested Priority → Current Status → Ticket Owner → Last Updated**
+
+The reference image shows eight ticket rows on the first page.
+
+Example ticket:
+
+* Ticket No.: **TKT-2025-001234**
+* Created Date: **May 12, 2025 09:14 AM**
+* Summary: **Laptop battery drains quickly**
+* Category: **Hardware**
+* Requested Priority: **Medium**
+* Current Status: **In Progress**
+* Ticket Owner: **Michael Brown**
+* Last Updated: **May 13, 2025 10:30 AM**
+
+The actual rows should be populated dynamically from the user's tickets rather than hard-coded.
+
+---
+
+# 5.9 Pagination Area
+
+The pagination area is positioned at the bottom of the table.
+
+It contains two separate pieces of information:
+
+1. Ticket count information on the left
+2. Pagination controls on the right
+
+---
+
+## 5.9.1 Ticket Count
+
+At the bottom-left of the table is text showing the number of displayed tickets and total tickets.
+
+Example:
+
+**Showing 1 to 8 of 42 tickets**
+
+This should update dynamically based on:
+
+* Current page
+* Page size
+* Total number of tickets
+
+For example, if the user is on page 2 with 8 tickets per page:
+
+**Showing 9 to 16 of 42 tickets**
+
+---
+
+## 5.9.2 Pagination Controls
+
+Pagination controls are positioned at the bottom-right.
+
+The controls contain:
+
+**Previous**
+
+followed by page numbers:
+
+**1  2  3  4  5  ...  6**
+
+followed by:
+
+**Next**
+
+The current page is visually highlighted.
+
+In the reference image, page **1** is selected.
+
+The Previous button should be disabled when the user is already on the first page.
+
+The Next button should be disabled when the user is already on the final page.
+
+---
+
+# 5.10 Pagination Information
+
+The pagination system should support:
+
+* Current page
+* Page size
+* Total items
+* Total pages
+* Previous page
+* Next page
+
+The page should recalculate the displayed ticket range whenever search or filters change.
+
+For example:
+
+If there are 42 total tickets and the page size is 8:
+
+* Page 1 → Showing 1 to 8 of 42 tickets
+* Page 2 → Showing 9 to 16 of 42 tickets
+* Page 3 → Showing 17 to 24 of 42 tickets
+* Page 6 → Showing 41 to 42 of 42 tickets
+
+When a search or filter produces fewer results, pagination should update accordingly.
+
+---
+
+# 5.11 Complete Screen Text
+
+The visible interface text should contain the following labels and actions:
+
+### Navigation
+
+* **TikTockIT**
+* **My Tickets**
+* **Create Ticket**
+* **Profile**
+
+### Page Header
+
+* **My Tickets**
+* **View and track all of your support requests.**
+
+### Actions
+
+* **Clear Filters**
+* **Create Ticket**
+
+### Search
+
+* **Search by ticket number or summary...**
+
+### Filters
+
+* **Category**
+* **All Categories**
+* **Requested Priority**
+* **All Priorities**
+* **Current Status**
+* **All Statuses**
+
+### Table Headers
+
+* **Ticket No.**
+* **Created Date**
+* **Summary**
+* **Category**
+* **Requested Priority**
+* **Current Status**
+* **Ticket Owner**
+* **Last Updated**
+
+### Pagination
+
+* **Showing X to Y of Z tickets**
+* **Previous**
+* Page numbers
+* **Next**
+
+---
+
+# 5.12 Visual Position Summary
+
+From top to bottom, the screen should appear in this order:
+
+```text
+┌─────────────────────────────────────────────────────────────────────┐
+│  ◷ TikTockIT    ▣ My Tickets    ⊕ Create Ticket        ◉ Profile ˅ │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  My Tickets                                      Clear Filters      │
+│  View and track all of your support requests.     + Create Ticket  │
+│                                                                     │
+│  ┌───────────────────────────────────────────────────────────────┐  │
+│  │ 🔍 Search...  │ Category │ Priority │ Status                 │  │
+│  └───────────────────────────────────────────────────────────────┘  │
+│                                                                     │
+│  ┌───────────────────────────────────────────────────────────────┐  │
+│  │ Ticket No. │ Created │ Summary │ Category │ Priority │ ...   │  │
+│  ├───────────────────────────────────────────────────────────────┤  │
+│  │ TKT-...    │ May ... │ Laptop...│ Hardware│ Medium   │ ...   │  │
+│  │ TKT-...    │ May ... │ Cannot...│ Network │ High     │ ...   │  │
+│  │ TKT-...    │ May ... │ Email... │ Software│ Medium   │ ...   │  │
+│  │ ...                                                           │  │
+│  ├───────────────────────────────────────────────────────────────┤  │
+│  │ Showing 1 to 8 of 42 tickets          ‹ Previous 1 2 3 ... Next ›│ │
+│  └───────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+The exact implementation should preserve the **relative positioning shown in the reference image**: navigation at the top, page title/actions beneath it, filters below the heading, the full-width ticket table underneath the filters, and pagination at the bottom of the table.
+
 
 **States**
 | State | Trigger | Behavior |
