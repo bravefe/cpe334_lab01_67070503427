@@ -51,7 +51,12 @@
   cursor: default;
 }
 
-.nav-icon { display: none; }
+.nav-icon {
+  display: inline;
+  margin-right: 8px;
+  font-size: 18px;
+  line-height: 1;
+}
 
 .profile {
   margin-left: auto;
@@ -98,9 +103,12 @@
   }
 
   .profile-name {
-    display: flex;
-    flex-direction: column;
+    display: inline-flex;
     gap: 0;
     line-height: 1.1;
+  }
+
+  .profile-name span:not(:first-child) {
+    display: none;
   }
 }
