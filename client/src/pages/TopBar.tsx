@@ -13,8 +13,7 @@ export default function TopBar({ requester, onChange }: TopBarProps) {
       <a className="active">▣ My Tickets</a>
       <a>＋ Create Ticket</a>
       <span className="profile">
-        ◉ {requester?.name ?? "Profile"}
-        <button onClick={onChange}>Change Requester</button>
+        <button onClick={onChange}> {requester?.name ?? "Profile"}</button>
       </span>
     </nav>
   );
