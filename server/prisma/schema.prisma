@@ -60,7 +60,6 @@ model Ticket {
   requestedPriorityId Int
   itPriorityId        Int?
   currentStatusId     Int
-  ownerId             Int?
   createdAt           DateTime        @default(now())
   updatedAt           DateTime        @updatedAt
   requester           DevRequester    @relation(fields: [requesterId], references: [id], onDelete: Restrict)

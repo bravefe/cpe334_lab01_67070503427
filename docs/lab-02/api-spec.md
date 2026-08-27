@@ -1,8 +1,3 @@
-          "status": "ACTIVE",
-  "status": "ACTIVE",
-  "status": "ACTIVE",
-  "status": "REMOVED",
-  "status": "REMOVED",
 # TokTickIT — API Specification (Lab2)
 
 ## 1. Conventions
@@ -78,7 +73,7 @@ Lists active Development Requesters for the Selection screen (FR-01, BR-06).
 - **Auth:** none
 - **Response 200:**
   ```json
-  { "data": [ { "id": 12, "name": "Alex Rivera", "code": "REQ-012" } ] }
+  { "data": [ { "id": 12, "name": "Alex Rivera"} ] }
   ```
 - **Response 200 (empty):** `{ "data": [] }` — UI shows the empty-selector state.
 - **Response 500:** generic safe error envelope.
@@ -152,6 +147,7 @@ Paginated, searchable, filterable, sortable list of the current Requester's own 
     "data": [
       {
         "ticketNumber": "TKT-2026-000042",
+        "requesterId": 1,
         "summary": "Laptop battery drains quickly",
         "categoryId": 2,
         "requestedPriorityId": 2,
