@@ -1,3 +1,7 @@
+use typescript and react 
+implement Screen: My Tickets and requeter selection
+you are alow to create multiple file and folder to meet the standard
+
 # TokTickIT — API Specification (Lab2)
 
 ## 1. Conventions
@@ -108,6 +112,7 @@ Creates a Ticket owned by the current Requester (FR-04).
   {
     "data": {
       "ticketNumber": "TKT-2026-000042",
+      "requesterId": 1,
       "summary": "Laptop battery drains quickly",
       "description": "Battery drains fast even when idle, started after last update.",
       "categoryId": 2,

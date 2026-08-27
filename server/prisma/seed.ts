@@ -75,11 +75,11 @@ async function main() {
     ["Gollum", "smeagol@goblinmail.example.com"],
   ];
 
-  for (const [fullName, email] of requesters) {
+  for (const [name, email] of requesters) {
     await prisma.devRequester.upsert({
       where: { email },
-      update: { fullName, isActive: true },
-      create: { fullName, email, isActive: true },
+      update: { name, isActive: true },
+      create: { name, email, isActive: true },
     });
   }
 
@@ -134,7 +134,6 @@ async function main() {
       description: `Requester reported an issue related to ${category.name.toLowerCase()} for ${system.name}.`,
       requestedPriorityId: priority.id,
       currentStatusId: status.id,
-      ownerId: null,
     };
 
     await prisma.ticket.upsert({
