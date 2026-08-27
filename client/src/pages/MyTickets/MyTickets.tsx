@@ -114,13 +114,16 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
         </header>
 
         <section className="filters">
-          <input
-            label="Search"
-            value={draftSearch}
-            onChange={(event) => setDraftSearch(event.target.value)}
-            onKeyDown={(event) => event.key === "Enter" && update({ search: draftSearch })}
-            placeholder="Search by ticket number or summary..."
-          />
+          <label className="search-field" htmlFor="ticket-search">
+            Search
+            <input
+              id="ticket-search"
+              value={draftSearch}
+              onChange={(event) => setDraftSearch(event.target.value)}
+              onKeyDown={(event) => event.key === "Enter" && update({ search: draftSearch })}
+              placeholder="Search by ticket number or summary..."
+            />
+          </label>
           <Filter
             label="Category"
             value={query.category}

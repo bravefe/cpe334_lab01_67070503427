@@ -36,10 +36,6 @@
   margin-bottom: 18px;
 }
 
-.filters > input {
-  margin-top: 21px;
-}
-
 .filters input,
 .filters select,
 .selection select {
@@ -60,6 +56,15 @@
 }
 
 .filters select {
+  display: block;
+  margin-top: 7px;
+}
+
+.search-field {
+  display: block;
+}
+
+.search-field input {
   display: block;
   margin-top: 7px;
 }
@@ -197,10 +202,6 @@ footer button.selected {
   .filters {
     grid-template-columns: 1fr;
     padding: 14px;
-  }
-
-  .filters > input {
-    margin-top: 0;
   }
 
   table,
