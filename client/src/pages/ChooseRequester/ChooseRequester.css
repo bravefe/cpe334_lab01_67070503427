@@ -1,0 +1,51 @@
+.selection {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at top right, #dcefd9, transparent 45%), #f5f8f5;
+}
+
+.selection-card {
+  width: min(460px, 90%);
+  background: #fff;
+  border-top: 5px solid #3f8f55;
+  padding: 42px;
+  box-shadow: 0 15px 45px #17352b18;
+  border-radius: 8px;
+}
+
+.brand-mark {
+  color: #3f8f55;
+  font-size: 34px;
+}
+
+.selection h1 {
+  font: 700 32px "Space Grotesk";
+  margin: 12px 0 6px;
+}
+
+.selection label {
+  display: block;
+  margin: 28px 0 7px;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.wide {
+  width: 100%;
+  margin-top: 18px;
+}
+
+.error {
+  padding: 18px;
+  background: #fff0ed;
+  color: #9c4b42;
+  border-radius: 6px;
+  margin-top: 20px;
+}
+
+@media (max-width: 767px) {
+  .selection-card {
+    padding: 30px;
+  }
+}

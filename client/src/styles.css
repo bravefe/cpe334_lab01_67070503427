@@ -1,2 +1,49 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap');
-:root{font-family:'DM Sans',sans-serif;color:#17352b;background:#f5f8f5}*{box-sizing:border-box}body{margin:0}.topbar{min-height:72px;background:#123f32;color:#fff;display:flex;align-items:center;padding:0 5%;gap:28px}.logo{font:700 20px 'Space Grotesk';margin-right:12px}.topbar a{height:72px;display:flex;align-items:center;color:#d8e9df;text-decoration:none}.topbar a.active{color:#fff;border-bottom:4px solid #a4d65e}.profile{margin-left:auto;display:flex;align-items:center;gap:14px}.profile button,.topbar button{background:transparent;color:#d8e9df;border:0;text-decoration:underline;cursor:pointer}.page{max-width:1440px;margin:auto;padding:48px 5%}.page-header{display:flex;justify-content:space-between;align-items:end;margin-bottom:32px}.eyebrow{letter-spacing:1.5px;color:#6f8f7e;font-size:11px;font-weight:700;margin:0 0 9px}.page h1{font:700 38px 'Space Grotesk';margin:0 0 5px}.muted{color:#6e7e77;margin:0}.actions{display:flex;gap:10px}button{padding:11px 16px;border:1px solid #ccd8d0;border-radius:6px;background:#fff;color:#21483a;font:500 14px 'DM Sans';cursor:pointer}.primary{background:#3f8f55!important;border-color:#3f8f55!important;color:#fff!important}.filters{background:#fff;border:1px solid #dce6df;border-radius:8px;box-shadow:0 5px 18px #17352b0c;padding:20px;display:grid;grid-template-columns:2fr repeat(3,1fr);gap:18px;margin-bottom:20px}.filters>input{margin-top:21px}.filters input,.filters select,.selection select{width:100%;height:43px;border:1px solid #cbd8d0;border-radius:5px;padding:0 12px;color:#28483b;background:#fff;font:14px 'DM Sans'}.filters label{font-size:12px;font-weight:700;color:#496156}.filters select{display:block;margin-top:7px}.ticket-panel{background:#fff;border:1px solid #dce6df;border-radius:8px;box-shadow:0 5px 18px #17352b0c;overflow:hidden}.table-wrap{overflow:hidden}table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:13px}th{background:#edf6ed;text-align:left;color:#557264;font-size:11px;text-transform:uppercase;letter-spacing:.4px}th button{border:0;background:transparent;padding:16px 12px;color:inherit;font:inherit;text-align:left}td{padding:16px 12px;border-top:1px solid #e8eee9;vertical-align:middle}th:nth-child(1),td:nth-child(1){width:14%}th:nth-child(2),td:nth-child(2){width:13%}th:nth-child(3),td:nth-child(3){width:19%}.ticket-number{color:#33814c;font-weight:700}.summary{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.badge{display:inline-block;border-radius:20px;padding:5px 9px;font-size:11px;font-weight:700}.priority-low{background:#e8f3e9;color:#3a7746}.priority-medium{background:#fff2d8;color:#9a6b15}.priority-high{background:#fde5e3;color:#a84f4a}.status{background:#e4eef5;color:#3c657e}footer{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;color:#718177;font-size:13px}footer div{display:flex;gap:5px}footer button{padding:7px 10px;font-size:12px}footer button.selected{background:#3f8f55;color:#fff;border-color:#3f8f55}.empty,.loading{padding:70px 20px;text-align:center}.empty h2{font:700 22px 'Space Grotesk';margin:0 0 8px}.empty button{margin-top:18px}.selection{min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at top right,#dcefd9,transparent 45%),#f5f8f5}.selection-card{width:min(460px,90%);background:#fff;border-top:5px solid #3f8f55;padding:42px;box-shadow:0 15px 45px #17352b18;border-radius:8px}.brand-mark{color:#3f8f55;font-size:34px}.selection h1{font:700 32px 'Space Grotesk';margin:12px 0 6px}.selection label{display:block;margin:28px 0 7px;font-weight:700;font-size:13px}.wide{width:100%;margin-top:18px}.error{padding:18px;background:#fff0ed;color:#9c4b42;border-radius:6px;margin-top:20px}@media(max-width:767px){.topbar{padding:12px 5%;gap:12px;flex-wrap:wrap}.topbar a{height:40px}.profile{width:100%;margin:0}.page{padding:30px 5%}.page-header{display:block}.actions{margin-top:20px}.filters{grid-template-columns:1fr}.filters>input{margin-top:0}table,thead,tbody,tr,td{display:block}thead{display:none}tr{border-bottom:1px solid #e8eee9;padding:16px}td{padding:5px 0;border:0}td:before{display:block;font-size:11px;color:#718177;font-weight:700}td:nth-child(1):before{content:'Ticket No.'}td:nth-child(2):before{content:'Created Date'}td:nth-child(3):before{content:'Summary'}td:nth-child(4):before{content:'Category'}td:nth-child(5):before{content:'Requested Priority'}td:nth-child(6):before{content:'Current Status'}td:nth-child(7):before{content:'Ticket Owner(requesterId)'}td:nth-child(8):before{content:'Last Updated'}footer{display:block}footer div{margin-top:14px;flex-wrap:wrap}.selection-card{padding:30px}}
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap");
+
+:root {
+  font-family: "DM Sans", sans-serif;
+  color: #17352b;
+  background: #f5f8f5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button {
+  padding: 11px 16px;
+  border: 1px solid #ccd8d0;
+  border-radius: 6px;
+  background: #fff;
+  color: #21483a;
+  font: 500 14px "DM Sans";
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.primary {
+  background: #3f8f55 !important;
+  border-color: #3f8f55 !important;
+  color: #fff !important;
+}
+
+.eyebrow {
+  letter-spacing: 1.5px;
+  color: #6f8f7e;
+  font-size: 11px;
+  font-weight: 700;
+  margin: 0 0 9px;
+}
+
+.muted {
+  color: #6e7e77;
+  margin: 0;
+}

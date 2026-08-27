@@ -1,0 +1,60 @@
+.topbar {
+  min-height: 72px;
+  background: #123f32;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0 5%;
+  gap: 28px;
+}
+
+.logo {
+  font: 700 20px "Space Grotesk";
+  margin-right: 12px;
+}
+
+.topbar a {
+  height: 72px;
+  display: flex;
+  align-items: center;
+  color: #d8e9df;
+  text-decoration: none;
+}
+
+.topbar a.active {
+  color: #fff;
+  border-bottom: 4px solid #a4d65e;
+}
+
+.profile {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.profile button,
+.topbar button {
+  background: transparent;
+  color: #d8e9df;
+  border: 0;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+@media (max-width: 767px) {
+  .topbar {
+    padding: 12px 5%;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .topbar a {
+    height: 40px;
+  }
+
+  .profile {
+    width: 100%;
+    margin: 0;
+  }
+}
