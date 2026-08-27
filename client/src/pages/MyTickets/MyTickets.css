@@ -216,6 +216,10 @@ footer button.selected {
   }
 
   tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 18px;
+    row-gap: 10px;
     border-bottom: 1px solid #e8eee9;
     padding: 16px;
   }
@@ -248,5 +252,12 @@ footer button.selected {
   footer div {
     margin-top: 14px;
     flex-wrap: wrap;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  th:nth-child(3),
+  td:nth-child(3) {
+    display: none;
   }
 }
