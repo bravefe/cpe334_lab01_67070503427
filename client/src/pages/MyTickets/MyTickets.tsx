@@ -186,7 +186,7 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
                     {tickets.map((ticket) => (
                       <tr key={ticket.ticketNumber}>
                         <td className="ticket-number">{ticket.ticketNumber}</td>
-                        <td>{formatDate(ticket.createdAt)}</td>
+                        <td className="created-date">{formatDate(ticket.createdAt)}</td>
                         <td className="summary">{ticket.summary}</td>
                         <td>{ticket.category.name}</td>
                         <td>

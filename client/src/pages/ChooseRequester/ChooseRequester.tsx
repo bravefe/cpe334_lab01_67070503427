@@ -49,7 +49,8 @@ export default function ChooseRequester({
               <option value="">Select a requester</option>
               {requesters.map((requester) => (
                 <option key={requester.id} value={requester.id}>
-                  {requester.name} ({requester.email})
+                  {requester.name} 
+                  {/* ({requester.email}) */}
                 </option>
               ))}
             </select>
