@@ -1,60 +1,90 @@
 .topbar {
-  min-height: 72px;
-  background: #123f32;
+  min-height: 68px;
+  background: var(--primary-green);
   color: #fff;
   display: flex;
   align-items: center;
-  padding: 0 5%;
-  gap: 28px;
+  width: 100%;
+  padding: 0 max(28px, calc((100% - 1440px) / 2));
+  gap: 24px;
 }
 
 .logo {
-  font: 700 20px "Space Grotesk";
-  margin-right: 12px;
+  display: inline-flex;
+  align-items: center;
+  font: 700 1.05rem "Space Grotesk";
+  white-space: nowrap;
 }
 
 .topbar a {
-  height: 72px;
+  min-height: 68px;
+  padding: 0 16px;
   display: flex;
   align-items: center;
-  color: #d8e9df;
+  color: #fff;
   text-decoration: none;
+  font-weight: 700;
+  position: relative;
 }
 
 .topbar a.active {
   color: #fff;
-  border-bottom: 4px solid #a4d65e;
 }
+
+.topbar a.active::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 0;
+  height: 4px;
+  background: #fff;
+  border-radius: 4px 4px 0 0;
+}
+
+.topbar a:hover { background: rgba(255, 255, 255, 0.08); }
 
 .profile {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 9px;
 }
 
 .profile button,
 .topbar button {
+  min-height: 44px;
+  padding: 6px 10px;
   background: transparent;
-  color: #d8e9df;
+  color: #fff;
   border: 0;
-  text-decoration: underline;
   cursor: pointer;
+  border-radius: 9px;
 }
+
+.profile a:hover { background: rgba(255, 255, 255, 0.08); }
+.topbar button:hover { background: rgba(255, 255, 255, 0.08); }
 
 @media (max-width: 767px) {
   .topbar {
-    padding: 12px 5%;
-    gap: 12px;
+    min-height: 64px;
+    padding: 0 14px;
+    gap: 8px;
     flex-wrap: wrap;
   }
 
+  .logo { font-size: 0; }
+  .logo::before { content: "◷"; font-size: 18px; }
+
   .topbar a {
-    height: 40px;
+    min-height: 44px;
+    justify-content: center;
+    padding: 0 12px;
   }
 
+  .topbar a:nth-of-type(1) { order: 3; }
+  .topbar a:nth-of-type(2) { order: 3; }
   .profile {
-    width: 100%;
-    margin: 0;
+    margin-left: auto;
   }
 }

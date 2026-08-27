@@ -114,7 +114,7 @@ export default function MyTickets({ requester, requesterId, onChange }: MyTicket
 
         <section className="filters">
           <input
-            aria-label="Search"
+            label="Search"
             value={draftSearch}
             onChange={(event) => setDraftSearch(event.target.value)}
             onKeyDown={(event) => event.key === "Enter" && update({ search: draftSearch })}

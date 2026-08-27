@@ -1,36 +1,39 @@
 .page {
-  max-width: 1440px;
-  margin: auto;
-  padding: 48px 5%;
+  width: min(100% - 48px, 1440px);
+  margin: 0 auto;
+  padding: 34px 0 42px;
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
-  align-items: end;
-  margin-bottom: 32px;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 24px;
 }
 
 .page h1 {
-  font: 700 38px "Space Grotesk";
-  margin: 0 0 5px;
+  font: 700 clamp(2rem, 4vw, 2.7rem) / 1.05 ;
+  margin: 0 0 8px;
 }
 
 .actions {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .filters {
-  background: #fff;
-  border: 1px solid #dce6df;
-  border-radius: 8px;
-  box-shadow: 0 5px 18px #17352b0c;
-  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(23, 59, 45, 0.05);
+  padding: 18px;
   display: grid;
-  grid-template-columns: 2fr repeat(3, 1fr);
-  gap: 18px;
-  margin-bottom: 20px;
+  grid-template-columns: minmax(280px, 1.8fr) repeat(3, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 18px;
 }
 
 .filters > input {
@@ -41,19 +44,19 @@
 .filters select,
 .selection select {
   width: 100%;
-  height: 43px;
-  border: 1px solid #cbd8d0;
-  border-radius: 5px;
+  height: 46px;
+  border: 1px solid #c9d3ce;
+  border-radius: 8px;
   padding: 0 12px;
-  color: #28483b;
-  background: #fff;
+  color: var(--text);
+  background: var(--surface);
   font: 14px "DM Sans";
 }
 
 .filters label {
-  font-size: 12px;
+  font-size: 0.84rem;
   font-weight: 700;
-  color: #496156;
+  color: var(--text);
 }
 
 .filters select {
@@ -62,10 +65,10 @@
 }
 
 .ticket-panel {
-  background: #fff;
-  border: 1px solid #dce6df;
-  border-radius: 8px;
-  box-shadow: 0 5px 18px #17352b0c;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(23, 59, 45, 0.05);
   overflow: hidden;
 }
 
@@ -81,12 +84,10 @@ table {
 }
 
 th {
-  background: #edf6ed;
+  background: var(--pale-green);
   text-align: left;
-  color: #557264;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
+  color: var(--text);
+  font-size: 0.83rem;
 }
 
 th button {
@@ -100,7 +101,7 @@ th button {
 
 td {
   padding: 16px 12px;
-  border-top: 1px solid #e8eee9;
+  border-bottom: 1px solid #e8ecea;
   vertical-align: middle;
 }
 
@@ -112,7 +113,7 @@ th:nth-child(3),
 td:nth-child(3) { width: 19%; }
 
 .ticket-number {
-  color: #33814c;
+  color: var(--primary-green);
   font-weight: 700;
 }
 
@@ -123,25 +124,28 @@ td:nth-child(3) { width: 19%; }
 }
 
 .badge {
-  display: inline-block;
-  border-radius: 20px;
-  padding: 5px 9px;
-  font-size: 11px;
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 0.75rem;
+  font-weight: 800;
 }
 
-.priority-low { background: #e8f3e9; color: #3a7746; }
-.priority-medium { background: #fff2d8; color: #9a6b15; }
-.priority-high { background: #fde5e3; color: #a84f4a; }
-.status { background: #e4eef5; color: #3c657e; }
+.priority-low { background: #eef8f1; color: #2b6b42; }
+.priority-medium { background: #fff7e8; color: #8a5a00; }
+.priority-high { background: #fdecec; color: #9a2d23; }
+.status { background: #eef3fc; color: #31588f; }
 
 footer {
-  padding: 16px 20px;
+  min-height: 72px;
+  padding: 14px 18px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #718177;
-  font-size: 13px;
+  color: var(--muted);
+  font-size: 0.88rem;
 }
 
 footer div {
@@ -155,19 +159,19 @@ footer button {
 }
 
 footer button.selected {
-  background: #3f8f55;
+  background: var(--primary-green);
   color: #fff;
-  border-color: #3f8f55;
+  border-color: var(--primary-green);
 }
 
 .empty,
 .loading {
-  padding: 70px 20px;
+  padding: 48px 24px;
   text-align: center;
 }
 
 .empty h2 {
-  font: 700 22px "Space Grotesk";
+  font: 700 1.1rem;
   margin: 0 0 8px;
 }
 
@@ -177,7 +181,8 @@ footer button.selected {
 
 @media (max-width: 767px) {
   .page {
-    padding: 30px 5%;
+    width: min(100% - 24px, 720px);
+    padding: 22px 0 42px;
   }
 
   .page-header {
@@ -185,11 +190,13 @@ footer button.selected {
   }
 
   .actions {
-    margin-top: 20px;
+    justify-content: flex-start;
+    margin-top: 0;
   }
 
   .filters {
     grid-template-columns: 1fr;
+    padding: 14px;
   }
 
   .filters > input {
@@ -221,7 +228,7 @@ footer button.selected {
   td:before {
     display: block;
     font-size: 11px;
-    color: #718177;
+    color: var(--muted);
     font-weight: 700;
   }
 
