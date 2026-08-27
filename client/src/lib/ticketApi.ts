@@ -32,6 +32,7 @@ type ErrorEnvelope = {
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 
 function requesterId(): string {
+  const defaultRequesterId = "1";
   const candidates = [
     localStorage.getItem("devRequesterId"),
     localStorage.getItem("requesterId"),
@@ -40,11 +41,10 @@ function requesterId(): string {
   ];
 
   const value = candidates.find((candidate) => candidate && candidate.trim() !== "");
-  if (!value) {
-    throw new Error("No Development Requester is selected. Please choose a requester first.");
-  }
+  if (value) return value;
 
-  return value;
+  localStorage.setItem("devRequesterId", defaultRequesterId);
+  return defaultRequesterId;
 }
 
 async function getJson<T>(path: string): Promise<T> {

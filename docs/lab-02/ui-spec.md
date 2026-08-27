@@ -413,7 +413,7 @@ The table contains the following columns from left to right:
 4. **Category**
 5. **Requested Priority**
 6. **Current Status**
-7. **Ticket Owner**
+7. **Ticket Owner(requesterId)**
 8. **Last Updated**
 
 There is **no IT Priority column** in this screen.
@@ -536,13 +536,13 @@ The badge should use the application's status styling to make different statuses
 
 ---
 
-## 5.6.8 Ticket Owner Column
+## 5.6.8 Ticket Owner(requesterId) Column
 
 Header:
 
-**Ticket Owner**
+**Ticket Owner(requesterId)**
 
-The name of the person currently assigned as the ticket owner is displayed.
+The name of the person currently assigned as the Ticket Owner(requesterId) is displayed.
 
 Example:
 
@@ -604,7 +604,7 @@ Rows should have consistent height and spacing.
 
 The following information should appear in each row:
 
-**Ticket Number → Created Date → Summary → Category → Requested Priority → Current Status → Ticket Owner → Last Updated**
+**Ticket Number → Created Date → Summary → Category → Requested Priority → Current Status → Ticket Owner(requesterId) → Last Updated**
 
 The reference image shows eight ticket rows on the first page.
 
@@ -616,7 +616,7 @@ Example ticket:
 * Category: **Hardware**
 * Requested Priority: **Medium**
 * Current Status: **In Progress**
-* Ticket Owner: **Michael Brown**
+* Ticket Owner(requesterId): **Michael Brown**
 * Last Updated: **May 13, 2025 10:30 AM**
 
 The actual rows should be populated dynamically from the user's tickets rather than hard-coded.
@@ -748,7 +748,7 @@ The visible interface text should contain the following labels and actions:
 * **Category**
 * **Requested Priority**
 * **Current Status**
-* **Ticket Owner**
+* **Ticket Owner(requesterId)**
 * **Last Updated**
 
 ### Pagination
@@ -812,7 +812,7 @@ The exact implementation should preserve the **relative positioning shown in the
 ## 6. Screen: Requester Ticket Detail
 ![My Tickets](photo/ui/example/Ticket.png)
 **Layout**
-- Top Area (Ticket Details): Displays core information fields. All top fields are Read-Only (Ticket No., Ticket Date, Category, Related System, Requester, Priorities, Current Status, Ticket Owner, Summary, Description, Resolution Summary).
+- Top Area (Ticket Details): Displays core information fields. All top fields are Read-Only (Ticket No., Ticket Date, Category, Related System, Requester, Priorities, Current Status, Ticket Owner(requesterId)(), Summary, Description, Resolution Summary).
 - Bottom Area (Tabbed Content): Features dynamic tabs: Public Comments, Attachments, Service Actions, and Event Log.
 - Fully read-only in Lab 2 — no status change, comment, internal note, or Actions Taken entry
   (BR-30).
