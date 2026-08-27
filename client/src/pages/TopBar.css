@@ -42,7 +42,10 @@
   border-radius: 4px 4px 0 0;
 }
 
-.topbar a:hover { background: rgba(255, 255, 255, 0.08); }
+.topbar a:hover { 
+  background: rgba(255, 255, 255, 0.08); 
+  cursor: default;
+}
 
 .profile {
   margin-left: auto;

@@ -28,9 +28,10 @@ interface MyTicketsProps {
   requester?: Requester;
   requesterId: number;
   onChange: () => void;
+  onMyTickets: () => void;
 }
 
-export default function MyTickets({ requester, requesterId, onChange }: MyTicketsProps) {
+export default function MyTickets({ requester, requesterId, onChange, onMyTickets }: MyTicketsProps) {
   const [query, setQuery] = useState(initialQuery);
   const [draftSearch, setDraftSearch] = useState("");
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -88,7 +89,7 @@ export default function MyTickets({ requester, requesterId, onChange }: MyTicket
     ["category", "Category", false],
     ["requestedPriorityId", "Requested Priority", true],
     ["currentStatusId", "Current Status", true],
-    ["requester", "Ticket Owner(requesterId)", false],
+    ["requester", "Ticket Owner", false],
     ["updatedAt", "Last Updated", true],
   ];
 
@@ -98,7 +99,7 @@ export default function MyTickets({ requester, requesterId, onChange }: MyTicket
 
   return (
     <>
-      <TopBar requester={requester} onChange={onChange} />
+      <TopBar requester={requester} onChange={onChange} onMyTickets={onMyTickets} />
       <main className="page">
         <header className="page-header">
           <div>

@@ -49,7 +49,9 @@ export default function App() {
     goTo("/choose-requester");
   };
 
-  if (!requesterId || path !== "/my-tickets") {
+  const handleMyTickets = () => goTo("/my-ticket");
+
+  if (!requesterId || (path !== "/my-tickets" && path !== "/my-ticket")) {
     return (
       <ChooseRequester
         requesters={requesters}
@@ -66,6 +68,7 @@ export default function App() {
       requester={requesters.find((item) => item.id === requesterId)}
       requesterId={requesterId}
       onChange={handleChangeRequester}
+      onMyTickets={handleMyTickets}
     />
   );
 }
