@@ -61,7 +61,8 @@
 }
 
 .profile-name {
-  display: inline;
+  display: inline-flex;
+  gap: 0.25rem;
 }
 
 .profile a:hover { background: rgba(255, 255, 255, 0.08); }
@@ -99,6 +100,7 @@
   .profile-name {
     display: flex;
     flex-direction: column;
+    gap: 0;
     line-height: 1.1;
   }
 }
