@@ -2,8 +2,8 @@ import express from "express";
 import cors from "cors";
 
 import healthRouter from "./routes/health.js";
-import referencesRouter from "./routes/references.js";
-import ticketsRouter from "./routes/tickets.js";
+import referencesRouter from "./routes/referenceRoute.js";
+import ticketsRouter from "./routes/ticketRoute.js";
 
 export const app = express();
 

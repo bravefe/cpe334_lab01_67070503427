@@ -38,7 +38,9 @@ step 1 write a prisma file for the database
 step 2 seed.ts with what writen in the seed part + 5 random devrequester and 
 10 ticket with code formate corect ly 1-10 leave itPriority id as nul| |
 | 2 | pasted 7||
-| 3 | Attachment `isActive` enum field renamed to `status`; values are `ACTIVE` and `REMOVED`. |
+| 3 | Attachment `isActive` enum field renamed to `status`; values are `ACTIVE` and `REMOVED`. | |
+| 4 | Paste Specification and only build my ticket and requster selet menu | |
+| 5 | Split the file | |
 
 you will also need tochange the specificaiotn .md and api-spec.md||
 
