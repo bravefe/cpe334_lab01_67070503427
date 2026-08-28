@@ -26,7 +26,7 @@ const formatDate = (value: string) =>
 
 interface MyTicketsProps {
   requester?: Requester;
-  requesterId: number;
+  requesterId: number | null;
   onChange: () => void;
   onMyTickets: () => void;
 }
@@ -56,6 +56,13 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
   }, []);
 
   useEffect(() => {
+    if (!requesterId) {
+      setTickets([]);
+      setMeta({ page: 1, pageSize: 10, totalItems: 0, totalPages: 0 });
+      setState("ready");
+      return;
+    }
+
     setState("loading");
     fetchTickets(requesterId, query)
       .then((result) => {
@@ -157,13 +164,25 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
           )}
           {state === "ready" && meta.totalItems === 0 && (
             <div className="empty">
-              <h2>{hasFilters ? "No tickets match these filters" : "No tickets yet"}</h2>
+              <h2>
+                {!requesterId
+                  ? "No Requester Selected"
+                  : hasFilters
+                    ? "No tickets match these filters"
+                    : "No tickets yet"}
+              </h2>
               <p className="muted">
-                {meta.totalItems ? "Try clearing the filters." : "Create your first support request to get started."}
+                {!requesterId
+                  ? "Choose a requester to view their tickets."
+                  : meta.totalItems
+                    ? "Try clearing the filters."
+                    : "Create your first support request to get started."}
               </p>
-              <button className="primary" onClick={clear}>
-                {meta.totalItems ? "Clear Filters" : "＋ Create Ticket"}
-              </button>
+              {requesterId && (
+                <button className="primary" onClick={clear}>
+                  {meta.totalItems ? "Clear Filters" : "＋ Create Ticket"}
+                </button>
+              )}
             </div>
           )}
           {state === "ready" && tickets.length > 0 && (

@@ -47,9 +47,12 @@ export default function App() {
     goTo("/choose-requester");
   };
 
-  const handleMyTickets = () => goTo("/my-ticket");
-
-  if (!requesterId || (path !== "/my-tickets" && path !== "/my-ticket")) {
+  const handleMyTickets = () => goTo("/my-tickets");
+  if (path === "/" )
+  {
+    handleChangeRequester();
+  }
+  if (path === "/choose-requester") {
     return (
       <ChooseRequester
         requesters={requesters}
@@ -63,13 +66,14 @@ export default function App() {
       />
     );
   }
-
-  return (
-    <MyTickets
-      requester={requesters.find((item) => item.id === requesterId)}
-      requesterId={requesterId}
-      onChange={handleChangeRequester}
-      onMyTickets={handleMyTickets}
-    />
-  );
+  if (path === "/my-tickets"){
+    return (
+      <MyTickets
+        requester={requesters.find((item) => item.id === requesterId)}
+        requesterId={requesterId}
+        onChange={handleChangeRequester}
+        onMyTickets={handleMyTickets}
+      />
+    );
+  }
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Requester } from "../../lib/requester";
 import TopBar from "../TopBar";
 import "./ChooseRequester.css";
@@ -26,13 +26,26 @@ export default function ChooseRequester({
 }: ChooseRequesterProps) {
   const [selected, setSelected] = useState("");
 
+  // Default to the current requester when one is provided
+  useEffect(() => {
+    if (requester) {
+      setSelected(String(requester.id));
+    }
+  }, [requester]);
+
   return (
     <>
-      <TopBar requester={requester} onChange={onChange} onMyTickets={onMyTickets} />
+      <TopBar
+        requester={requester}
+        onChange={onChange}
+        onMyTickets={onMyTickets}
+      />
+
       <main className="selection">
         <div className="selection-card">
           <div className="brand-mark">◷</div>
           <p className="eyebrow">TOKTockIT / DEVELOPMENT TOOL</p>
+
           <h1>Choose a requester</h1>
           <p className="muted">Development testing tool - not a login.</p>
 
@@ -50,18 +63,21 @@ export default function ChooseRequester({
           ) : (
             <>
               <label htmlFor="requester">Requester</label>
+
               <select
                 id="requester"
                 value={selected}
                 onChange={(event) => setSelected(event.target.value)}
               >
                 <option value="">Select a requester</option>
+
                 {requesters.map((requester) => (
                   <option key={requester.id} value={requester.id}>
                     {requester.name}
                   </option>
                 ))}
               </select>
+
               <button
                 className="primary wide"
                 disabled={!selected}
