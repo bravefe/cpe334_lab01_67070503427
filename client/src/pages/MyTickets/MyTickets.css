@@ -91,7 +91,7 @@ table {
 th {
   background: var(--pale-green);
   text-align: left;
-  color: var(--text);
+  color: var(--primary-green);
   font-size: 0.83rem;
 }
 

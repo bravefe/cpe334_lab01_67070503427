@@ -110,7 +110,6 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
       <main className="page">
         <header className="page-header">
           <div>
-            <p className="eyebrow">REQUESTER WORKSPACE</p>
             <h1>My Tickets</h1>
             <p className="muted">View and track all of your support requests.</p>
           </div>
