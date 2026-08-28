@@ -59,6 +59,8 @@ export default function App() {
         error={error}
         retry={loadRequesters}
         onSelect={handleSelect}
+        onChange={handleChangeRequester}
+        onMyTickets={handleMyTickets}
       />
     );
   }

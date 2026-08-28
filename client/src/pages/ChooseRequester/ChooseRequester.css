@@ -1,5 +1,5 @@
 .selection {
-  min-height: 100vh;
+  min-height: calc(100vh - 68px);
   display: grid;
   place-items: center;
   background: var(--page-bg);
@@ -58,6 +58,10 @@
 }
 
 @media (max-width: 767px) {
+  .selection {
+    min-height: calc(100vh - 64px);
+  }
+
   .selection-card {
     padding: 30px;
   }

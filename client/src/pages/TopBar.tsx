@@ -8,10 +8,19 @@ interface TopBarProps {
 }
 
 export default function TopBar({ requester, onChange, onMyTickets }: TopBarProps) {
+  const currentPage = window.location.pathname;
+  const isMyTicketsPage = currentPage === "/my-tickets" || currentPage === "/my-ticket";
+  const isChooseRequesterPage = currentPage === "/choose-requester";
+
   return (
     <nav className="topbar">
       <strong className="logo">◷ TokTockIT</strong>
-      <a className="active" onClick={onMyTickets} aria-label="My Tickets" title="My Tickets">
+      <a
+        className={isMyTicketsPage ? "active" : undefined}
+        onClick={onMyTickets}
+        aria-label="My Tickets"
+        title="My Tickets"
+      >
         <span className="nav-icon" aria-hidden="true">▣</span>
         <span className="nav-label">My Tickets</span>
       </a>
@@ -19,7 +28,10 @@ export default function TopBar({ requester, onChange, onMyTickets }: TopBarProps
         <span className="nav-icon" aria-hidden="true">＋</span>
         <span className="nav-label">Create Ticket</span>
       </a>
-      <a className="profile"onClick={onChange}>
+      <a
+        className={`profile${isChooseRequesterPage ? " active" : ""}`}
+        onClick={onChange}
+      >
         <span className="profile-name">
           {(requester?.name ?? "Profile").split(/\s+/).map((part) => (
             <span key={part}>{part}</span>
