@@ -44,8 +44,6 @@ export default function App() {
   };
 
   const handleChangeRequester = () => {
-    localStorage.removeItem("requesterId");
-    setRequesterId(null);
     goTo("/choose-requester");
   };
 
@@ -55,6 +53,7 @@ export default function App() {
     return (
       <ChooseRequester
         requesters={requesters}
+        requester={requesters.find((item) => item.id === requesterId)}
         loading={loading}
         error={error}
         retry={loadRequesters}

@@ -5,6 +5,7 @@ import "./ChooseRequester.css";
 
 interface ChooseRequesterProps {
   requesters: Requester[];
+  requester?: Requester;
   loading: boolean;
   error: string;
   retry: () => void;
@@ -15,6 +16,7 @@ interface ChooseRequesterProps {
 
 export default function ChooseRequester({
   requesters,
+  requester,
   loading,
   error,
   retry,
@@ -26,7 +28,7 @@ export default function ChooseRequester({
 
   return (
     <>
-      <TopBar onChange={onChange} onMyTickets={onMyTickets} />
+      <TopBar requester={requester} onChange={onChange} onMyTickets={onMyTickets} />
       <main className="selection">
         <div className="selection-card">
           <div className="brand-mark">◷</div>
