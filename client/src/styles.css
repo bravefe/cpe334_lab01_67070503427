@@ -1,0 +1,84 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap");
+
+:root {
+  font-family: "DM Sans", sans-serif;
+  color: #173b2d;
+  background: #f5f7f6;
+  --primary-green: #006b3c;
+  --secondary-green: #0b7a46;
+  --pale-green: #eaf6ef;
+  --page-bg: #f5f7f6;
+  --surface: #fff;
+  --text: #173b2d;
+  --muted: #67756f;
+  --border: #d9e1dd;
+  --error: #b42318;
+  --success: #16803c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--page-bg);
+}
+
+button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font: 700 14px "DM Sans";
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+button:hover:not(:disabled) { background: var(--pale-green); }
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.primary {
+  background: var(--primary-green) !important;
+  border-color: var(--primary-green) !important;
+  color: #fff !important;
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--secondary-green) !important;
+  border-color: var(--secondary-green) !important;
+}
+
+.eyebrow {
+  letter-spacing: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 750;
+  margin: 0 0 9px;
+}
+
+.muted {
+  color: var(--muted);
+  margin: 0;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+a:focus-visible {
+  outline: 3px solid rgba(0, 107, 60, 0.24);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+  }
+}
