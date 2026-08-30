@@ -15,11 +15,6 @@
   border-radius: 12px;
 }
 
-.brand-mark {
-  color: var(--primary-green);
-  font-size: 34px;
-}
-
 .selection h1 {
   font: 700 2rem / 1.05 "Space Grotesk";
   margin: 12px 0 6px;

@@ -43,7 +43,6 @@ export default function ChooseRequester({
 
       <main className="selection">
         <div className="selection-card">
-          <div className="brand-mark">◷</div>
           <p className="eyebrow">TOKTockIT / DEVELOPMENT TOOL</p>
 
           <h1>Choose a requester</h1>
