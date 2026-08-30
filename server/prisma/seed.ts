@@ -60,26 +60,26 @@ async function main() {
     });
   }
 
-  const requesters = [
-    ["Frodo Baggins", "frodo.b@shiremail.example.com"],
-    ["Samwise Gamgee", "sam.gamgee@shiremail.example.com"],
-    ["Aragorn Elessar", "a.elessar@gondor.example.com"],
-    ["Legolas Greenleaf", "legolasg@woodland.example.com"],
-    ["Gimli Oakenshield", "gimli.o@erebor.example.com"],
-    ["Boromir Gondor", "boromir@gondor.example.com"],
-    ["Meriadoc Brandybuck", "merry.b@shiremail.example.com"],
-    ["Peregrin Took", "pippin.t@shiremail.example.com"],
-    ["Galadriel Lothlórien", "galadriel@lothlorien.example.com"],
-    ["Éowyn Rohan", "eowyn.r@rohan.example.com"],
-    ["Gandalf the Grey", "gandalf@istari.example.com"],
-    ["Gollum", "smeagol@goblinmail.example.com"],
+  const requesters: [string, string, boolean][] = [
+    ["Frodo Baggins", "frodo.b@shiremail.example.com", true],
+    ["Samwise Gamgee", "sam.gamgee@shiremail.example.com", true],
+    ["Aragorn Elessar", "a.elessar@gondor.example.com", true],
+    ["Legolas Greenleaf", "legolasg@woodland.example.com", true],
+    ["Gimli Oakenshield", "gimli.o@erebor.example.com", true],
+    ["Boromir Gondor", "boromir@gondor.example.com", true],
+    ["Meriadoc Brandybuck", "merry.b@shiremail.example.com", true],
+    ["Peregrin Took", "pippin.t@shiremail.example.com", true],
+    ["Galadriel Lothlórien", "galadriel@lothlorien.example.com", true],
+    ["Éowyn Rohan", "eowyn.r@rohan.example.com", true],
+    ["Gandalf the Grey", "gandalf@istari.example.com", false],
+    ["Gollum", "smeagol@goblinmail.example.com", true],
   ];
 
-  for (const [name, email] of requesters) {
+  for (const [name, email, isActive] of requesters) {
     await prisma.devRequester.upsert({
       where: { email },
-      update: { name, isActive: true },
-      create: { name, email, isActive: true },
+      update: { name, isActive },
+      create: { name, email, isActive },
     });
   }
 
