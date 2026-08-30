@@ -133,5 +133,24 @@ No planned test is skipped, disabled, commented out, or intentionally left flaky
 - All tests start as `Pending` and are updated to `Pass` or `Fail` after implementation and execution.
 
 ```bash
+npm notice run toktickit-server@1.0.0 test
+npm notice run vitest run tests/lab-02/my-tickets.api.test.ts
 
+ RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/server
+
+ ✓ tests/lab-02/my-tickets.api.test.ts (7)
+   ✓ GET /api/tickets (6)
+     ✓ API-16: should return only tickets owned by requester
+     ✓ API-17: should return only tickets matching the search text
+     ✓ API-18: should return only tickets matching all filters
+     ✓ API-19: should reverse ticket order when sortDir is toggled
+     ✓ API-20: should return the next set of tickets on the next page
+     ✓ API-21: should fall back to default pagination for invalid values
+   ✓ GET /api/dev-requesters (1)
+     ✓ API-22: should exclude inactive requester from the response
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  23:14:16
+   Duration  766ms (transform 84ms, setup 0ms, collect 242ms, tests 151ms, environment 0ms, prepare 103ms)
 ```
