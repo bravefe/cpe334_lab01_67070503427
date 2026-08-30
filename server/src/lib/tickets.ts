@@ -75,13 +75,14 @@ export function parseTicketQuery(
     sortDir,
     search,
     categoryId: positiveInteger(
-      req.query.category
+      req.query.categoryId ?? req.query.category
     ),
     priorityId: positiveInteger(
-      req.query.requestedPriorityId
+      req.query.requestedPriorityId ??
+        req.query.priorityId
     ),
     statusId: positiveInteger(
-      req.query.currentStatusId
+      req.query.currentStatusId ?? req.query.statusId
     ),
   };
 }

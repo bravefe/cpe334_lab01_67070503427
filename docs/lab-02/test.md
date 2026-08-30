@@ -64,12 +64,14 @@ No planned test is skipped, disabled, commented out, or intentionally left flaky
 | Test ID | Type | Requirement | What It Tests | Expected Result | Final |
 |---|---|---|---|---|---|
 | API-16 | API | AC-04 | `GET /api/tickets` as Requester B | List contains none of Requester A's Tickets | Pending |
-| API-17 | API | AC-15 | `GET /api/tickets?search=<partial ticket #>` | Only Tickets whose number contains the text (case-insensitive) returned | Pending |
+| API-17 | API | AC-15 | `GET /api/tickets?search=<partial ticket #>` | Only Tickets whose number contains the text returned | Pending |
 | API-18 | API | AC-16 | `GET /api/tickets?category=&requestedPriorityId=` combined | Only Tickets matching both filters returned (BR-13) | Pending |
 | API-19 | API | AC-17 | Toggle `sortDir` on `sortBy=createdAt` | List order reverses accordingly | Pending |
 | API-20 | API | AC-18 | Page forward beyond page size | Next set of Tickets loads; `page`/`totalPages` metadata correct | Pending |
 | API-21 | API | BR-15 | `page`/`pageSize` with invalid values (e.g. negative, non-numeric) | Falls back to defaults (page 1, size 10) instead of erroring | Pending |
 | API-22 | API | AC-25 | `GET /api/dev-requesters` with one inactive Requester seeded | Inactive Requester absent from response (BR-06) | Pending |
+
+
 
 ### `server/tests/lab-02/ticket-detail.api.test.ts`
 
@@ -129,3 +131,7 @@ No planned test is skipped, disabled, commented out, or intentionally left flaky
 - Responsive behavior is tested for both Create Ticket and My Tickets.
 - Server tests use 4 files; client tests use 4 files; all E2E and responsive tests use `requester-ticket-flow.spec.ts`.
 - All tests start as `Pending` and are updated to `Pass` or `Fail` after implementation and execution.
+
+```bash
+
+```
