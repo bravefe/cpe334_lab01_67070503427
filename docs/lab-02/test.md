@@ -50,13 +50,14 @@ No planned test is skipped, disabled, commented out, or intentionally left flaky
 
 | Test ID | Type | Requirement | What It Tests | Expected Result | Final |
 |---|---|---|---|---|---|
-| API-08 | API | AC-09 | Upload `.gif` Attachment | 415; rejected before storage | Pending |
-| API-09 | API | AC-10 | Upload valid PDF > 5 MB | 413; rejected with size message | Pending |
-| API-10 | API | AC-11 | Upload 6th Attachment to a Ticket with 5 active | 422; limit-reached error; removed Attachments excluded from count (BR-24) | Pending |
-| API-11 | API | AC-22 | Download an owned, active Attachment | 200; original file content and filename returned | Pending |
-| API-13 | API | AC-23 | `PATCH /api/attachments/:id/remove` with empty `reason` | 400; Attachment remains ACTIVE (BR-26) | Pending |
-| API-14 | API | AC-24 | `PATCH .../remove` with valid reason, then re-fetch Ticket Detail | Attachment shows status REMOVED with reason and removedAt (BR-25, BR-27) | Pending |
-| API-15 | API | AC-24 | Soft-remove an already-`REMOVED` Attachment | 409 conflict | Pending |
+| API-01 | API | AC-01 | `POST /api/tickets` with valid data | 201; one Ticket saved; backend-generated Ticket Number returned | Pending |
+| UNIT-01 | Unit | BR-01 | Ticket Number generator format `TKT-<YYYY>-<6-digit seq>` | Generated code matches format and is unique per call | Pending |
+| API-02 | API | AC-05 | `POST /api/tickets` with empty `summary` | 400 with `fieldErrors` for `summary`; no Ticket persisted | Pending |
+| API-03 | API | AC-06 | `POST /api/tickets` with `description` < 20 chars | 400 naming the 20-char minimum | Pending |
+| API-04 | API | AC-07 | `POST /api/tickets` with `summary` = exactly 150 chars | 201; Ticket created (upper boundary passes) | Pending |
+| API-05 | API | AC-08 | `POST /api/tickets` with `summary` = 151 chars | 400; Ticket not created (upper boundary fails) | Pending |
+| API-06 | API | AC-14 | Ticket create succeeds, Attachment upload then fails | Ticket persists with its number; failed Attachment reported separately (BR-21) | Pending |
+| API-07 | API | AC-13 | `POST /api/tickets` when server errors after validation passes | 500 safe envelope; no Ticket row persisted (BR-20) | Pending |
 
 ### `server/tests/lab-02/my-tickets.api.test.ts`
 

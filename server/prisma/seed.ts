@@ -110,7 +110,79 @@ async function main() {
   const priorityRows = await prisma.priority.findMany({
     orderBy: { sortOrder: "desc" },
   });
+  const fixedTickets = [
+    {
+      ticketNumber: "TKT-2026-000001",
+      requesterId: 1,
+      categoryId: 1,
+      relatedSystemId: 1,
+      summary: "Cannot access email",
+      description: "Requester is unable to access their email account.",
+      requestedPriorityId: 1,
+      currentStatusId: 1,
+    },
+    {
+      ticketNumber: "TKT-2026-000002",
+      requesterId: 2,
+      categoryId: 2,
+      relatedSystemId: 2,
+      summary: "Campus Wi-Fi not working",
+      description: "Requester cannot connect to the campus Wi-Fi network.",
+      requestedPriorityId: 2,
+      currentStatusId: 2,
+    },
+  ];
 
+  // Create/update the two fixed tickets
+  for (const ticket of fixedTickets) {
+    await prisma.ticket.upsert({
+      where: { ticketNumber: ticket.ticketNumber },
+      update: {
+        requesterId: ticket.requesterId,
+        categoryId: ticket.categoryId,
+        relatedSystemId: ticket.relatedSystemId,
+        summary: ticket.summary,
+        description: ticket.description,
+        requestedPriorityId: ticket.requestedPriorityId,
+        currentStatusId: ticket.currentStatusId,
+        itPriorityId: null,
+      },
+      create: ticket,
+    });
+  }
+
+  // Create the remaining 98 random tickets
+  for (let index = 2; index < 100; index += 1) {
+    const ticketNumberTemp = index + 1;
+    const ticketNumber = `TKT-2026-${String(ticketNumberTemp).padStart(6, "0")}`;
+
+    const requester =
+      requesterRows[Math.floor(Math.random() * requesterRows.length)];
+    const category =
+      categoryRows[Math.floor(Math.random() * categoryRows.length)];
+    const system =
+      systemRows[Math.floor(Math.random() * systemRows.length)];
+    const priority =
+      priorityRows[Math.floor(Math.random() * priorityRows.length)];
+    const status =
+      statusRows[Math.floor(Math.random() * statusRows.length)];
+
+    const ticketData = {
+      requesterId: requester.id,
+      categoryId: category.id,
+      relatedSystemId: system.id,
+      summary: `Issue with ${system.name}`,
+      description: `Requester reported an issue related to ${category.name.toLowerCase()} for ${system.name}.`,
+      requestedPriorityId: priority.id,
+      currentStatusId: status.id,
+    };
+
+    await prisma.ticket.upsert({
+      where: { ticketNumber },
+      update: { ...ticketData, itPriorityId: null },
+      create: { ticketNumber, ...ticketData },
+    });
+  }
   for (let index = 0; index < 100; index += 1) {
     const ticketNumberTemp = index + 1;
     const ticketNumber = `TKT-2026-${String(ticketNumberTemp).padStart(6, "0")}`;
