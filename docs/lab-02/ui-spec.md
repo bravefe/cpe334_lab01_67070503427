@@ -47,7 +47,7 @@ No clipped labels, overlapping messages, or hidden buttons at any breakpoint (AC
 
 ---
 
-## 3. Screen: Development Requester Selection
+## 3. Screen: Development Requester Selection `/choose-requester`
 ![My Tickets](photo/ui/example/profile.png)
 **Purpose:** testing-only identity switcher (BR-05) — must never be presented as login.
 
@@ -66,7 +66,7 @@ No clipped labels, overlapping messages, or hidden buttons at any breakpoint (AC
 
 ---
 
-## 4. Screen: Create Ticket
+## 4. Screen: Create Ticket /create-ticket
 
 **Layout**
 - **System-generated fields** (Ticket Number, Ticket Date, Requester) shown read-only, visually
@@ -94,14 +94,14 @@ No clipped labels, overlapping messages, or hidden buttons at any breakpoint (AC
 
 ---
 
-## 5. Screen: My Tickets
+## 5. Screen: My Tickets `/my-tickets`
 ![My Tickets](photo/ui/example/Mytickets.png)
 
 The **My Tickets** screen allows the requester to view, search, filter, sort, and navigate through their submitted support tickets.
 
 The layout should closely follow the provided My Tickets reference image, using a full-width green navigation bar at the top, followed by the page heading, action buttons, filter/search area, ticket table, and pagination.
 
-## 5.1 Overall Page Layout
+### 5.1 Overall Page Layout 
 
 The page is arranged vertically in the following order:
 
@@ -116,13 +116,13 @@ The main page content is centered horizontally with consistent left and right ma
 
 ---
 
-## 5.2 Top Navigation Bar
+### 5.2 Top Navigation Bar
 
 A full-width navigation bar is positioned at the very top of the screen.
 
 The navigation bar has a dark green background and spans from the left edge to the right edge of the browser window.
 
-### Left side
+#### Left side
 
 The application logo/name is positioned at the top-left.
 
@@ -135,7 +135,7 @@ The logo and application name are displayed horizontally and vertically centered
 
 The logo area should have some padding from the left edge.
 
-### Navigation links
+#### Navigation links
 
 Immediately to the right of the application name are the main navigation links.
 
@@ -147,7 +147,7 @@ The links are arranged horizontally:
 
 Each navigation item contains a small icon followed by its text.
 
-#### My Tickets
+##### My Tickets
 
 Text:
 
@@ -161,7 +161,7 @@ This is the currently selected page, so the **My Tickets** navigation item has a
 
 The active area visually connects to the page below and makes it clear that the user is currently viewing My Tickets.
 
-#### Create Ticket
+##### Create Ticket
 
 Text:
 
@@ -175,7 +175,7 @@ This item is not selected.
 
 Clicking it should navigate to the Create Ticket screen.
 
-### Right side
+#### Right side
 
 The user profile control is positioned at the far right of the navigation bar.
 
@@ -191,13 +191,13 @@ The profile control should have right-side padding from the edge of the browser.
 
 ---
 
-# 5.3 Page Header
+### 5.3 Page Header
 
 Directly below the navigation bar is the main page content.
 
 The page header is positioned toward the upper-left of the content area.
 
-### Page title
+#### Page title
 
 Large bold text:
 
@@ -207,7 +207,7 @@ This is the main heading of the page.
 
 It should be positioned near the left margin, with a small amount of spacing below the navigation bar.
 
-### Description
+#### Description
 
 Immediately below the title is the description:
 
@@ -219,11 +219,11 @@ The title and description should be vertically aligned with the content below.
 
 ---
 
-# 5.4 Page Actions
+### 5.4 Page Actions
 
 Two action buttons are positioned on the same horizontal level as the page header, aligned to the upper-right of the content area.
 
-### Clear Filters button
+#### Clear Filters button
 
 Text:
 
@@ -245,7 +245,7 @@ Clicking this button resets:
 * Requested Priority filter
 * Current Status filter
 
-### Create Ticket button
+#### Create Ticket button
 
 Text:
 
@@ -264,7 +264,7 @@ Clicking this button opens the Create Ticket screen.
 
 ---
 
-# 5.5 Search and Filter Panel
+### 5.5 Search and Filter Panel
 
 Below the page header/actions is a large rectangular filter panel.
 
@@ -282,17 +282,17 @@ All search and filter controls are arranged in a single horizontal row on the de
 
 ---
 
-## 5.5.1 Search Box
+#### 5.5.1 Search Box
 
 The search box is positioned on the far left of the filter panel.
 
 It is wider than each individual dropdown filter.
 
-### Search icon
+##### Search icon
 
 A small magnifying-glass icon is positioned inside the left side of the search field.
 
-### Placeholder text
+##### Placeholder text
 
 The search field displays:
 
@@ -300,7 +300,7 @@ The search field displays:
 
 The placeholder text is gray and appears inside the input field.
 
-### Search behavior
+##### Search behavior
 
 The search supports:
 
@@ -316,7 +316,7 @@ For example, searching for `vpn` should find a ticket whose summary contains `VP
 
 ---
 
-# 5.5.2 Category Filter
+### 5.5.2 Category Filter
 
 The Category filter is positioned immediately to the right of the search box.
 
@@ -334,7 +334,7 @@ The filter should allow the user to select a specific ticket category or all cat
 
 ---
 
-# 5.5.3 Requested Priority Filter
+#### 5.5.3 Requested Priority Filter
 
 The Requested Priority filter is positioned immediately to the right of the Category filter.
 
@@ -357,7 +357,7 @@ The available priority values are:
 
 ---
 
-# 5.5.4 Current Status Filter
+#### 5.5.4 Current Status Filter
 
 The Current Status filter is positioned to the right of the Requested Priority filter.
 
@@ -385,7 +385,7 @@ The table should then display only tickets matching all selected filters.
 
 ---
 
-# 5.6 Ticket Table
+### 5.6 Ticket Table
 
 The ticket table is positioned directly below the search/filter panel.
 
@@ -403,7 +403,7 @@ The table has:
 
 ---
 
-## 5.6.1 Table Columns
+#### 5.6.1 Table Columns
 
 The table contains the following columns from left to right:
 
@@ -420,7 +420,7 @@ There is **no IT Priority column** in this screen.
 
 ---
 
-## 5.6.2 Ticket No. Column
+#### 5.6.2 Ticket No. Column
 
 Header:
 
@@ -440,7 +440,7 @@ Clicking the column header toggles the sorting direction.
 
 ---
 
-## 5.6.3 Created Date Column
+#### 5.6.3 Created Date Column
 
 Header:
 
@@ -458,7 +458,7 @@ Clicking the column header toggles between ascending and descending order.
 
 ---
 
-## 5.6.4 Summary Column
+#### 5.6.4 Summary Column
 
 Header:
 
@@ -478,7 +478,7 @@ If the summary is too long for the available column width, it should be visually
 
 ---
 
-## 5.6.5 Category Column
+#### 5.6.5 Category Column
 
 Header:
 
@@ -495,7 +495,7 @@ Example values include:
 
 ---
 
-## 5.6.6 Requested Priority Column
+#### 5.6.6 Requested Priority Column
 
 Header:
 
@@ -517,7 +517,7 @@ The Requested Priority column is sortable if sorting is supported for this field
 
 ---
 
-## 5.6.7 Current Status Column
+#### 5.6.7 Current Status Column
 
 Header:
 
@@ -536,7 +536,7 @@ The badge should use the application's status styling to make different statuses
 
 ---
 
-## 5.6.8 Ticket Owner(requesterId) Column
+#### 5.6.8 Ticket Owner(requesterId) Column
 
 Header:
 
@@ -552,7 +552,7 @@ The name is displayed as normal text.
 
 ---
 
-## 5.6.9 Last Updated Column
+#### 5.6.9 Last Updated Column
 
 Header:
 
@@ -570,7 +570,7 @@ Clicking the column header toggles between ascending and descending order.
 
 ---
 
-# 5.7 Sorting
+### 5.7 Sorting
 
 Sortable columns should provide a visual sorting indicator beside the column name.
 
@@ -596,7 +596,7 @@ Sorting should not remove or reset the user's currently selected search or filte
 
 ---
 
-# 5.8 Ticket Rows
+### 5.8 Ticket Rows
 
 Each ticket is displayed as one row underneath the table header.
 
@@ -623,7 +623,7 @@ The actual rows should be populated dynamically from the user's tickets rather t
 
 ---
 
-# 5.9 Pagination Area
+### 5.9 Pagination Area
 
 The pagination area is positioned at the bottom of the table.
 
@@ -634,7 +634,7 @@ It contains two separate pieces of information:
 
 ---
 
-## 5.9.1 Ticket Count
+#### 5.9.1 Ticket Count
 
 At the bottom-left of the table is text showing the number of displayed tickets and total tickets.
 
@@ -654,7 +654,7 @@ For example, if the user is on page 2 with 8 tickets per page:
 
 ---
 
-## 5.9.2 Pagination Controls
+#### 5.9.2 Pagination Controls
 
 Pagination controls are positioned at the bottom-right.
 
@@ -680,7 +680,7 @@ The Next button should be disabled when the user is already on the final page.
 
 ---
 
-# 5.10 Pagination Information
+### 5.10 Pagination Information
 
 The pagination system should support:
 
@@ -706,32 +706,32 @@ When a search or filter produces fewer results, pagination should update accordi
 
 ---
 
-# 5.11 Complete Screen Text
+### 5.11 Complete Screen Text
 
 The visible interface text should contain the following labels and actions:
 
-### Navigation
+#### Navigation
 
 * **TikTockIT**
 * **My Tickets**
 * **Create Ticket**
 * **Profile**
 
-### Page Header
+#### Page Header
 
 * **My Tickets**
 * **View and track all of your support requests.**
 
-### Actions
+#### Actions
 
 * **Clear Filters**
 * **Create Ticket**
 
-### Search
+#### Search
 
 * **Search by ticket number or summary...**
 
-### Filters
+#### Filters
 
 * **Category**
 * **All Categories**
@@ -740,7 +740,7 @@ The visible interface text should contain the following labels and actions:
 * **Current Status**
 * **All Statuses**
 
-### Table Headers
+#### Table Headers
 
 * **Ticket No.**
 * **Created Date**
@@ -751,7 +751,7 @@ The visible interface text should contain the following labels and actions:
 * **Ticket Owner(requesterId)**
 * **Last Updated**
 
-### Pagination
+#### Pagination
 
 * **Showing X to Y of Z tickets**
 * **Previous**
@@ -760,7 +760,7 @@ The visible interface text should contain the following labels and actions:
 
 ---
 
-# 5.12 Visual Position Summary
+### 5.12 Visual Position Summary
 
 From top to bottom, the screen should appear in this order:
 
@@ -809,7 +809,7 @@ The exact implementation should preserve the **relative positioning shown in the
 
 ---
 
-## 6. Screen: Requester Ticket Detail
+## 6. Screen: Requester Ticket Detail `/ticket/:id`
 ![My Tickets](photo/ui/example/Ticket.png)
 **Layout**
 - Top Area (Ticket Details): Displays core information fields. All top fields are Read-Only (Ticket No., Ticket Date, Category, Related System, Requester, Priorities, Current Status, Ticket Owner(requesterId)(), Summary, Description, Resolution Summary).
