@@ -19,6 +19,17 @@ The **API tests** verify backend behavior, validation, persistence, ownership en
 
 No planned test is skipped, disabled, commented out, or intentionally left flaky. Every test starts as `Pending` and is updated to `Pass` or `Fail` after implementation and execution.
 
+| Status | Used For |
+|---|---|
+| 200 | Successful retrieval (list, detail, attachment/comment/action/log metadata, download, remove) |
+| 201 | Ticket created; Attachment uploaded |
+| 400 | Validation failure |
+| 404 | Ticket/Attachment/Comment/Action/Log not found, or not owned by the current Requester (BR-11) |
+| 409 | Soft-remove attempted on an already-removed Attachment |
+| 413 | Attachment exceeds 5 MB |
+| 415 | Attachment type not in the allowed list |
+| 422 | Upload would exceed the 5 active-Attachment limit |
+| 500 | Unexpected server error (generic, safe message only — no stack traces to client) |
 
 ## 2. Planned Tests
 
