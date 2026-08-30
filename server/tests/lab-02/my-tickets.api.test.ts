@@ -3,12 +3,12 @@ import request from "supertest";
 import { app } from "../../src/app.js";
 import { getPrisma } from "../../src/prisma.js";
 
-// API 22 
+
 describe("GET /api/dev-requesters", () => {
   it("API-22: should exclude inactive requester from the response", async () => {
     const prisma = getPrisma();
 
-    // Make sure requester ID 11 is inactive
+    // ID 11 is inactive
     await prisma.devRequester.update({
       where: { id: 11 },
       data: { isActive: false },
