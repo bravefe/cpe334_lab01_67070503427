@@ -14,7 +14,11 @@ export default function TopBar({ requester, onChange, onMyTickets }: TopBarProps
 
   return (
     <nav className="topbar">
-      <strong className="logo">◷ TokTockIT</strong>
+      <strong className="logo">
+        <img src="../icon/logo.png" alt="TokTockIT" />
+        <span>TokTockIT</span>
+      </strong>
+
       <a
         className={isMyTicketsPage ? "active" : undefined}
         onClick={onMyTickets}
