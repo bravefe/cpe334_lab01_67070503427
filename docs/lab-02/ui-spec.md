@@ -116,82 +116,7 @@ The main page content is centered horizontally with consistent left and right ma
 
 ---
 
-### 5.2 Top Navigation Bar
-
-A full-width navigation bar is positioned at the very top of the screen.
-
-The navigation bar has a dark green background and spans from the left edge to the right edge of the browser window.
-
-#### Left side
-
-The application logo/name is positioned at the top-left.
-
-It contains:
-
-* A circular clock-style icon
-* Application name: **TikTockIT**
-
-The logo and application name are displayed horizontally and vertically centered inside the navigation bar.
-
-The logo area should have some padding from the left edge.
-
-#### Navigation links
-
-Immediately to the right of the application name are the main navigation links.
-
-The links are arranged horizontally:
-
-**My Tickets**
-
-**Create Ticket**
-
-Each navigation item contains a small icon followed by its text.
-
-##### My Tickets
-
-Text:
-
-**My Tickets**
-
-Icon:
-
-A document/list-style icon.
-
-This is the currently selected page, so the **My Tickets** navigation item has a lighter/white active area underneath it.
-
-The active area visually connects to the page below and makes it clear that the user is currently viewing My Tickets.
-
-##### Create Ticket
-
-Text:
-
-**Create Ticket**
-
-Icon:
-
-A plus/add icon.
-
-This item is not selected.
-
-Clicking it should navigate to the Create Ticket screen.
-
-#### Right side
-
-The user profile control is positioned at the far right of the navigation bar.
-
-It contains:
-
-* Circular user/profile icon
-* Text: **Profile**
-* Downward chevron/dropdown icon
-
-The elements are arranged horizontally and vertically centered.
-
-The profile control should have right-side padding from the edge of the browser.
-
----
-
-### 5.3 Page Header
+### 5.2 Page Header
 
 Directly below the navigation bar is the main page content.
 
@@ -219,7 +144,7 @@ The title and description should be vertically aligned with the content below.
 
 ---
 
-### 5.4 Page Actions
+### 5.3 Page Actions
 
 Two action buttons are positioned on the same horizontal level as the page header, aligned to the upper-right of the content area.
 
@@ -264,7 +189,7 @@ Clicking this button opens the Create Ticket screen.
 
 ---
 
-### 5.5 Search and Filter Panel
+### 5.4 Search and Filter Panel
 
 Below the page header/actions is a large rectangular filter panel.
 
@@ -282,7 +207,7 @@ All search and filter controls are arranged in a single horizontal row on the de
 
 ---
 
-#### 5.5.1 Search Box
+#### 5.4.1 Search Box
 
 The search box is positioned on the far left of the filter panel.
 
@@ -316,7 +241,7 @@ For example, searching for `vpn` should find a ticket whose summary contains `VP
 
 ---
 
-### 5.5.2 Category Filter
+### 5.4.2 Category Filter
 
 The Category filter is positioned immediately to the right of the search box.
 
@@ -334,7 +259,7 @@ The filter should allow the user to select a specific ticket category or all cat
 
 ---
 
-#### 5.5.3 Requested Priority Filter
+#### 5.4.3 Requested Priority Filter
 
 The Requested Priority filter is positioned immediately to the right of the Category filter.
 
@@ -357,7 +282,7 @@ The available priority values are:
 
 ---
 
-#### 5.5.4 Current Status Filter
+#### 5.4.4 Current Status Filter
 
 The Current Status filter is positioned to the right of the Requested Priority filter.
 
@@ -385,7 +310,7 @@ The table should then display only tickets matching all selected filters.
 
 ---
 
-### 5.6 Ticket Table
+### 5.5 Ticket Table
 
 The ticket table is positioned directly below the search/filter panel.
 
@@ -420,7 +345,7 @@ There is **no IT Priority column** in this screen.
 
 ---
 
-#### 5.6.2 Ticket No. Column
+#### 5.5.2 Ticket No. Column
 
 Header:
 
@@ -440,7 +365,7 @@ Clicking the column header toggles the sorting direction.
 
 ---
 
-#### 5.6.3 Created Date Column
+#### 5.5.3 Created Date Column
 
 Header:
 
@@ -458,7 +383,7 @@ Clicking the column header toggles between ascending and descending order.
 
 ---
 
-#### 5.6.4 Summary Column
+#### 5.5.4 Summary Column
 
 Header:
 
@@ -478,7 +403,7 @@ If the summary is too long for the available column width, it should be visually
 
 ---
 
-#### 5.6.5 Category Column
+#### 5.5.5 Category Column
 
 Header:
 
@@ -495,7 +420,7 @@ Example values include:
 
 ---
 
-#### 5.6.6 Requested Priority Column
+#### 5.5.6 Requested Priority Column
 
 Header:
 
@@ -517,7 +442,7 @@ The Requested Priority column is sortable if sorting is supported for this field
 
 ---
 
-#### 5.6.7 Current Status Column
+#### 5.5.7 Current Status Column
 
 Header:
 
@@ -536,7 +461,7 @@ The badge should use the application's status styling to make different statuses
 
 ---
 
-#### 5.6.8 Ticket Owner(requesterId) Column
+#### 5.5.8 Ticket Owner(requesterId) Column
 
 Header:
 
@@ -552,7 +477,7 @@ The name is displayed as normal text.
 
 ---
 
-#### 5.6.9 Last Updated Column
+#### 5.5.9 Last Updated Column
 
 Header:
 
@@ -570,7 +495,7 @@ Clicking the column header toggles between ascending and descending order.
 
 ---
 
-### 5.7 Sorting
+### 5.6 Sorting
 
 Sortable columns should provide a visual sorting indicator beside the column name.
 
@@ -596,7 +521,7 @@ Sorting should not remove or reset the user's currently selected search or filte
 
 ---
 
-### 5.8 Ticket Rows
+### 5.7 Ticket Rows
 
 Each ticket is displayed as one row underneath the table header.
 
@@ -623,7 +548,7 @@ The actual rows should be populated dynamically from the user's tickets rather t
 
 ---
 
-### 5.9 Pagination Area
+### 5.8 Pagination Area
 
 The pagination area is positioned at the bottom of the table.
 
@@ -634,7 +559,7 @@ It contains two separate pieces of information:
 
 ---
 
-#### 5.9.1 Ticket Count
+#### 5.8.1 Ticket Count
 
 At the bottom-left of the table is text showing the number of displayed tickets and total tickets.
 
@@ -654,7 +579,7 @@ For example, if the user is on page 2 with 8 tickets per page:
 
 ---
 
-#### 5.9.2 Pagination Controls
+#### 5.8.2 Pagination Controls
 
 Pagination controls are positioned at the bottom-right.
 
@@ -680,7 +605,7 @@ The Next button should be disabled when the user is already on the final page.
 
 ---
 
-### 5.10 Pagination Information
+### 5.9 Pagination Information
 
 The pagination system should support:
 
@@ -706,7 +631,7 @@ When a search or filter produces fewer results, pagination should update accordi
 
 ---
 
-### 5.11 Complete Screen Text
+### 5.10 Complete Screen Text
 
 The visible interface text should contain the following labels and actions:
 
@@ -760,7 +685,7 @@ The visible interface text should contain the following labels and actions:
 
 ---
 
-### 5.12 Visual Position Summary
+### 5.11 Visual Position Summary
 
 From top to bottom, the screen should appear in this order:
 
@@ -830,8 +755,82 @@ The exact implementation should preserve the **relative positioning shown in the
   AC-23).
 
 ---
+## 7. Top Navigation Bar
 
-## 7. Accessibility Checklist (applies to all screens)
+A full-width navigation bar is positioned at the very top of the screen.
+
+The navigation bar has a dark green background and spans from the left edge to the right edge of the browser window.
+
+### Left side
+
+The application logo/name is positioned at the top-left.
+
+It contains:
+
+* A circular clock-style icon
+* Application name: **TikTockIT**
+
+The logo and application name are displayed horizontally and vertically centered inside the navigation bar.
+
+The logo area should have some padding from the left edge.
+
+### Navigation links
+
+Immediately to the right of the application name are the main navigation links.
+
+The links are arranged horizontally:
+
+**My Tickets**
+
+**Create Ticket**
+
+Each navigation item contains a small icon followed by its text.
+
+#### My Tickets
+
+Text:
+
+**My Tickets**
+
+Icon:
+
+A document/list-style icon.
+
+This is the currently selected page, so the **My Tickets** navigation item has a lighter/white active area underneath it.
+
+The active area visually connects to the page below and makes it clear that the user is currently viewing My Tickets.
+
+#### Create Ticket
+
+Text:
+
+**Create Ticket**
+
+Icon:
+
+A plus/add icon.
+
+This item is not selected.
+
+Clicking it should navigate to the Create Ticket screen.
+
+### Right side
+
+The user profile control is positioned at the far right of the navigation bar.
+
+It contains:
+
+* Circular user/profile icon
+* Text: **Profile**
+* Downward chevron/dropdown icon
+
+The elements are arranged horizontally and vertically centered.
+
+The profile control should have right-side padding from the edge of the browser.
+
+---
+
+## 8. Accessibility Checklist (applies to all screens)
 
 - Logical, keyboard-only tab order through every interactive control.
 - Visible focus indicator at every point in that order (AC-28).

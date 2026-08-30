@@ -1,5 +1,6 @@
 import { Requester } from "../lib/requester";
 import "./TopBar.css";
+import logo from "../icon/logo.png";
 
 interface TopBarProps {
   requester?: Requester;
@@ -15,9 +16,8 @@ export default function TopBar({ requester, onChange, onMyTickets }: TopBarProps
   return (
     <nav className="topbar">
       <strong className="logo">
-        <img src="../icon/logo.png" alt="TokTockIT" />
-        {/* <span>TokTockIT</span> */}
-        TokTockIT
+        <img src={logo} alt="TokTockIT logo" />
+         TokTockIT
       </strong>
 
       <a

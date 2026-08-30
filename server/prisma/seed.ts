@@ -111,7 +111,7 @@ async function main() {
     orderBy: { sortOrder: "desc" },
   });
 
-  for (let index = 0; index < 10; index += 1) {
+  for (let index = 0; index < 100; index += 1) {
     const ticketNumberTemp = index + 1;
     const ticketNumber = `TKT-2026-${String(ticketNumberTemp).padStart(6, "0")}`;
 
