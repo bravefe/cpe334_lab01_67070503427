@@ -16,7 +16,8 @@ export default function TopBar({ requester, onChange, onMyTickets }: TopBarProps
     <nav className="topbar">
       <strong className="logo">
         <img src="../icon/logo.png" alt="TokTockIT" />
-        <span>TokTockIT</span>
+        {/* <span>TokTockIT</span> */}
+        TokTockIT
       </strong>
 
       <a
