@@ -5,7 +5,7 @@ import { getPrisma } from "../../src/prisma.js";
 
 // API 22 
 describe("GET /api/dev-requesters", () => {
-  it("AC-25: should exclude inactive requester from the response", async () => {
+  it("API-22: should exclude inactive requester from the response", async () => {
     const prisma = getPrisma();
 
     // Make sure requester ID 11 is inactive
