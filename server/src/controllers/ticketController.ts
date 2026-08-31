@@ -137,7 +137,7 @@ export async function getTicketDetail(
 
   if (!requesterId) {
     res.status(400).json({
-      error: { code: "VALIDATION_ERROR", message: "A valid requester context is required." },
+      error: { code: "VALIDATION_ERROR", message: "ERROR 400: A valid requester context is required." },
     });
     return;
   }
@@ -146,7 +146,7 @@ export async function getTicketDetail(
 
   if (!ticketNumber) {
     res.status(404).json({
-      error: { code: "NOT_FOUND", message: "Ticket not found." },
+      error: { code: "NOT_FOUND", message: "ERROR 404: Ticket not found." },
     });
     return;
   }
@@ -156,7 +156,7 @@ export async function getTicketDetail(
 
     if (!ticket) {
       res.status(404).json({
-        error: { code: "NOT_FOUND", message: "Ticket not found." },
+        error: { code: "NOT_FOUND", message: "ERROR 404: Ticket not found." },
       });
       return;
     }
@@ -164,7 +164,7 @@ export async function getTicketDetail(
     res.status(200).json({ data: ticket });
   } catch (_error) {
     res.status(500).json({
-      error: { code: "INTERNAL_ERROR", message: "Failed to load ticket detail." },
+      error: { code: "INTERNAL_ERROR", message: "ERROR 500: Failed to load ticket detail." },
     });
   }
 }

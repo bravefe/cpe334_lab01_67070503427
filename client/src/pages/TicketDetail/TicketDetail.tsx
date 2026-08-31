@@ -41,14 +41,14 @@ export default function TicketDetail({
         setTicket(result);
         setError("");
       })
-      .catch(() => {
-        setError("Could not load this ticket.");
+      .catch((err) => {
+        setError(err.message || "Could not load this ticket.");
       })
       .finally(() => {
         setLoading(false);
       });
   }, [requesterId, ticketNumber]);
-
+  
   return (
     <>
       <TopBar

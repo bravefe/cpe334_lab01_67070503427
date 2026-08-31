@@ -12,7 +12,7 @@ export async function getCategories(_req: Request, res: Response): Promise<void>
     const categories = await getCategoriesService();
     res.status(200).json({ data: categories });
   } catch (_error) {
-    res.status(500).json({ error: { code: "INTERNAL_ERROR", message: "Failed to fetch categories" } });
+    res.status(500).json({ error: { code: "INTERNAL_ERROR", message: "ERROR 500: Failed to fetch categories" } });
   }
 }
 
@@ -21,7 +21,7 @@ export async function getRelatedSystems(_req: Request, res: Response): Promise<v
     const systems = await getRelatedSystemsService();
     res.status(200).json({ data: systems });
   } catch (_error) {
-    res.status(500).json({ error: { code: "INTERNAL_ERROR", message: "Failed to fetch related systems" } });
+    res.status(500).json({ error: { code: "INTERNAL_ERROR", message: "ERROR 500: Failed to fetch related systems" } });
   }
 }
 
@@ -30,7 +30,7 @@ export async function getPriorities(_req: Request, res: Response): Promise<void>
     const priorities = await getPrioritiesService();
     res.status(200).json({ data: priorities });
   } catch (_error) {
-    res.status(500).json({ error: { code: "INTERNAL_ERROR", message: "Failed to fetch priorities" } });
+    res.status(500).json({ error: { code: "INTERNAL_ERROR", message: "ERROR 500: Failed to fetch priorities" } });
   }
 }
 
