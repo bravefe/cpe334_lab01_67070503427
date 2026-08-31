@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import request from "supertest";
 import { app } from "../../src/app.js";
-import { getPrisma } from "../../src/prisma.js";
 
 describe("GET /api/tickets", () => {
   it("API-16: should return only tickets owned by requester", async () => {
