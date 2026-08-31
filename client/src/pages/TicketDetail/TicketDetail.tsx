@@ -22,57 +22,158 @@ const formatDate = (value: string) =>
     minute: "2-digit",
   }).format(new Date(value));
 
-export default function TicketDetail({ requester, requesterId, ticketNumber, onBack, onCreateTicket }: TicketDetailProps) {
+export default function TicketDetail({
+  requester,
+  requesterId,
+  ticketNumber,
+  onBack,
+  onCreateTicket,
+}: TicketDetailProps) {
   const [ticket, setTicket] = useState<TicketDetailType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     setLoading(true);
+
     fetchTicketDetail(requesterId, ticketNumber)
       .then((result) => {
         setTicket(result);
         setError("");
       })
-      .catch(() => setError("Could not load this ticket."))
-      .finally(() => setLoading(false));
+      .catch(() => {
+        setError("Could not load this ticket.");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [requesterId, ticketNumber]);
 
   return (
     <>
-      <TopBar requester={requester} onChange={() => window.location.assign("/choose-requester")} onMyTickets={onBack} onCreateTicket={onCreateTicket ?? onBack} />
-      <main className="page detail-page">
+      <TopBar
+        requester={requester}
+        onChange={() => window.location.assign("/choose-requester")}
+        onMyTickets={onBack}
+        onCreateTicket={onCreateTicket ?? onBack}
+      />
+
+      <main className="page ticket-detail-page">
         <div className="detail-header">
-          <div className="breadcrumbs">My Tickets &nbsp;&gt;&nbsp; Ticket Details</div>
-          <button className="back-link" onClick={onBack}>← Back to My Tickets</button>
+          <div>
+            <h1>Ticket Details</h1>
+            <p className="muted">View the details of your support request.</p>
+          </div>
+
+          <button className="back-link" onClick={onBack}>
+            ← Back to My Tickets
+          </button>
         </div>
 
         {loading && <div className="empty">Loading ticket...</div>}
-        {error && <div className="empty"><h2>{error}</h2></div>}
+
+        {error && (
+          <div className="empty">
+            <h2>{error}</h2>
+          </div>
+        )}
 
         {ticket && (
-          <section className="detail-card">
-            <div className="detail-grid">
-              <div className="detail-field"><label>Ticket No.</label><span>{ticket.ticketNumber}</span></div>
-              <div className="detail-field"><label>Ticket Date</label><span>{formatDate(ticket.createdAt)}</span></div>
-              <div className="detail-field"><label>Category</label><span>{ticket.category?.name ?? ""}</span></div>
-              <div className="detail-field"><label>Related System</label><span>{ticket.relatedSystem?.name ?? ""}</span></div>
+          <section className="ticket-form-card">
+            {/* Ticket information */}
+            <div className="info-grid">
+              <div className="field read-only">
+                <span>Ticket No.</span>
+                <div className="field-value">{ticket.ticketNumber}</div>
+              </div>
+
+              <div className="field read-only">
+                <span>Ticket Date</span>
+                <div className="field-value">
+                  {formatDate(ticket.createdAt)}
+                </div>
+              </div>
+
+              <div className="field read-only">
+                <span>Requester</span>
+                <div className="field-value">
+                  {ticket.requester?.name ?? ""}
+                </div>
+              </div>
+
+              <div className="field read-only">
+                <span>Current Status</span>
+                <div className="field-value status-value">
+                  {ticket.currentStatus?.name ?? ""}
+                </div>
+              </div>
             </div>
 
-            <div className="detail-grid second-row">
-              <div className="detail-field"><label>Requester</label><span>{ticket.requester?.name ?? ""}</span></div>
-              <div className="detail-field"><label>Requested Priority</label><span className="badge priority-tag">{ticket.requestedPriority?.name ?? ""}</span></div>
-              <div className="detail-field"><label>Current Status</label><span className="badge status-tag">{ticket.currentStatus?.name ?? ""}</span></div>
+            {/* Editable fields in the future */}
+            <div className="form-grid">
+              <label className="field">
+                <span>Category</span>
+                <select value={ticket.category?.id ?? ""} disabled>
+                  <option value={ticket.category?.id ?? ""}>
+                    {ticket.category?.name ?? ""}
+                  </option>
+                </select>
+              </label>
+
+              <label className="field">
+                <span>Related System</span>
+                <select value={ticket.relatedSystem?.id ?? ""} disabled>
+                  <option value={ticket.relatedSystem?.id ?? ""}>
+                    {ticket.relatedSystem?.name ?? ""}
+                  </option>
+                </select>
+              </label>
+
+              <label className="field">
+                <span>Requested Priority</span>
+                <select value={ticket.requestedPriority?.id ?? ""} disabled>
+                  <option value={ticket.requestedPriority?.id ?? ""}>
+                    {ticket.requestedPriority?.name ?? ""}
+                  </option>
+                </select>
+              </label>
+
+              <label className="field">
+                <span>Current Status</span>
+                <select value={ticket.currentStatus?.id ?? ""} disabled>
+                  <option value={ticket.currentStatus?.id ?? ""}>
+                    {ticket.currentStatus?.name ?? ""}
+                  </option>
+                </select>
+              </label>
             </div>
 
-            <div className="detail-field summary-row">
-              <label>Summary</label>
-              <span>{ticket.summary}</span>
+
+            {/* Summary */}
+            <div className="field full-width">
+              <span>Summary</span>
+              <input
+                value={ticket.summary}
+                readOnly
+                aria-readonly="true"
+              />
             </div>
 
-            <div className="detail-field text-block">
-              <label>Description</label>
-              <p>{ticket.description}</p>
+            {/* Description */}
+            <div className="field full-width">
+              <span>Description</span>
+              <textarea
+                value={ticket.description}
+                readOnly
+                aria-readonly="true"
+                rows={6}
+              />
+            </div>
+
+            {/* Attachments - future implementation */}
+            <div className="attachment-box">
+              <p>Attachments</p>
+              <span>No attachments</span>
             </div>
           </section>
         )}
@@ -80,3 +181,4 @@ export default function TicketDetail({ requester, requesterId, ticketNumber, onB
     </>
   );
 }
+
