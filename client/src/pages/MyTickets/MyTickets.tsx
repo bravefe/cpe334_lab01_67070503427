@@ -108,7 +108,7 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
 
   return (
     <>
-      <TopBar requester={requester} onChange={onChange} onMyTickets={onMyTickets} />
+      <TopBar requester={requester} onChange={onChange} onMyTickets={onMyTickets} onCreateTicket={onCreateTicket} />
       <main className="page">
         <header className="page-header">
           <div>

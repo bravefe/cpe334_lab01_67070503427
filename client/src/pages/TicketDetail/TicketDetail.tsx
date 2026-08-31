@@ -10,6 +10,7 @@ interface TicketDetailProps {
   requesterId: number;
   ticketNumber: string;
   onBack: () => void;
+  onCreateTicket?: () => void;
 }
 
 const formatDate = (value: string) =>
@@ -21,7 +22,7 @@ const formatDate = (value: string) =>
     minute: "2-digit",
   }).format(new Date(value));
 
-export default function TicketDetail({ requester, requesterId, ticketNumber, onBack }: TicketDetailProps) {
+export default function TicketDetail({ requester, requesterId, ticketNumber, onBack, onCreateTicket }: TicketDetailProps) {
   const [ticket, setTicket] = useState<TicketDetailType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -39,7 +40,7 @@ export default function TicketDetail({ requester, requesterId, ticketNumber, onB
 
   return (
     <>
-      <TopBar requester={requester} onChange={() => window.location.assign("/choose-requester")} onMyTickets={onBack} onCreateTicket={() => window.location.assign("/create-ticket")} />
+      <TopBar requester={requester} onChange={() => window.location.assign("/choose-requester")} onMyTickets={onBack} onCreateTicket={onCreateTicket ?? onBack} />
       <main className="page detail-page">
         <div className="detail-header">
           <div className="breadcrumbs">My Tickets &nbsp;&gt;&nbsp; Ticket Details</div>

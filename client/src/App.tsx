@@ -69,6 +69,7 @@ export default function App() {
     retry: loadRequesters,
     onChange: handleChangeRequester,
     onMyTickets: handleMyTickets,
+    onCreateTicket: handleCreateTicket,
   };
 
   if (path === "/choose-requester") {
@@ -108,6 +109,7 @@ export default function App() {
         requester={selectedRequester}
         requesterId={requesterId}
         onBack={handleMyTickets}
+        onCreateTicket={handleCreateTicket}
       />
     );
   }
