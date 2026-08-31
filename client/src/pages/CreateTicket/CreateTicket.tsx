@@ -98,12 +98,13 @@ export default function CreateTicket({ requester, requesterId, onBack, onCreateT
     <>
       <TopBar requester={requester} onChange={() => window.location.assign("/choose-requester")} onMyTickets={onBack} onCreateTicket={onCreateTicket ?? onBack} />
       <main className="page create-ticket-page">
-        <header className="page-header create-header">
+        <div className="detail-header">
           <div>
             <h1>Create Ticket</h1>
             <p className="muted">Submit a new support request.</p>
           </div>
-        </header>
+          <button className="back-link" onClick={onBack}>← Back to My Tickets</button>
+        </div>
 
         <section className="ticket-form-card">
           <div className="info-grid">

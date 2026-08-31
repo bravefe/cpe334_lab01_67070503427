@@ -18,11 +18,14 @@
 }
 
 .back-link {
-  background: transparent;
-  border: 0;
-  color: var(--primary-green);
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--text);
   font-weight: 700;
-  padding: 0;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
 }
 
 .detail-card {

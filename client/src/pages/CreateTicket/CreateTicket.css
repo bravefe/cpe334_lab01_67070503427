@@ -1,5 +1,13 @@
 .create-ticket-page { width: min(100% - 48px, 1200px); margin: 0 auto; padding-top: 24px; }
 
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
 .create-header { margin-bottom: 18px; }
 
 .ticket-form-card {
