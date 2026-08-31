@@ -6,7 +6,9 @@ project-root/
 ├── server/
 │   └── src/
 │       ├── controllers/
-│       │
+│       │   ├── health.ts
+│       │   ├── references.ts
+│       │   └── tickets.ts
 │       ├── routes/
 │       │   ├── health.ts
 │       │   ├── references.ts
