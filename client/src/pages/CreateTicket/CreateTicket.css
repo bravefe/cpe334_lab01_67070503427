@@ -1,0 +1,140 @@
+.create-ticket-page { width: min(100% - 48px, 1200px); margin: 0 auto; padding-top: 24px; }
+
+.create-header { margin-bottom: 18px; }
+
+.ticket-form-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 8px 22px rgba(23, 59, 45, 0.06);
+  padding: 28px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.field span {
+  font-size: 0.86rem;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  border: 1px solid #c9d3ce;
+  border-radius: 8px;
+  background: #fff;
+  padding: 11px 12px;
+  font: 14px "DM Sans";
+  resize: vertical;
+  color: var(--text);
+}
+
+.field textarea {
+  min-height: 120px;
+}
+
+.field.read-only {
+  background: #f2f4f3;
+  border: 1px solid #dde5e1;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.field.read-only span {
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.field small {
+  color: var(--error);
+  font-weight: 600;
+}
+
+.full-width {
+  margin-top: 12px;
+}
+
+.attachment-box {
+  margin-top: 18px;
+  border: 1.5px dashed #bfd6c9;
+  border-radius: 10px;
+  min-height: 120px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  background: #f9fbfa;
+  color: var(--muted);
+  padding: 18px;
+}
+
+.attachment-box p,
+.attachment-box span {
+  margin: 0;
+}
+
+.secondary-button {
+  background: #fff;
+  border-color: var(--border);
+}
+
+.submit-row {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.error-banner,
+.success-banner {
+  margin-top: 18px;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-weight: 700;
+}
+
+.error-banner {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: var(--error);
+}
+
+.success-banner {
+  background: #edfdf4;
+  border: 1px solid #b9edc8;
+  color: var(--success);
+}
+
+@media (max-width: 767px) {
+  .info-grid,
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ticket-form-card {
+    padding: 18px;
+  }
+
+  .submit-row {
+    flex-direction: column-reverse;
+  }
+}

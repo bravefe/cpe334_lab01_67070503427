@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { fetchRequesters } from "./api/requesters";
 import { Requester } from "./lib/requester";
 import ChooseRequester from "./pages/ChooseRequester/ChooseRequester";
+import CreateTicket from "./pages/CreateTicket/CreateTicket";
 import MyTickets from "./pages/MyTickets/MyTickets";
+import TicketDetail from "./pages/TicketDetail/TicketDetail";
 
 export default function App() {
   const [requesters, setRequesters] = useState<Requester[]>([]);
@@ -27,6 +29,12 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (window.location.pathname === "/") {
+      setPath("/choose-requester");
+    }
+  }, []);
+
+  useEffect(() => {
     const handlePopState = () => setPath(window.location.pathname);
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
@@ -36,6 +44,8 @@ export default function App() {
     window.history.pushState({}, "", nextPath);
     setPath(nextPath);
   };
+
+  const selectedRequester = requesters.find((item) => item.id === requesterId);
 
   const handleSelect = (id: number) => {
     localStorage.setItem("requesterId", String(id));
@@ -48,32 +58,75 @@ export default function App() {
   };
 
   const handleMyTickets = () => goTo("/my-tickets");
-  if (path === "/" )
-  {
-    handleChangeRequester();
-  }
+  const handleCreateTicket = () => goTo("/create-ticket");
+  const handleOpenTicket = (ticketNumber: string) => goTo(`/ticket/${ticketNumber}`);
+
+  const sharedProps = {
+    requesters,
+    requester: selectedRequester,
+    loading,
+    error,
+    retry: loadRequesters,
+    onChange: handleChangeRequester,
+    onMyTickets: handleMyTickets,
+  };
+
   if (path === "/choose-requester") {
     return (
       <ChooseRequester
-        requesters={requesters}
-        requester={requesters.find((item) => item.id === requesterId)}
-        loading={loading}
-        error={error}
-        retry={loadRequesters}
+        {...sharedProps}
         onSelect={handleSelect}
-        onChange={handleChangeRequester}
         onMyTickets={handleMyTickets}
       />
     );
   }
-  if (path === "/my-tickets"){
+
+  if (path === "/my-tickets") {
+    if (!requesterId) {
+      return <ChooseRequester {...sharedProps} onSelect={handleSelect} onMyTickets={handleMyTickets} />;
+    }
+
     return (
       <MyTickets
-        requester={requesters.find((item) => item.id === requesterId)}
+        requester={selectedRequester}
         requesterId={requesterId}
         onChange={handleChangeRequester}
         onMyTickets={handleMyTickets}
+        onCreateTicket={handleCreateTicket}
+        onOpenTicket={handleOpenTicket}
       />
     );
   }
+
+  if (path === "/create-ticket") {
+    if (!requesterId) {
+      return <ChooseRequester {...sharedProps} onSelect={handleSelect} onMyTickets={handleMyTickets} />;
+    }
+
+    return (
+      <CreateTicket
+        requester={selectedRequester}
+        requesterId={requesterId}
+        onBack={handleMyTickets}
+      />
+    );
+  }
+
+  const ticketMatch = path.match(/^\/ticket\/(.+)$/);
+  if (ticketMatch) {
+    if (!requesterId) {
+      return <ChooseRequester {...sharedProps} onSelect={handleSelect} onMyTickets={handleMyTickets} />;
+    }
+
+    return (
+      <TicketDetail
+        requester={selectedRequester}
+        requesterId={requesterId}
+        ticketNumber={ticketMatch[1]}
+        onBack={handleMyTickets}
+      />
+    );
+  }
+
+  return <ChooseRequester {...sharedProps} onSelect={handleSelect} onMyTickets={handleMyTickets} />;
 }

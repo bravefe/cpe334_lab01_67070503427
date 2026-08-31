@@ -29,9 +29,11 @@ interface MyTicketsProps {
   requesterId: number | null;
   onChange: () => void;
   onMyTickets: () => void;
+  onCreateTicket: () => void;
+  onOpenTicket: (ticketNumber: string) => void;
 }
 
-export default function MyTickets({ requester, requesterId, onChange, onMyTickets }: MyTicketsProps) {
+export default function MyTickets({ requester, requesterId, onChange, onMyTickets, onCreateTicket, onOpenTicket }: MyTicketsProps) {
   const [query, setQuery] = useState(initialQuery);
   const [draftSearch, setDraftSearch] = useState("");
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -115,7 +117,7 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
           </div>
           <div className="actions">
             <button onClick={clear}>↻ Clear Filters</button>
-            <button className="primary">＋ Create Ticket</button>
+            <button className="primary" onClick={onCreateTicket}>＋ Create Ticket</button>
           </div>
         </header>
 
@@ -178,7 +180,7 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
                     : "Create your first support request to get started."}
               </p>
               {requesterId && (
-                <button className="primary" onClick={clear}>
+                <button className="primary" onClick={requesterId ? onCreateTicket : clear}>
                   {meta.totalItems ? "Clear Filters" : "＋ Create Ticket"}
                 </button>
               )}
@@ -202,7 +204,7 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
                   </thead>
                   <tbody>
                     {tickets.map((ticket) => (
-                      <tr key={ticket.ticketNumber}>
+                      <tr key={ticket.ticketNumber} onClick={() => onOpenTicket(ticket.ticketNumber)} style={{ cursor: "pointer" }}>
                         <td className="ticket-number">{ticket.ticketNumber}</td>
                         <td className="created-date">{formatDate(ticket.createdAt)}</td>
                         <td className="summary">{ticket.summary}</td>

@@ -6,18 +6,20 @@ interface TopBarProps {
   requester?: Requester;
   onChange: () => void;
   onMyTickets: () => void;
+  onCreateTicket?: () => void;
 }
 
-export default function TopBar({ requester, onChange, onMyTickets }: TopBarProps) {
+export default function TopBar({ requester, onChange, onMyTickets, onCreateTicket }: TopBarProps) {
   const currentPage = window.location.pathname;
-  const isMyTicketsPage = currentPage === "/my-tickets" || currentPage === "/my-ticket";
+  const isMyTicketsPage = currentPage === "/my-tickets" || currentPage.startsWith("/ticket");
   const isChooseRequesterPage = currentPage === "/choose-requester";
+  const isCreateTicketPage = currentPage === "/create-ticket";
 
   return (
     <nav className="topbar">
       <strong className="logo">
         <img src={logo} alt="TokTockIT logo" />
-         TokTockIT
+        TokTockIT
       </strong>
 
       <a
@@ -29,7 +31,13 @@ export default function TopBar({ requester, onChange, onMyTickets }: TopBarProps
         <span className="nav-icon" aria-hidden="true">▣</span>
         <span className="nav-label">My Tickets</span>
       </a>
-      <a aria-label="Create Ticket" title="Create Ticket">
+      <a
+        className={isCreateTicketPage ? "active" : undefined}
+        onClick={onCreateTicket}
+        aria-label="Create Ticket"
+        title="Create Ticket"
+        href="#"
+      >
         <span className="nav-icon" aria-hidden="true">＋</span>
         <span className="nav-label">Create Ticket</span>
       </a>
