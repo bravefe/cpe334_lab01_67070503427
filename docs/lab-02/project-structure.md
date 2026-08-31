@@ -6,11 +6,14 @@ project-root/
 ├── server/
 │   └── src/
 │       ├── controllers/
-│       │
+│       │   ├── referenceController.ts
+│       │   └── ticketsController.ts
 │       ├── routes/
-│       │
+│       │   ├── referenceRoute.ts
+│       │   └── ticketsRoute.ts
 │       ├── services/
-│       │
+│       │   ├── referenceService.ts
+│       │   └── ticketsService.ts
 │       ├── app.ts
 │       ├── index.ts
 │       └── prisma.ts
