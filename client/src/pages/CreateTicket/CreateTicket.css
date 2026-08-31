@@ -57,6 +57,12 @@
   color: var(--text);
 }
 
+.field textarea:focus {
+  outline: 3px solid rgba(0, 107, 60, 0.24);
+  outline-offset: 2px;
+}
+
+
 .field textarea {
   min-height: 120px;
 }
