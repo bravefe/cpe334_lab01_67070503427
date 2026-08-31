@@ -55,7 +55,7 @@ export default function TicketDetail({
         requester={requester}
         onChange={() => window.location.assign("/choose-requester")}
         onMyTickets={onBack}
-        onCreateTicket={onCreateTicket ?? onBack}
+        onCreateTicket={() => window.location.assign("/create-ticket")}
       />
 
       <main className="page ticket-detail-page">
@@ -102,9 +102,9 @@ export default function TicketDetail({
               </div>
 
               <div className="field read-only">
-                <span>Current Status</span>
-                <div className="field-value status-value">
-                  {ticket.currentStatus?.name ?? ""}
+                <span>Last Updated</span>
+                <div className="field-value">
+                  {formatDate(ticket.updatedAt)}
                 </div>
               </div>
             </div>
@@ -146,8 +146,15 @@ export default function TicketDetail({
                   </option>
                 </select>
               </label>
-            </div>
 
+              {/* <div className="field">
+                <span>Current Status</span>
+                <div className="field-value status-value">
+                  {ticket.currentStatus?.name ?? ""}
+                </div>
+              </div> */}
+
+            </div>
 
             {/* Summary */}
             <div className="field full-width">
