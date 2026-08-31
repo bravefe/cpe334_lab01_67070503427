@@ -34,7 +34,7 @@ model Status {
 
 model DevRequester {
   id             Int             @id @default(autoincrement())
-  fullName       String
+  name       String
   email          String          @unique
   isActive       Boolean         @default(true)
   createdAt      DateTime        @default(now())
@@ -60,7 +60,6 @@ model Ticket {
   requestedPriorityId Int
   itPriorityId        Int?
   currentStatusId     Int
-  ownerId             Int?
   createdAt           DateTime        @default(now())
   updatedAt           DateTime        @updatedAt
   requester           DevRequester    @relation(fields: [requesterId], references: [id], onDelete: Restrict)

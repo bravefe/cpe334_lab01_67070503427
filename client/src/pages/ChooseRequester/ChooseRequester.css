@@ -1,0 +1,63 @@
+.selection {
+  min-height: calc(100vh - 68px);
+  display: grid;
+  place-items: center;
+  background: var(--page-bg);
+}
+
+.selection-card {
+  width: min(460px, 90%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 5px solid var(--primary-green);
+  padding: 42px;
+  box-shadow: 0 10px 24px rgba(23, 59, 45, 0.12);
+  border-radius: 12px;
+}
+
+.selection h1 {
+  font: 700 2rem / 1.05 "Space Grotesk";
+  margin: 12px 0 6px;
+}
+
+.selection label {
+  display: block;
+  margin: 28px 0 7px;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.selection select {
+  width: 100%;
+  height: 46px;
+  padding: 0 12px;
+  border: 1px solid #c9d3ce;
+  border-radius: 8px;
+  color: var(--text);
+  background: var(--surface);
+  font: inherit;
+}
+
+.wide {
+  width: 100%;
+  margin-top: 18px;
+}
+
+.error {
+  padding: 18px;
+  background: #fdecec;
+  color: var(--error);
+  border: 1px solid #e9bdb8;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+@media (max-width: 767px) {
+  .selection {
+    min-height: calc(100vh - 64px);
+  }
+
+  .selection-card {
+    padding: 30px;
+  }
+}

@@ -1,8 +1,7 @@
-          "status": "ACTIVE",
-  "status": "ACTIVE",
-  "status": "ACTIVE",
-  "status": "REMOVED",
-  "status": "REMOVED",
+use typescript and react 
+implement Screen: My Tickets and requeter selection
+you are alow to create multiple file and folder to meet the standard
+
 # TokTickIT — API Specification (Lab2)
 
 ## 1. Conventions
@@ -78,7 +77,7 @@ Lists active Development Requesters for the Selection screen (FR-01, BR-06).
 - **Auth:** none
 - **Response 200:**
   ```json
-  { "data": [ { "id": 12, "name": "Alex Rivera", "code": "REQ-012" } ] }
+  { "data": [ { "id": 12, "name": "Alex Rivera"} ] }
   ```
 - **Response 200 (empty):** `{ "data": [] }` — UI shows the empty-selector state.
 - **Response 500:** generic safe error envelope.
@@ -113,6 +112,7 @@ Creates a Ticket owned by the current Requester (FR-04).
   {
     "data": {
       "ticketNumber": "TKT-2026-000042",
+      "requesterId": 1,
       "summary": "Laptop battery drains quickly",
       "description": "Battery drains fast even when idle, started after last update.",
       "categoryId": 2,
@@ -152,6 +152,7 @@ Paginated, searchable, filterable, sortable list of the current Requester's own 
     "data": [
       {
         "ticketNumber": "TKT-2026-000042",
+        "requesterId": 1,
         "summary": "Laptop battery drains quickly",
         "categoryId": 2,
         "requestedPriorityId": 2,

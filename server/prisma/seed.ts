@@ -60,26 +60,26 @@ async function main() {
     });
   }
 
-  const requesters = [
-    ["Frodo Baggins", "frodo.b@shiremail.example.com"],
-    ["Samwise Gamgee", "sam.gamgee@shiremail.example.com"],
-    ["Aragorn Elessar", "a.elessar@gondor.example.com"],
-    ["Legolas Greenleaf", "legolasg@woodland.example.com"],
-    ["Gimli Oakenshield", "gimli.o@erebor.example.com"],
-    ["Boromir Gondor", "boromir@gondor.example.com"],
-    ["Meriadoc Brandybuck", "merry.b@shiremail.example.com"],
-    ["Peregrin Took", "pippin.t@shiremail.example.com"],
-    ["Galadriel Lothlórien", "galadriel@lothlorien.example.com"],
-    ["Éowyn Rohan", "eowyn.r@rohan.example.com"],
-    ["Gandalf the Grey", "gandalf@istari.example.com"],
-    ["Gollum", "smeagol@goblinmail.example.com"],
+  const requesters: [string, string, boolean][] = [
+    ["Frodo Baggins", "frodo.b@shiremail.example.com", true],
+    ["Samwise Gamgee", "sam.gamgee@shiremail.example.com", true],
+    ["Aragorn Elessar", "a.elessar@gondor.example.com", true],
+    ["Legolas Greenleaf", "legolasg@woodland.example.com", true],
+    ["Gimli Oakenshield", "gimli.o@erebor.example.com", true],
+    ["Boromir Gondor", "boromir@gondor.example.com", true],
+    ["Meriadoc Brandybuck", "merry.b@shiremail.example.com", true],
+    ["Peregrin Took", "pippin.t@shiremail.example.com", true],
+    ["Galadriel Lothlórien", "galadriel@lothlorien.example.com", true],
+    ["Éowyn Rohan", "eowyn.r@rohan.example.com", true],
+    ["Gandalf the Grey", "gandalf@istari.example.com", false],
+    ["Gollum", "smeagol@goblinmail.example.com", true],
   ];
 
-  for (const [fullName, email] of requesters) {
+  for (const [name, email, isActive] of requesters) {
     await prisma.devRequester.upsert({
       where: { email },
-      update: { fullName, isActive: true },
-      create: { fullName, email, isActive: true },
+      update: { name, isActive },
+      create: { name, email, isActive },
     });
   }
 
@@ -110,8 +110,49 @@ async function main() {
   const priorityRows = await prisma.priority.findMany({
     orderBy: { sortOrder: "desc" },
   });
+  const fixedTickets = [
+    {
+      ticketNumber: "TKT-2026-000001",
+      requesterId: 1,
+      categoryId: 1,
+      relatedSystemId: 1,
+      summary: "Test Test 123",
+      description: "Requester is unable to access their email account.",
+      requestedPriorityId: 1,
+      currentStatusId: 1,
+    },
+    {
+      ticketNumber: "TKT-2026-000002",
+      requesterId: 2,
+      categoryId: 2,
+      relatedSystemId: 2,
+      summary: "Campus Wi-Fi not working",
+      description: "Requester cannot connect to the campus Wi-Fi network.",
+      requestedPriorityId: 2,
+      currentStatusId: 2,
+    },
+  ];
 
-  for (let index = 0; index < 10; index += 1) {
+  // Create/update the two fixed tickets
+  for (const ticket of fixedTickets) {
+    await prisma.ticket.upsert({
+      where: { ticketNumber: ticket.ticketNumber },
+      update: {
+        requesterId: ticket.requesterId,
+        categoryId: ticket.categoryId,
+        relatedSystemId: ticket.relatedSystemId,
+        summary: ticket.summary,
+        description: ticket.description,
+        requestedPriorityId: ticket.requestedPriorityId,
+        currentStatusId: ticket.currentStatusId,
+        itPriorityId: null,
+      },
+      create: ticket,
+    });
+  }
+
+  // Create the remaining 98 random tickets
+  for (let index = 10; index < 50; index += 1) {
     const ticketNumberTemp = index + 1;
     const ticketNumber = `TKT-2026-${String(ticketNumberTemp).padStart(6, "0")}`;
 
@@ -134,7 +175,6 @@ async function main() {
       description: `Requester reported an issue related to ${category.name.toLowerCase()} for ${system.name}.`,
       requestedPriorityId: priority.id,
       currentStatusId: status.id,
-      ownerId: null,
     };
 
     await prisma.ticket.upsert({

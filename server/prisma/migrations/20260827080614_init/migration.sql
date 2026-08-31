@@ -32,7 +32,7 @@ CREATE TABLE "Status" (
 -- CreateTable
 CREATE TABLE "DevRequester" (
     "id" SERIAL NOT NULL,
-    "fullName" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -62,7 +62,6 @@ CREATE TABLE "Ticket" (
     "requestedPriorityId" INTEGER NOT NULL,
     "itPriorityId" INTEGER,
     "currentStatusId" INTEGER NOT NULL,
-    "ownerId" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
