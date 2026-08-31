@@ -12,5 +12,3 @@ server/prisma/*.db
 # logs & OS
 *.log
 .DS_Store
-temp/
-.vscode/
