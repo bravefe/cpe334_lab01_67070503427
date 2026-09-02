@@ -177,11 +177,10 @@ export default function TicketDetail({
               />
             </div>
 
-            {/* Attachments - future implementation */}
-            <div className="attachment-box">
+            {/* <div className="attachment-box">
               <p>Attachments</p>
               <span>No attachments</span>
-            </div>
+            </div> */}
           </section>
         )}
       </main>
