@@ -5,6 +5,8 @@ import { TicketDetail as TicketDetailType } from "../../lib/ticket";
 import TopBar from "../TopBar";
 import "./TicketDetail.css";
 
+import { formatDate } from "../../lib/formatDate";
+
 interface TicketDetailProps {
   requester?: Requester;
   requesterId: number;
@@ -13,14 +15,6 @@ interface TicketDetailProps {
   onCreateTicket?: () => void;
 }
 
-const formatDate = (value: string) =>
-  new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(value));
 
 export default function TicketDetail({
   requester,

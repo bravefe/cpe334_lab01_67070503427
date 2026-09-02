@@ -7,6 +7,8 @@ import { Ticket, TicketQuery } from "../../lib/ticket";
 import TopBar from "../TopBar";
 import "./MyTickets.css";
 
+import { formatDate } from "../../lib/formatDate";
+
 const initialQuery: TicketQuery = {
   search: "",
   sortBy: "createdAt",
@@ -15,14 +17,6 @@ const initialQuery: TicketQuery = {
   pageSize: 10,
 };
 
-const formatDate = (value: string) =>
-  new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(value));
 
 interface MyTicketsProps {
   requester?: Requester;
