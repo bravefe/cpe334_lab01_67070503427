@@ -171,11 +171,11 @@ export default function CreateTicket({ requester, requesterId, onBack, onCreateT
             {errors.description && <small>{errors.description}</small>}
           </label>
 
-          <div className="attachment-box">
+          {/* <div className="attachment-box">
             <p>Drag and drop your file here</p>
             <span>or</span>
             <button type="button" className="secondary-button">Browse File</button>
-          </div>
+          </div> */}
 
           {submitError && <div className="error-banner">{submitError}</div>}
           {successTicket && <div className="success-banner">Ticket created: {successTicket}</div>}
