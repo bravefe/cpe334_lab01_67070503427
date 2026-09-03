@@ -132,9 +132,6 @@ No planned test is skipped, disabled, commented out, or intentionally left flaky
 - All tests start as `Pending` and are updated to `Pass` or `Fail` after implementation and execution.
 
 ```bash
-npm notice run toktickit-server@1.0.0 test
-npm notice run vitest run tests/lab-02/my-tickets.api.test.ts
-
  RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/server
 
  ✓ tests/lab-02/my-tickets.api.test.ts (7)
@@ -152,4 +149,36 @@ npm notice run vitest run tests/lab-02/my-tickets.api.test.ts
       Tests  7 passed (7)
    Start at  23:14:16
    Duration  766ms (transform 84ms, setup 0ms, collect 242ms, tests 151ms, environment 0ms, prepare 103ms)
+```
+
+```bash
+ RUN  v2.1.9 C:/KMUTT/3.1/Software/Pai/server
+
+ ✓ tests/lab-02/create-ticket.api.test.ts (6) 1158ms
+   ✓ POST /api/create-ticket (6) 1156ms
+     ✓ API-01: should create a ticket with valid data 713ms
+     ✓ API-02: should reject a ticket with an empty summary
+     ✓ API-03: should reject a description shorter than 20 characters
+     ✓ API-04: should accept a summary with exactly 150 characters
+     ✓ API-05: should reject a summary with 151 characters
+     ✓ API-06: should keep the ticket when attachment upload fails
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  10:25:58
+   Duration  4.50s (transform 284ms, setup 0ms, collect 1.24s, tests 1.16s, environment 0ms, prepare 725ms)
+```
+
+```bash
+ RUN  v2.1.9 C:/KMUTT/3.1/Software/Pai/server
+
+ ✓ tests/lab-02/ticket-detail.api.test.ts (2) 312ms
+   ✓ GET /api/tickets/:ticketNumber (2) 310ms
+     ✓ returns the current requester's owned ticket detail
+     ✓ API-23: should return 404 when requester B tries to access requester A's ticket
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  10:27:30
+   Duration  3.47s (transform 340ms, setup 0ms, collect 1.11s, tests 312ms, environment 1ms, prepare 818ms)
 ```
