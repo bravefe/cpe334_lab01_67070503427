@@ -7,6 +7,8 @@ import { Ticket, TicketQuery } from "../../lib/ticket";
 import TopBar from "../TopBar";
 import "./MyTickets.css";
 
+import { formatDate } from "../../lib/formatDate";
+
 const initialQuery: TicketQuery = {
   search: "",
   sortBy: "createdAt",
@@ -15,28 +17,23 @@ const initialQuery: TicketQuery = {
   pageSize: 10,
 };
 
-const formatDate = (value: string) =>
-  new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(value));
 
 interface MyTicketsProps {
   requester?: Requester;
   requesterId: number | null;
   onChange: () => void;
   onMyTickets: () => void;
+  onCreateTicket: () => void;
+  onOpenTicket: (ticketNumber: string) => void;
 }
 
-export default function MyTickets({ requester, requesterId, onChange, onMyTickets }: MyTicketsProps) {
+export default function MyTickets({ requester, requesterId, onChange, onMyTickets, onCreateTicket, onOpenTicket }: MyTicketsProps) {
   const [query, setQuery] = useState(initialQuery);
   const [draftSearch, setDraftSearch] = useState("");
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [meta, setMeta] = useState({ page: 1, pageSize: 10, totalItems: 0, totalPages: 0 });
   const [state, setState] = useState("loading");
+  const [error, setError] = useState("");
   const [options, setOptions] = useState<{
     categories: Category[];
     priorities: Priority[];
@@ -64,13 +61,17 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
     }
 
     setState("loading");
+  setError("");
     fetchTickets(requesterId, query)
       .then((result) => {
         setTickets(result.data);
         setMeta(result);
         setState("ready");
       })
-      .catch(() => setState("error"));
+      .catch((requestError) => {
+        setError(requestError instanceof Error ? requestError.message : "");
+        setState("error");
+      });
   }, [requesterId, query]);
 
   const update = (change: Partial<TicketQuery>) =>
@@ -106,7 +107,7 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
 
   return (
     <>
-      <TopBar requester={requester} onChange={onChange} onMyTickets={onMyTickets} />
+      <TopBar requester={requester} onChange={onChange} onMyTickets={onMyTickets} onCreateTicket={onCreateTicket} />
       <main className="page">
         <header className="page-header">
           <div>
@@ -115,7 +116,7 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
           </div>
           <div className="actions">
             <button onClick={clear}>↻ Clear Filters</button>
-            <button className="primary">＋ Create Ticket</button>
+            <button className="primary" onClick={onCreateTicket}>＋ Create Ticket</button>
           </div>
         </header>
 
@@ -157,7 +158,7 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
           {state === "loading" && <div className="loading rows">Loading tickets...</div>}
           {state === "error" && (
             <div className="empty">
-              <h2>Could not load tickets</h2>
+              <h2 className="error-message">{error}</h2>
               <button onClick={() => setQuery({ ...query })}>Retry</button>
             </div>
           )}
@@ -178,7 +179,7 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
                     : "Create your first support request to get started."}
               </p>
               {requesterId && (
-                <button className="primary" onClick={clear}>
+                <button className="primary" onClick={requesterId ? onCreateTicket : clear}>
                   {meta.totalItems ? "Clear Filters" : "＋ Create Ticket"}
                 </button>
               )}
@@ -202,7 +203,7 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
                   </thead>
                   <tbody>
                     {tickets.map((ticket) => (
-                      <tr key={ticket.ticketNumber}>
+                      <tr key={ticket.ticketNumber} onClick={() => onOpenTicket(ticket.ticketNumber)} style={{ cursor: "pointer" }}>
                         <td className="ticket-number">{ticket.ticketNumber}</td>
                         <td className="created-date">{formatDate(ticket.createdAt)}</td>
                         <td className="summary">{ticket.summary}</td>

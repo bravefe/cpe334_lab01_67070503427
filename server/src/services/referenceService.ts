@@ -15,6 +15,21 @@ export async function getCategoriesService() {
   });
 }
 
+export async function getRelatedSystemsService() {
+  return getPrisma().relatedSystem.findMany({
+    where: {
+      isActive: true,
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+    orderBy: {
+      id: "asc",
+    },
+  });
+}
+
 export async function getPrioritiesService() {
   return getPrisma().priority.findMany({
     select: {

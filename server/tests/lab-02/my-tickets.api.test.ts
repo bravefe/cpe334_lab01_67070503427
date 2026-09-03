@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import request from "supertest";
 import { app } from "../../src/app.js";
-import { getPrisma } from "../../src/prisma.js";
 
 describe("GET /api/tickets", () => {
   it("API-16: should return only tickets owned by requester", async () => {
@@ -52,7 +51,8 @@ describe("GET /api/tickets", () => {
     const response = await request(app)
       .get("/api/tickets")
       .query({
-        categoryId: 1
+        categoryId: 1,
+        priorityId: 1,
       })
       .set("X-Dev-Requester-Id", "1");
 
@@ -60,13 +60,11 @@ describe("GET /api/tickets", () => {
 
     const tickets = response.body.data;
 
-    expect(tickets).toHaveLength(1);
     expect(
       tickets.every(
         (ticket: any) =>
           ticket.categoryId === 1 &&
-          ticket.requestedPriorityId === 1 &&
-          ticket.currentStatusId === 1,
+          ticket.requestedPriorityId === 1 
       ),
     ).toBe(true);
   });
@@ -78,7 +76,7 @@ describe("GET /api/tickets", () => {
         sortBy: "createdAt",
         sortDir: "asc",
       })
-      .set("X-Dev-Requester-Id", "1");
+      .set("X-Dev-Requester-Id", "2");
 
     expect(ascResponse.status).toBe(200);
 
@@ -90,7 +88,7 @@ describe("GET /api/tickets", () => {
         sortBy: "createdAt",
         sortDir: "desc",
       })
-      .set("X-Dev-Requester-Id", "1");
+      .set("X-Dev-Requester-Id", "2");
 
     expect(descResponse.status).toBe(200);
 

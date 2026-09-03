@@ -1,5 +1,6 @@
-import { get } from "./client";
-import { TicketPage, TicketQuery } from "../lib/ticket";
+import { get, list, post } from "./client";
+import { CreateTicketPayload, Ticket, TicketDetail, TicketPage, TicketQuery } from "../lib/ticket";
+import { RelatedSystem } from "../lib/reference";
 
 export function fetchTickets(requesterId: number, query: TicketQuery) {
   const params = new URLSearchParams({
@@ -21,4 +22,12 @@ export function fetchTickets(requesterId: number, query: TicketQuery) {
   }
 
   return get<TicketPage>(`/api/tickets?${params}`, requesterId);
+}
+
+export function createTicket(requesterId: number, input: CreateTicketPayload) {
+  return post<{ data: Ticket }>("/api/create-ticket", requesterId, input).then((result) => result.data);
+}
+
+export function fetchTicketDetail(requesterId: number, ticketNumber: string) {
+  return get<{ data: TicketDetail }>(`/api/tickets/${encodeURIComponent(ticketNumber)}`, requesterId).then((result) => result.data);
 }

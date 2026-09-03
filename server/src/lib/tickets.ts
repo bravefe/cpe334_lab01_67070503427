@@ -10,7 +10,6 @@ export const SORT_FIELDS = [
 ] as const;
 
 export type SortField = (typeof SORT_FIELDS)[number];
-
 export type SortDirection = "asc" | "desc";
 
 export interface TicketQuery {
@@ -24,49 +23,23 @@ export interface TicketQuery {
   statusId?: number;
 }
 
-function positiveInteger(
-  value: unknown
-): number | undefined {
+function positiveInteger(value: unknown): number | undefined {
   const parsed = Number(value);
-
-  return Number.isInteger(parsed) && parsed > 0
-    ? parsed
-    : undefined;
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
 }
 
-export function parseTicketQuery(
-  req: Request
-): TicketQuery {
-  const page =
-    positiveInteger(req.query.page) ?? 1;
+export function parseTicketQuery(req: Request): TicketQuery {
+  const page = positiveInteger(req.query.page) ?? 1;
+  const requestedPageSize = positiveInteger(req.query.pageSize) ?? 10;
+  const pageSize = Math.min(requestedPageSize, 50);
 
-  const requestedPageSize =
-    positiveInteger(req.query.pageSize) ?? 10;
+  const sortByValue = String(req.query.sortBy ?? "createdAt");
+  const sortBy: SortField = SORT_FIELDS.includes(sortByValue as SortField)
+    ? (sortByValue as SortField)
+    : "createdAt";
 
-  const pageSize = Math.min(
-    requestedPageSize,
-    50
-  );
-
-  const sortByValue = String(
-    req.query.sortBy ?? "createdAt"
-  );
-
-  const sortBy: SortField =
-    SORT_FIELDS.includes(
-      sortByValue as SortField
-    )
-      ? (sortByValue as SortField)
-      : "createdAt";
-
-  const sortDir: SortDirection =
-    req.query.sortDir === "asc"
-      ? "asc"
-      : "desc";
-
-  const search = String(
-    req.query.search ?? ""
-  ).trim();
+  const sortDir: SortDirection = req.query.sortDir === "asc" ? "asc" : "desc";
+  const search = String(req.query.search ?? "").trim();
 
   return {
     page,
@@ -74,15 +47,8 @@ export function parseTicketQuery(
     sortBy,
     sortDir,
     search,
-    categoryId: positiveInteger(
-      req.query.categoryId ?? req.query.category
-    ),
-    priorityId: positiveInteger(
-      req.query.requestedPriorityId ??
-        req.query.priorityId
-    ),
-    statusId: positiveInteger(
-      req.query.currentStatusId ?? req.query.statusId
-    ),
+    categoryId: positiveInteger(req.query.categoryId ?? req.query.category),
+    priorityId: positiveInteger(req.query.requestedPriorityId ?? req.query.priorityId),
+    statusId: positiveInteger(req.query.currentStatusId ?? req.query.statusId),
   };
 }

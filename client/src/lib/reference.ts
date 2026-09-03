@@ -15,6 +15,11 @@ export interface Status {
   isDefault: boolean;
 }
 
+export interface RelatedSystem {
+  id: number;
+  name: string;
+}
+
 export interface SystemStatus {
   online: boolean;
   categories: Category[];

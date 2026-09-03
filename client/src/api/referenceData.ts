@@ -1,7 +1,8 @@
 import { list, get } from "./client";
-import { Category, Priority, Status, SystemStatus } from "../lib/reference";
+import { Category, Priority, RelatedSystem, Status, SystemStatus } from "../lib/reference";
 
 export const fetchCategories = () => list<Category>("/api/categories");
+export const fetchRelatedSystems = () => list<RelatedSystem>("/api/related-systems");
 export const fetchPriorities = () => list<Priority>("/api/priorities");
 export const fetchStatuses = () => list<Status>("/api/statuses");
 
