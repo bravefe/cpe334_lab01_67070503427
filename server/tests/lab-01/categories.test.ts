@@ -15,9 +15,9 @@ import { app } from "../../src/app.js";
 // It should assert: GET /api/categories returns 200 and the four seeded
 // category names in id order.
 
-describe("GET /api/categories", () => {
+describe("GET /api/healthCategories", () => {
   it("returns 200 and the seeded categories in id order", async () => {
-    const res = await request(app).get("/api/categories");
+    const res = await request(app).get("/api/healthCategories");
     expect(res.status).toBe(200);
     expect(res.body.map((c: { name: string }) => c.name)).toEqual([
       "Account and Access",
