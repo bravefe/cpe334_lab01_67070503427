@@ -76,7 +76,7 @@ describe("GET /api/tickets", () => {
         sortBy: "createdAt",
         sortDir: "asc",
       })
-      .set("X-Dev-Requester-Id", "1");
+      .set("X-Dev-Requester-Id", "2");
 
     expect(ascResponse.status).toBe(200);
 
@@ -88,7 +88,7 @@ describe("GET /api/tickets", () => {
         sortBy: "createdAt",
         sortDir: "desc",
       })
-      .set("X-Dev-Requester-Id", "1");
+      .set("X-Dev-Requester-Id", "2");
 
     expect(descResponse.status).toBe(200);
 
