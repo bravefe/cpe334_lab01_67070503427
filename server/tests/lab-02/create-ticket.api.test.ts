@@ -3,7 +3,7 @@ import request from "supertest";
 import { app } from "../../src/app.js";
 
 describe("POST /api/create-ticket", () => {
-  it("UNIT-011: should generate a unique ticket number in the correct format", async () => {
+  it("UNIT-01: should generate a unique ticket number in the correct format", async () => {
     const response1 = await request(app)
       .post("/api/create-ticket")
       .set("X-Dev-Requester-Id", "1")

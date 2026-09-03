@@ -3,15 +3,16 @@ I want you to put the code for attachment seperately
 the file you will need client/src/api/attachments.ts
 src/lib/attachments.ts if you need 
 |
-Then put AttachmentCreateTicket.tsx inside the creattTicket folder an same with AttachmentTicketDetail.tsx
+Then put AttachmentCreateTicket.tsx inside the createTicket folder an same with AttachmentTicketDetail.tsx
 
 since the look will be similar you only need 1 cssfile /pages/Attachment.css
 
 For the server also spilt the file like what I have done
-
+folow your api-spec.md
 in client you need to craeate 
 
 in page /ticket/id: put this below the detail the similary to the topbar there is a line below to hightlight witch page are we at right now we are only implementing attachment so when go to other page just leave it with a message to be implemented set the default page to the attachments for now
+
 │ ┌──────────────────────────────────────────────────────────────────────┐ │
 │ │ Public Comments │ Attachments │ Service Actions │ Event Log    │ │
 │ ├──────────────────────────────────────────────────────────────────────┤ │
@@ -25,7 +26,7 @@ and in /create-ticket does not need to have Public Comments, Service Actions, an
 use the same file list by linestyle for these 2 file but you are able to drag and drop the file in the area and it will add auto you click on the the file will download and there also be the add file button below tthe file if there is one if you can still add more file in the ticket 
 
 You are only alow to create test in here
-`server/tests/lab-02/attachments.api.test.ts`
+`server/tests/lab-02/attachments.api.test.ts` and folow the format that i provided on how you declare test case you are not alow to create more test file out side
 
 :root {
   font-family: "DM Sans", sans-serif;
