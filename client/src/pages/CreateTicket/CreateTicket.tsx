@@ -88,7 +88,7 @@ export default function CreateTicket({ requester, requesterId, onBack, onCreateT
       setSuccessTicket(created.ticketNumber);
       setForm(emptyForm);
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : "Unable to create ticket.");
+      setSubmitError(error instanceof Error ? error.message : "");
     } finally {
       setSubmitting(false);
     }

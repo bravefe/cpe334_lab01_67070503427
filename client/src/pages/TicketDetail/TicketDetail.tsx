@@ -36,7 +36,7 @@ export default function TicketDetail({
         setError("");
       })
       .catch((err) => {
-        setError(err.message || "Could not load this ticket.");
+        setError(err instanceof Error ? err.message : "");
       })
       .finally(() => {
         setLoading(false);
@@ -68,7 +68,7 @@ export default function TicketDetail({
 
         {error && (
           <div className="empty">
-            <h2>{error}</h2>
+            <h2 className="error-message">{error}</h2>
           </div>
         )}
 

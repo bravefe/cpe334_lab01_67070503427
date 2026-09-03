@@ -68,6 +68,10 @@ button:disabled {
   margin: 0;
 }
 
+.error-message {
+  color: var(--error);
+}
+
 button:focus-visible,
 input:focus-visible,
 select:focus-visible,

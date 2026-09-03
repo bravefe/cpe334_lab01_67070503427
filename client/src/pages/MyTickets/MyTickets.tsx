@@ -33,6 +33,7 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [meta, setMeta] = useState({ page: 1, pageSize: 10, totalItems: 0, totalPages: 0 });
   const [state, setState] = useState("loading");
+  const [error, setError] = useState("");
   const [options, setOptions] = useState<{
     categories: Category[];
     priorities: Priority[];
@@ -60,13 +61,17 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
     }
 
     setState("loading");
+  setError("");
     fetchTickets(requesterId, query)
       .then((result) => {
         setTickets(result.data);
         setMeta(result);
         setState("ready");
       })
-      .catch(() => setState("error"));
+      .catch((requestError) => {
+        setError(requestError instanceof Error ? requestError.message : "");
+        setState("error");
+      });
   }, [requesterId, query]);
 
   const update = (change: Partial<TicketQuery>) =>
@@ -153,7 +158,7 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
           {state === "loading" && <div className="loading rows">Loading tickets...</div>}
           {state === "error" && (
             <div className="empty">
-              <h2>Could not load tickets</h2>
+              <h2 className="error-message">{error}</h2>
               <button onClick={() => setQuery({ ...query })}>Retry</button>
             </div>
           )}

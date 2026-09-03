@@ -1,7 +1,7 @@
 .topbar {
   min-height: 68px;
   background: var(--primary-green);
-  color: #fff;
+  color: var(--surface);
   display: flex;
   /* align-items: center; */
   width: 100%;
@@ -35,14 +35,14 @@
   /* flex: 1; */
   display: flex;
   align-items: center;
-  color: #fff;
+  color: var(--surface);
   text-decoration: none;
   font-weight: 700;
   position: relative;
 }
 
 .topbar a.active {
-  color: #fff;
+  color: var(--surface);
 }
 
 .topbar a.active::after {
@@ -52,7 +52,7 @@
   right: 12px;
   bottom: 0;
   height: 4px;
-  background: #fff;
+  background: var(--surface);
   border-radius: 4px 4px 0 0;
 }
 
