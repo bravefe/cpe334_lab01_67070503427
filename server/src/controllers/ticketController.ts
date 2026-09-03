@@ -124,7 +124,7 @@ export async function createTicket(
     res.status(201).json({ data: ticket });
   } catch (_error) {
     res.status(500).json({
-      error: { code: "INTERNAL_ERROR", message: "Unable to create ticket." },
+      error: { code: "INTERNAL_ERROR", message: "ERROR 500: Unable to create ticket." },
     });
   }
 }
