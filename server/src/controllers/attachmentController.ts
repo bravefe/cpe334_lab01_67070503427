@@ -1,11 +1,29 @@
 import { Request, Response } from "express";
-import multer from "multer";
+import * as multer from "multer";
 import path from "node:path";
 import { downloadableAttachment, listAttachments, maxFileSize, prepareUploadDirectory, saveAttachment, softRemoveAttachment, uploadDirectory } from "../services/attachmentService.js";
 
+type MulterFactory = {
+  (options?: multer.Options): multer.Multer;
+  diskStorage(options?: multer.DiskStorageOptions): multer.StorageEngine;
+};
+
+const createMulter = multer as unknown as MulterFactory;
 const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp", "application/pdf"]);
-const storage = multer.diskStorage({ destination: async (_req, _file, callback) => { await prepareUploadDirectory(); callback(null, uploadDirectory); }, filename: (_req, file, callback) => callback(null, `${Date.now()}-${path.basename(file.originalname)}`) });
-export const attachmentUpload = multer({ storage, limits: { fileSize: maxFileSize }, fileFilter: (_req, file, callback) => callback(null, allowedTypes.has(file.mimetype)) });
+const storage = createMulter.diskStorage({
+  destination: async (_req: Request, _file: Express.Multer.File, callback: (error: Error | null, destination: string) => void) => {
+    await prepareUploadDirectory();
+    callback(null, uploadDirectory);
+  },
+  filename: (_req: Request, file: Express.Multer.File, callback: (error: Error | null, filename: string) => void) => {
+    callback(null, `${Date.now()}-${path.basename(file.originalname)}`);
+  },
+});
+export const attachmentUpload = createMulter({
+  storage,
+  limits: { fileSize: maxFileSize },
+  fileFilter: (_req: Request, file: Express.Multer.File, callback: multer.FileFilterCallback) => callback(null, allowedTypes.has(file.mimetype)),
+});
 
 function requesterId(req: Request) { const id = Number(req.header("X-Dev-Requester-Id")); return Number.isInteger(id) && id > 0 ? id : null; }
 function error(res: Response, status: number, code: string, message: string) { return res.status(status).json({ error: { code, message } }); }
