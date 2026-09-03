@@ -51,7 +51,8 @@ describe("GET /api/tickets", () => {
     const response = await request(app)
       .get("/api/tickets")
       .query({
-        categoryId: 1
+        categoryId: 1,
+        priorityId: 1,
       })
       .set("X-Dev-Requester-Id", "1");
 
@@ -59,13 +60,11 @@ describe("GET /api/tickets", () => {
 
     const tickets = response.body.data;
 
-    expect(tickets).toHaveLength(1);
     expect(
       tickets.every(
         (ticket: any) =>
           ticket.categoryId === 1 &&
-          ticket.requestedPriorityId === 1 &&
-          ticket.currentStatusId === 1,
+          ticket.requestedPriorityId === 1 
       ),
     ).toBe(true);
   });

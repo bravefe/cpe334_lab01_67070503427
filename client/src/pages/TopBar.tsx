@@ -43,7 +43,6 @@ export default function TopBar({ requester, onChange, onMyTickets, onCreateTicke
       <a
         className={`profile${isChooseRequesterPage ? " active" : ""}`}
         onClick={onChange}
-        href="#"
       >
         <span className="profile-name">
           {(requester?.name ?? "Profile").split(/\s+/).map((part) => (
