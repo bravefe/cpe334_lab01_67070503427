@@ -21,8 +21,16 @@
    ```
 
    Creates the database schema and applies migrations.
+   Skip this step if alredy have migraions folder.
+4. **Generate the Prisma client**
 
-4. **Seed the database**
+   ```bash
+   npx prisma generate
+   ```
+
+   Generates the Prisma client for database access.
+
+5. **Seed the database**
 
    ```bash
    npx prisma db seed
@@ -30,15 +38,10 @@
 
    Inserts the initial data into the database.
 
-5. **Open Prisma Studio**
+6. **Open Prisma Studio**
 
    ```bash
    npx prisma studio
    ```
 
    Opens a browser-based interface to view and edit database records.
-
-
-```bash
-npx prisma migrate reset
-```
