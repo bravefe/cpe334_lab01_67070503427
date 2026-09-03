@@ -21,7 +21,7 @@
 }
 
 .ticket-detail-page .back-link {
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--border);
   color: var(--text);
   font-weight: 700;
@@ -35,7 +35,7 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 14px;
-  box-shadow: 0 8px 22px rgba(23, 59, 45, 0.06);
+  box-shadow: 0 8px 22px var(--shadow-card);
   padding: 28px;
 }
 
@@ -66,8 +66,8 @@
 }
 
 .ticket-detail-page .field.read-only {
-  background: #f2f4f3;
-  border: 1px solid #dde5e1;
+  background: var(--readonly-surface);
+  border: 1px solid var(--readonly-border);
   border-radius: 8px;
   padding: 12px 14px;
   min-height: 68px;
@@ -99,9 +99,9 @@
 .ticket-detail-page .field textarea {
   width: 100%;
   box-sizing: border-box;
-  border: 1px solid #c9d3ce;
+  border: 1px solid var(--control-border);
   border-radius: 8px;
-  background: #f2f4f3;
+  background: var(--readonly-surface);
   padding: 11px 12px;
   font: 14px "DM Sans";
   color: var(--text);
@@ -129,13 +129,13 @@
 
 .ticket-detail-page .attachment-box {
   margin-top: 18px;
-  border: 1.5px dashed #bfd6c9;
+  border: 1.5px dashed var(--attachment-border);
   border-radius: 10px;
   min-height: 120px;
   display: grid;
   place-items: center;
   text-align: center;
-  background: #f9fbfa;
+  background: var(--attachment-surface);
   color: var(--muted);
   padding: 18px;
 }

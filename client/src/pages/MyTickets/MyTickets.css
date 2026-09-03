@@ -28,7 +28,7 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(23, 59, 45, 0.05);
+  box-shadow: 0 6px 18px var(--shadow-soft);
   padding: 18px;
   display: grid;
   grid-template-columns: minmax(280px, 1.8fr) repeat(3, minmax(180px, 1fr));
@@ -41,7 +41,7 @@
 .selection select {
   width: 100%;
   height: 46px;
-  border: 1px solid #c9d3ce;
+  border: 1px solid var(--control-border);
   border-radius: 8px;
   padding: 0 12px;
   color: var(--text);
@@ -73,7 +73,7 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(23, 59, 45, 0.05);
+  box-shadow: 0 6px 18px var(--shadow-soft);
   overflow: hidden;
 }
 
@@ -106,7 +106,7 @@ th button {
 
 td {
   padding: 16px 12px;
-  border-bottom: 1px solid #e8ecea;
+  border-bottom: 1px solid var(--subtle-border);
   vertical-align: middle;
 }
 
@@ -143,10 +143,10 @@ td:nth-child(3) { width: 19%; }
   font-weight: 800;
 }
 
-.priority-low { background: #eef8f1; color: #2b6b42; }
-.priority-medium { background: #fff7e8; color: #8a5a00; }
-.priority-high { background: #fdecec; color: #9a2d23; }
-.status { background: #eef3fc; color: #31588f; }
+.priority-low { background: var(--low-priority-surface); color: var(--low-priority-text); }
+.priority-medium { background: var(--medium-priority-surface); color: var(--medium-priority-text); }
+.priority-high { background: var(--high-priority-surface); color: var(--high-priority-text); }
+.status { background: var(--status-surface); color: var(--status-text); }
 
 footer {
   min-height: 72px;
@@ -170,7 +170,7 @@ footer button {
 
 footer button.selected {
   background: var(--primary-green);
-  color: #fff;
+  color: var(--surface);
   border-color: var(--primary-green);
 }
 
@@ -226,7 +226,7 @@ footer button.selected {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: 18px;
     row-gap: 10px;
-    border-bottom: 1px solid #e8eee9;
+    border-bottom: 1px solid var(--mobile-border);
     padding: 16px;
   }
 

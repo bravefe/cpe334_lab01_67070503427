@@ -2,18 +2,48 @@
 
 :root {
   font-family: "DM Sans", sans-serif;
-  color: #173b2d;
-  background: #f5f7f6;
+  color: var(--text);
+  background: var(--page-bg);
   --primary-green: #006b3c;
   --secondary-green: #0b7a46;
   --pale-green: #eaf6ef;
   --page-bg: #f5f7f6;
-  --surface: #fff;
+  --surface: #ffffff;
   --text: #173b2d;
   --muted: #67756f;
+  
   --border: #d9e1dd;
+  --control-border: #c9d3ce;
+  --subtle-border: #e8ecea;
+  --mobile-border: #e8eee9;
+  --readonly-surface: #f2f4f3;
+  --attachment-surface: #f9fbfa;
+  --readonly-border: #dde5e1;
+  --attachment-border: #bfd6c9;
+
+  --focus-ring: rgba(0, 107, 60, 0.24);
+  --hover-overlay: rgba(255, 255, 255, 0.08);
+  --shadow-soft: rgba(23, 59, 45, 0.05);
+  --shadow-card: rgba(23, 59, 45, 0.06);
+  --shadow-selection: rgba(23, 59, 45, 0.12);
   --error: #b42318;
   --success: #16803c;
+
+
+  --error-surface: #fdecec;
+  --error-border: #e9bdb8;
+  --error-banner-surface: #fef2f2;
+  --error-banner-border: #fecaca;
+  --success-banner-surface: #edfdf4;
+  --success-banner-border: #b9edc8;
+  --low-priority-surface: #eef8f1;
+  --low-priority-text: #2b6b42;
+  --medium-priority-surface: #fff7e8;
+  --medium-priority-text: #8a5a00;
+  --high-priority-surface: #fdecec;
+  --high-priority-text: #9a2d23;
+  --status-surface: #eef3fc;
+  --status-text: #31588f;
 }
 
 * {
@@ -47,7 +77,7 @@ button:disabled {
 .primary {
   background: var(--primary-green) !important;
   border-color: var(--primary-green) !important;
-  color: #fff !important;
+  color: var(--surface) !important;
 }
 
 .primary:hover:not(:disabled) {
@@ -76,7 +106,7 @@ button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 a:focus-visible {
-  outline: 3px solid rgba(0, 107, 60, 0.24);
+  outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
