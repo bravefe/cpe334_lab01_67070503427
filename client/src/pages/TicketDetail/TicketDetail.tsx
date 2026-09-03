@@ -3,6 +3,7 @@ import { fetchTicketDetail } from "../../api/tickets";
 import { Requester } from "../../lib/requester";
 import { TicketDetail as TicketDetailType } from "../../lib/ticket";
 import TopBar from "../TopBar";
+import AttachmentTicketDetail from "./AttachmentTicketDetail";
 import "./TicketDetail.css";
 
 import { formatDate } from "../../lib/formatDate";
@@ -26,6 +27,7 @@ export default function TicketDetail({
   const [ticket, setTicket] = useState<TicketDetailType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState("attachments");
 
   useEffect(() => {
     setLoading(true);
@@ -171,10 +173,13 @@ export default function TicketDetail({
               />
             </div>
 
-            {/* <div className="attachment-box">
-              <p>Attachments</p>
-              <span>No attachments</span>
-            </div> */}
+            <div className="attachment-tabs" role="tablist" aria-label="Ticket sections">
+              {["Public Comments", "Attachments", "Service Actions", "Event Log"].map((tab) => {
+                const key = tab.toLowerCase().replace(" ", "-");
+                return <button key={tab} type="button" role="tab" className={`attachment-tab${activeTab === key ? " active" : ""}`} onClick={() => setActiveTab(key)}>{tab}</button>;
+              })}
+            </div>
+            {activeTab === "attachments" ? <AttachmentTicketDetail requesterId={requesterId} ticketNumber={ticketNumber} /> : <div className="attachment-empty">This section will be implemented later.</div>}
           </section>
         )}
       </main>

@@ -1,0 +1,44 @@
+import { DragEvent, useEffect, useRef, useState } from "react";
+import { downloadAttachment, fetchAttachments, removeAttachment, uploadAttachment } from "../../api/attachments";
+import { Attachment } from "../../lib/attachments";
+import "../Attachment.css";
+
+interface AttachmentTicketDetailProps { requesterId: number; ticketNumber: string; }
+const validFile = (file: File) => /\.(jpg|jpeg|png|webp|pdf)$/i.test(file.name) && file.size <= 5 * 1024 * 1024;
+
+export default function AttachmentTicketDetail({ requesterId, ticketNumber }: AttachmentTicketDetailProps) {
+  const input = useRef<HTMLInputElement>(null);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [dragging, setDragging] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const load = () => fetchAttachments(requesterId, ticketNumber).then((result) => setAttachments(result.data)).catch((error: Error) => setMessage(error.message));
+  useEffect(() => { void load(); }, [requesterId, ticketNumber]);
+
+  const add = async (newFiles: File[]) => {
+    const accepted = newFiles.filter(validFile);
+    if (accepted.length !== newFiles.length) setMessage("Only JPG, PNG, WEBP, and PDF files up to 5 MB are allowed.");
+    setBusy(true);
+    try {
+      const uploaded = await Promise.all(accepted.map((file) => uploadAttachment(requesterId, ticketNumber, file)));
+      setAttachments((current) => [...uploaded, ...current]);
+      setMessage("");
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Unable to upload attachment."); }
+    finally { setBusy(false); }
+  };
+
+  const drop = (event: DragEvent<HTMLDivElement>) => { event.preventDefault(); setDragging(false); void add(Array.from(event.dataTransfer.files)); };
+  const remove = async (attachment: Attachment) => { try { await removeAttachment(requesterId, attachment.attachmentId); setAttachments((current) => current.filter((item) => item.attachmentId !== attachment.attachmentId)); } catch (error) { setMessage(error instanceof Error ? error.message : "Unable to remove attachment."); } };
+
+  return <section className="attachment-section" aria-label="Attachments">
+    <div className="attachment-list">
+      {attachments.filter((attachment) => attachment.status === "ACTIVE").map((attachment) => <div className="attachment-row" key={attachment.attachmentId}><button className="attachment-name" type="button" onClick={() => void downloadAttachment(requesterId, attachment.attachmentId, attachment.originalFileName)}>{attachment.originalFileName}</button><button className="remove-attachment" type="button" onClick={() => void remove(attachment)} aria-label={`Remove ${attachment.originalFileName}`}>x</button></div>)}
+      {!attachments.some((attachment) => attachment.status === "ACTIVE") && <div className="attachment-empty">No attachments</div>}
+    </div>
+    <div className={`attachment-dropzone${dragging ? " is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={drop}>
+      <p>{busy ? "Uploading..." : "Drag and drop your file here"}</p><button type="button" disabled={busy} onClick={() => input.current?.click()}>+ Add File</button><input ref={input} type="file" accept=".jpg,.jpeg,.png,.webp,.pdf" multiple onChange={(event) => { void add(Array.from(event.target.files ?? [])); event.target.value = ""; }} />
+    </div>
+    {message && <p className="attachment-message">{message}</p>}
+  </section>;
+}

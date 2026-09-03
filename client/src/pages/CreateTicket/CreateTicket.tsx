@@ -1,10 +1,11 @@
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { fetchCategories, fetchPriorities, fetchRelatedSystems } from "../../api/referenceData";
 import { createTicket } from "../../api/tickets";
 import { Category, Priority, RelatedSystem } from "../../lib/reference";
 import { Requester } from "../../lib/requester";
 import { CreateTicketPayload } from "../../lib/ticket";
 import TopBar from "../TopBar";
+import AttachmentCreateTicket from "./AttachmentCreateTicket";
 import "./CreateTicket.css";
 
 interface CreateTicketProps {
@@ -31,6 +32,7 @@ export default function CreateTicket({ requester, requesterId, onBack, onCreateT
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [successTicket, setSuccessTicket] = useState<string | null>(null);
+  const [attachmentFiles, setAttachmentFiles] = useState<File[]>([]);
 
     useEffect(() => {
     fetchCategories()
@@ -87,6 +89,7 @@ export default function CreateTicket({ requester, requesterId, onBack, onCreateT
       const created = await createTicket(requesterId, payload);
       setSuccessTicket(created.ticketNumber);
       setForm(emptyForm);
+      setAttachmentFiles([]);
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "");
     } finally {
@@ -171,11 +174,7 @@ export default function CreateTicket({ requester, requesterId, onBack, onCreateT
             {errors.description && <small>{errors.description}</small>}
           </label>
 
-          {/* <div className="attachment-box">
-            <p>Drag and drop your file here</p>
-            <span>or</span>
-            <button type="button" className="secondary-button">Browse File</button>
-          </div> */}
+          <AttachmentCreateTicket files={attachmentFiles} onChange={setAttachmentFiles} />
 
           {submitError && <div className="error-banner">{submitError}</div>}
           {successTicket && <div className="success-banner">Ticket created: {successTicket}</div>}
