@@ -20,7 +20,7 @@
   --attachment-border: var(--border);
 
   --readonly-surface: var(--page-bg);
-  --attachment-surface: #f9fbfa;
+  --attachment-surface: var(--surface);
 
   /* --control-border: #c9d3ce;
   --subtle-border: #e8ecea;
@@ -39,13 +39,13 @@
   --error: #b42318;
   --success: #16803c;
 
-
   --error-surface: #fdecec;
   --error-border: #e9bdb8;
   --error-banner-surface: #fef2f2;
   --error-banner-border: #fecaca;
   --success-banner-surface: #edfdf4;
   --success-banner-border: #b9edc8;
+  
   --low-priority-surface: #eef8f1;
   --low-priority-text: #2b6b42;
   --medium-priority-surface: #fff7e8;
