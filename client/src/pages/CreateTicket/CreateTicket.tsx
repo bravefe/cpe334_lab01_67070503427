@@ -1,6 +1,7 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import { fetchCategories, fetchPriorities, fetchRelatedSystems } from "../../api/referenceData";
 import { createTicket } from "../../api/tickets";
+import { uploadAttachment } from "../../api/attachments";
 import { Category, Priority, RelatedSystem } from "../../lib/reference";
 import { Requester } from "../../lib/requester";
 import { CreateTicketPayload } from "../../lib/ticket";
@@ -87,6 +88,7 @@ export default function CreateTicket({ requester, requesterId, onBack, onCreateT
 
     try {
       const created = await createTicket(requesterId, payload);
+      await Promise.all(attachmentFiles.map((file) => uploadAttachment(requesterId, created.ticketNumber, file)));
       setSuccessTicket(created.ticketNumber);
       setForm(emptyForm);
       setAttachmentFiles([]);
