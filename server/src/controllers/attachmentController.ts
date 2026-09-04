@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { createRequire } from "node:module";
 import type * as multerTypes from "multer";
 import path from "node:path";
@@ -24,6 +24,16 @@ export const attachmentUpload = createMulter({
   fileFilter: (_req: Request, file: Express.Multer.File, callback: multerTypes.FileFilterCallback) => callback(null, allowedTypes.has(file.mimetype)),
 });
 
+
+export function handleAttachmentUpload(req: Request, res: Response, next: NextFunction) {
+  attachmentUpload.single("file")(req, res, (uploadError: unknown) => {
+    if (uploadError && typeof uploadError === "object" && "code" in uploadError && uploadError.code === "LIMIT_FILE_SIZE") {
+      return res.status(413).json({ error: { code: "FILE_TOO_LARGE", message: "Attachment must not exceed 5 MB." } });
+    }
+    if (uploadError) return next(uploadError);
+    return next();
+  });
+}
 function requesterId(req: Request) { const id = Number(req.header("X-Dev-Requester-Id")); return Number.isInteger(id) && id > 0 ? id : null; }
 function error(res: Response, status: number, code: string, message: string) { return res.status(status).json({ error: { code, message } }); }
 
