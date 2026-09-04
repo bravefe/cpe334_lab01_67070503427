@@ -14,7 +14,7 @@ export default function AttachmentTicketDetail({ requesterId, ticketNumber }: At
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
 
-  const load = () => fetchAttachments(requesterId, ticketNumber).then((result) => setAttachments(result.data)).catch((error: Error) => setMessage(error.message));
+  const load = () => fetchAttachments(requesterId, ticketNumber).then((result) => setAttachments(Array.isArray(result.data) ? result.data : [])).catch((error: Error) => setMessage(error.message));
   useEffect(() => { void load(); }, [requesterId, ticketNumber]);
 
   const add = async (newFiles: File[]) => {

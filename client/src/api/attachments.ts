@@ -14,7 +14,8 @@ async function readError(response: Response, fallback: string) {
 export async function fetchAttachments(requesterId: number, ticketNumber: string) {
   const response = await fetch(`${API_URL}/api/tickets/${encodeURIComponent(ticketNumber)}/attachments`, { headers: headers(requesterId) });
   if (!response.ok) throw new Error(await readError(response, "Unable to load attachments."));
-  return response.json() as Promise<{ data: Attachment[] }>;
+  const payload = await response.json() as Attachment[] | { data?: Attachment[] };
+  return { data: Array.isArray(payload) ? payload : Array.isArray(payload.data) ? payload.data : [] };
 }
 
 export async function uploadAttachment(requesterId: number, ticketNumber: string, file: File) {
