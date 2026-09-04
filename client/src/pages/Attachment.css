@@ -44,6 +44,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  min-width: 0;
   min-height: 52px;
   padding: 0px;
   border-bottom: 1px solid var(--border);
@@ -81,6 +82,7 @@
 }
 
 .attachment-name span:first-child {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
