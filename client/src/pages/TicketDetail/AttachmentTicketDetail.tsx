@@ -30,7 +30,24 @@ export default function AttachmentTicketDetail({ requesterId, ticketNumber }: At
   };
 
   const drop = (event: DragEvent<HTMLDivElement>) => { event.preventDefault(); setDragging(false); void add(Array.from(event.dataTransfer.files)); };
-  const remove = async (attachment: Attachment) => { try { await removeAttachment(requesterId, attachment.attachmentId); setAttachments((current) => current.filter((item) => item.attachmentId !== attachment.attachmentId)); } catch (error) { setMessage(error instanceof Error ? error.message : "Unable to remove attachment."); } };
+  const remove = async (attachment: Attachment) => {
+    const reason = window.prompt("Please enter a reason for removing this attachment:");
+    if (reason === null) return;
+
+    const trimmedReason = reason.trim();
+    if (!trimmedReason) {
+      setMessage("Removal reason is required.");
+      return;
+    }
+
+    try {
+      await removeAttachment(requesterId, attachment.attachmentId, trimmedReason);
+      setAttachments((current) => current.filter((item) => item.attachmentId !== attachment.attachmentId));
+      setMessage("");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to remove attachment.");
+    }
+  };
 
   return <section className="attachment-section" aria-label="Attachments">
     <div className="attachment-list">

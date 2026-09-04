@@ -38,10 +38,13 @@ export async function downloadAttachment(requesterId: number, attachmentId: numb
   URL.revokeObjectURL(link.href);
 }
 
-export async function removeAttachment(requesterId: number, attachmentId: number) {
+export async function removeAttachment(requesterId: number, attachmentId: number, reason: string) {
+  const trimmedReason = reason.trim();
+  if (!trimmedReason) throw new Error("Removal reason is required.");
+
   const response = await fetch(`${API_URL}/api/attachments/${attachmentId}/remove`, {
     method: "PATCH", headers: { ...headers(requesterId), "Content-Type": "application/json" },
-    body: JSON.stringify({ reason: "Removed by requester" }),
+    body: JSON.stringify({ reason: trimmedReason }),
   });
   if (!response.ok) throw new Error(await readError(response, "Unable to remove attachment."));
   const result = await response.json() as { data: Attachment };

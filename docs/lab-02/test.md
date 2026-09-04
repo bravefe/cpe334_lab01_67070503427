@@ -49,13 +49,20 @@ No planned test is skipped, disabled, commented out, or intentionally left flaky
 
 | Test ID | Type | Requirement | What It Tests | Expected Result | Final |
 |---|---|---|---|---|---|
-| API-01 | API | AC-01 | `POST /api/tickets` with valid data | 201; one Ticket saved; backend-generated Ticket Number returned | Pending |
-| API-02 | API | AC-05 | `POST /api/tickets` with empty `summary` | 400 with `fieldErrors` for `summary`; no Ticket persisted | Pending |
-| API-03 | API | AC-06 | `POST /api/tickets` with `description` < 20 chars | 400 naming the 20-char minimum | Pending |
-| API-04 | API | AC-07 | `POST /api/tickets` with `summary` = exactly 150 chars | 201; Ticket created (upper boundary passes) | Pending |
-| API-05 | API | AC-08 | `POST /api/tickets` with `summary` = 151 chars | 400; Ticket not created (upper boundary fails) | Pending |
-| API-06 | API | AC-14 | Ticket create succeeds, Attachment upload then fails | Ticket persists with its number; failed Attachment reported separately (BR-21) | Pending |
-| API-07 | API | AC-13 | `POST /api/tickets` when server errors after validation passes | 500 safe envelope; no Ticket row persisted (BR-20) | Pending |
+| Test ID | Requirement | What It Tests | Expected Result |
+| ------- | ------------- | --------------------------------------------------- | ------------------------------------------------------------ |
+| API-07 | AC-09 / BR-22 | Upload `.gif` attachment | 415; attachment not created |
+| API-08 | AC-10 / BR-23 | Upload valid PDF > 5 MB | 413; attachment not created |
+| API-09 | AC-11 / BR-24 | Upload 6th active attachment | 422; attachment not created |
+| API-10 | AC-21 / FR-12 | Upload valid attachment to owned ticket | 201; Attachment created as `ACTIVE` |
+| API-11 | FR-05 / FR-12 | List ticket attachments | 200; active + removed metadata returned |
+| API-12 | AC-22 / FR-13 | Download active attachment | 200; original file content returned |
+| API-13 | AC-23 / FR-14 | Remove attachment with valid reason | 200; status becomes `REMOVED` |
+| API-14 | BR-26 | Remove attachment with empty reason | 400; attachment remains `ACTIVE` |
+| API-15 | BR-27 | Download removed attachment | 404; file content not returned |
+| API-16 | BR-11 / FR-15 | Requester's attachment belongs to another Requester | 404; no attachment data revealed |
+| API-16 | BR-24 | Add attachment after one is removed | 201; removed attachment does not count toward 5-active limit |
+
 
 ### `server/tests/lab-02/my-tickets.api.test.ts`
 
