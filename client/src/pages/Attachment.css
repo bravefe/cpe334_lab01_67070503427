@@ -50,6 +50,11 @@
   border-bottom: 1px solid var(--border);
 }
 
+.attachment-row.removed {
+  background: rgba(23, 59, 45, 0.02);
+  opacity: 0.75;
+}
+
 .attachment-row:first-child {
   /* border-bottom: none; */
   padding-top: 0;
@@ -70,6 +75,18 @@
   text-align: left;
   padding: 0;
   outline: none;
+}
+
+.attachment-row.removed .attachment-name,
+.attachment-row.removed .attachment-uploaded-at,
+.attachment-row.removed .attachment-removal-reason,
+.attachment-row.removed .attachment-status-badge {
+  color: var(--muted);
+}
+
+.attachment-name:disabled {
+  cursor: not-allowed;
+  opacity: 0.75;
 }
 
 .attachment-name:hover,
@@ -95,6 +112,34 @@
   white-space: nowrap;
   flex-shrink: 0;
   text-decoration: none;
+}
+
+.attachment-removed-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.attachment-status-badge {
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  min-height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: rgba(23, 59, 45, 0.06);
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.attachment-removal-reason {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .attachment-row .remove-attachment {

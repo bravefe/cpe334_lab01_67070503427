@@ -51,21 +51,34 @@ export default function AttachmentTicketDetail({ requesterId, ticketNumber }: At
 
   return <section className="attachment-section" aria-label="Attachments">
     <div className="attachment-list">
-      {attachments.filter((attachment) => attachment.status === "ACTIVE").map((attachment) => (
-        <div className="attachment-row" key={attachment.attachmentId}>
-          <button
-            className="attachment-name"
-            type="button"
-            onClick={() => void downloadAttachment(requesterId, attachment.attachmentId, attachment.originalFileName)}
-            aria-label={`Download ${attachment.originalFileName} uploaded on ${formatDate(attachment.uploadedAt)}`}
-          >
-            <span>{attachment.originalFileName}</span>
-            <span className="attachment-uploaded-at">{formatDate(attachment.uploadedAt)}</span>
-          </button>
-          <button className="remove-attachment" type="button" onClick={() => void remove(attachment)} aria-label={`Remove ${attachment.originalFileName}`}>x</button>
-        </div>
-      ))}
-      {/* {!attachments.some((attachment) => attachment.status === "ACTIVE") && <div className="attachment-empty">No attachments</div>} */}
+      {attachments.map((attachment) => {
+        const isRemoved = attachment.status === "REMOVED";
+        return (
+          <div className={`attachment-row${isRemoved ? " removed" : ""}`} key={attachment.attachmentId}>
+            <button
+              className="attachment-name"
+              type="button"
+              disabled={isRemoved}
+              onClick={() => {
+                if (isRemoved) return;
+                void downloadAttachment(requesterId, attachment.attachmentId, attachment.originalFileName);
+              }}
+              aria-label={`Download ${attachment.originalFileName} uploaded on ${formatDate(attachment.uploadedAt)}`}
+            >
+              <span>{attachment.originalFileName}</span>
+              <span className="attachment-uploaded-at">{formatDate(attachment.uploadedAt)}</span>
+            </button>
+            {isRemoved ? (
+              <div className="attachment-removed-meta">
+                <span className="attachment-status-badge">Removed</span>
+                <span className="attachment-removal-reason">{attachment.removalReason ?? "Attachment removed"}</span>
+              </div>
+            ) : (
+              <button className="remove-attachment" type="button" onClick={() => void remove(attachment)} aria-label={`Remove ${attachment.originalFileName}`}>x</button>
+            )}
+          </div>
+        );
+      })}
     </div>
     <div className={`attachment-dropzone${dragging ? " is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={drop}>
       <p>{busy ? "Uploading..." : "Drag and drop your file here"}</p><button type="button" disabled={busy} onClick={() => input.current?.click()}>+ Add File</button><input ref={input} type="file" accept=".jpg,.jpeg,.png,.webp,.pdf" multiple onChange={(event) => { void add(Array.from(event.target.files ?? [])); event.target.value = ""; }} />
