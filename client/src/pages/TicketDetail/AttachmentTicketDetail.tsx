@@ -34,7 +34,7 @@ export default function AttachmentTicketDetail({ requesterId, ticketNumber }: At
   return <section className="attachment-section" aria-label="Attachments">
     <div className="attachment-list">
       {attachments.filter((attachment) => attachment.status === "ACTIVE").map((attachment) => <div className="attachment-row" key={attachment.attachmentId}><button className="attachment-name" type="button" onClick={() => void downloadAttachment(requesterId, attachment.attachmentId, attachment.originalFileName)}>{attachment.originalFileName}</button><button className="remove-attachment" type="button" onClick={() => void remove(attachment)} aria-label={`Remove ${attachment.originalFileName}`}>x</button></div>)}
-      {!attachments.some((attachment) => attachment.status === "ACTIVE") && <div className="attachment-empty">No attachments</div>}
+      {/* {!attachments.some((attachment) => attachment.status === "ACTIVE") && <div className="attachment-empty">No attachments</div>} */}
     </div>
     <div className={`attachment-dropzone${dragging ? " is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={drop}>
       <p>{busy ? "Uploading..." : "Drag and drop your file here"}</p><button type="button" disabled={busy} onClick={() => input.current?.click()}>+ Add File</button><input ref={input} type="file" accept=".jpg,.jpeg,.png,.webp,.pdf" multiple onChange={(event) => { void add(Array.from(event.target.files ?? [])); event.target.value = ""; }} />

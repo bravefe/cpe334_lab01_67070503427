@@ -1,16 +1,118 @@
-.attachment-section { margin-top: 24px; border-top: 1px solid var(--border); padding-top: 20px; }
-.attachment-tabs { display: flex; gap: 24px; border-bottom: 1px solid var(--border); margin-bottom: 20px; overflow-x: auto; }
-.attachment-tab { min-height: 42px; padding: 0 2px; border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: transparent; color: var(--muted); white-space: nowrap; }
-.attachment-tab:hover:not(:disabled) { background: transparent; color: var(--text); }
-.attachment-tab.active { border-bottom-color: var(--primary-green); color: var(--text); }
-.attachment-list { display: grid; gap: 2px; margin-bottom: 16px; }
-.attachment-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; padding: 6px 10px; border-bottom: 1px solid var(--border); }
-.attachment-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
-.attachment-row .attachment-name { flex: 1; border: 0; background: transparent; color: var(--primary-green); font: 700 14px "DM Sans"; cursor: pointer; }
-.attachment-row .remove-attachment { min-height: 34px; padding: 0 10px; border: 0; background: transparent; color: var(--error); }
-.attachment-dropzone { border: 1.5px dashed var(--attachment-border); border-radius: 10px; min-height: 120px; display: grid; place-items: center; align-content: center; gap: 8px; padding: 18px; text-align: center; background: var(--attachment-surface); color: var(--muted); }
-.attachment-dropzone.is-dragging { border-color: var(--primary-green); background: var(--pale-green); }
-.attachment-dropzone p { margin: 0; color: var(--text); font-weight: 700; }
-.attachment-dropzone input { display: none; }
-.attachment-empty, .attachment-message { padding: 12px 0; color: var(--muted); }
-.attachment-message { color: var(--error); font-weight: 700; }
+.ticket-tabs {
+  display: flex;
+  margin-top: 24px;
+  gap: 24px;
+  border-bottom: 1px solid var(--border);
+  /* margin-bottom: 20px; */
+  overflow-x: auto;
+}
+
+.attachment-section {
+  border-top: 1px solid var(--border);
+  padding-top: 0;
+}
+
+.attachment-tab {
+  min-height: 42px;
+  padding: 0 2px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.attachment-tab:hover:not(:disabled) {
+  background: transparent;
+  color: var(--text);
+}
+
+.attachment-tab.active {
+  border-bottom-color: var(--primary-green);
+  color: var(--text);
+}
+
+.attachment-list {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 16px;
+}
+
+.attachment-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  padding: 0px;
+  border-bottom: 1px solid var(--border);
+}
+
+.attachment-row:first-child {
+  padding-top: 0;
+}
+
+.attachment-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.attachment-row .attachment-name {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  color: var(--primary-green);
+  font: 700 14px "DM Sans";
+  cursor: pointer;
+}
+
+.attachment-row .remove-attachment {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 0;
+  background: transparent;
+  color: var(--error);
+}
+
+.attachment-dropzone {
+  border: 1.5px dashed var(--attachment-border);
+  border-radius: 10px;
+  min-height: 120px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  padding: 18px;
+  text-align: center;
+  background: var(--attachment-surface);
+  color: var(--muted);
+}
+
+.attachment-dropzone.is-dragging {
+  border-color: var(--primary-green);
+  background: var(--pale-green);
+}
+
+.attachment-dropzone p {
+  margin: 0;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.attachment-dropzone input {
+  display: none;
+}
+
+.attachment-empty,
+.attachment-message {
+  padding: 12px 0;
+  color: var(--muted);
+}
+
+.attachment-message {
+  color: var(--error);
+  font-weight: 700;
+}

@@ -28,7 +28,7 @@ export default function AttachmentCreateTicket({ files, onChange }: AttachmentCr
   return <section className="attachment-section" aria-label="Attachments">
     <div className="attachment-list">
       {files.map((file, index) => <div className="attachment-row" key={`${file.name}-${index}`}><span className="attachment-name">{file.name}</span><button className="remove-attachment" type="button" onClick={() => onChange(files.filter((_, fileIndex) => fileIndex !== index))}>x</button></div>)}
-      {!files.length && <div className="attachment-empty">No attachments selected</div>}
+      {/* {!files.length && <div className="attachment-empty">No attachments selected</div>} */}
     </div>
     <div className={`attachment-dropzone${dragging ? " is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={drop}>
       <p>Drag and drop your file here</p>

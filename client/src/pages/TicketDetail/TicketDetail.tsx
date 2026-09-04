@@ -173,7 +173,7 @@ export default function TicketDetail({
               />
             </div>
 
-            <div className="attachment-tabs" role="tablist" aria-label="Ticket sections">
+            <div className="ticket-tabs" role="tablist" aria-label="Ticket sections">
               {["Public Comments", "Attachments", "Service Actions", "Event Log"].map((tab) => {
                 const key = tab.toLowerCase().replace(" ", "-");
                 return <button key={tab} type="button" role="tab" className={`attachment-tab${activeTab === key ? " active" : ""}`} onClick={() => setActiveTab(key)}>{tab}</button>;
