@@ -71,12 +71,14 @@
   outline: none;
 }
 
+.attachment-name:hover,
+.attachment-name:hover:not(:disabled) {
+  background: transparent !important;
+}
+
 .attachment-name:hover span:first-child {
   text-decoration: underline;
 }
-.attachment-name:hover{
-  background: transparent;
-} 
 
 .attachment-name span:first-child {
   overflow: hidden;

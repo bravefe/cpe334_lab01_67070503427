@@ -88,6 +88,12 @@
   margin-top: 12px;
 }
 
+.create-ticket-page .field.full-width.attachment-label {
+  margin-bottom: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
 .create-ticket-page .attachment-box {
   margin-top: 18px;
   border: 1.5px dashed var(--attachment-border);
