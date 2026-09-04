@@ -6,6 +6,7 @@ import "../Attachment.css";
 
 interface AttachmentTicketDetailProps { requesterId: number; ticketNumber: string; }
 const validFile = (file: File) => /\.(jpg|jpeg|png|webp|pdf)$/i.test(file.name) && file.size <= 5 * 1024 * 1024;
+const MAX_ACTIVE_ATTACHMENTS = 5;
 
 export default function AttachmentTicketDetail({ requesterId, ticketNumber }: AttachmentTicketDetailProps) {
   const input = useRef<HTMLInputElement>(null);
@@ -18,8 +19,20 @@ export default function AttachmentTicketDetail({ requesterId, ticketNumber }: At
   useEffect(() => { void load(); }, [requesterId, ticketNumber]);
 
   const add = async (newFiles: File[]) => {
-    const accepted = newFiles.filter(validFile);
-    if (accepted.length !== newFiles.length) setMessage("Only JPG, PNG, WEBP, and PDF files up to 5 MB are allowed.");
+    const valid = newFiles.filter(validFile);
+    const invalid = newFiles.length - valid.length;
+    const activeCount = attachments.filter((item) => item.status === "ACTIVE").length;
+    const remainingSlots = MAX_ACTIVE_ATTACHMENTS - activeCount;
+
+    if (remainingSlots <= 0) {
+      setMessage("Attachment limit reached. You can upload up to 5 active attachments.");
+      return;
+    }
+
+    const accepted = valid.slice(0, remainingSlots);
+    if (invalid > 0 || valid.length > remainingSlots) setMessage(invalid > 0 ? "Only JPG, PNG, WEBP, and PDF files up to 5 MB are allowed." : "Attachment limit reached. You can upload up to 5 active attachments.");
+    if (!accepted.length) return;
+
     setBusy(true);
     try {
       const uploaded = await Promise.all(accepted.map((file) => uploadAttachment(requesterId, ticketNumber, file)));

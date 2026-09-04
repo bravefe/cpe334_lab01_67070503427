@@ -189,3 +189,107 @@ No planned test is skipped, disabled, commented out, or intentionally left flaky
    Start at  10:27:30
    Duration  3.47s (transform 340ms, setup 0ms, collect 1.11s, tests 312ms, environment 1ms, prepare 818ms)
 ```
+
+```bash
+ RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/server
+
+ ✓ tests/lab-02/attachments.api.test.ts (11) 591ms
+   ✓ Attachment API (11) 590ms
+     ✓ API-07: rejects GIF attachments without creating one
+     ✓ API-08: rejects a valid PDF larger than 5 MB
+     ✓ API-09: rejects a sixth active attachment
+     ✓ API-10: uploads a valid attachment to an owned ticket
+     ✓ API-11: lists active and removed attachment metadata
+     ✓ API-12: downloads an active attachment with its original content
+     ✓ API-13: removes an attachment with a valid reason
+     ✓ API-14: rejects an empty removal reason and keeps the attachment active
+     ✓ API-15: does not download a removed attachment
+     ✓ API-16: hides another requester's attachment
+     ✓ API-24: allows an upload after an attachment is removed
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  22:56:49
+   Duration  2.72s (transform 93ms, setup 0ms, collect 1.25s, tests 591ms, environment 0ms, prepare 449ms)
+```
+
+```bash 
+ RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/client
+
+ ✓ tests/lab-02/RequesterTicketDetail.test.tsx (2)
+   ✓ Requester ticket detail attachments (2)
+     ✓ UI-15: adds a valid attachment from ticket detail without reload
+     ✓ UI-16: renders a removed attachment as greyed-out with reason and disabled download
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  22:45:53
+   Duration  1.30s (transform 136ms, setup 60ms, collect 273ms, tests 203ms, environment 365ms, prepare 146ms)
+```
+
+```bash 
+ RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/client
+
+ ✓ tests/lab-02/MyTickets.test.tsx (3) 683ms
+   ✓ My Tickets screen (3) 682ms
+     ✓ UI-11: shows the empty state and Create Ticket CTA for a requester with no tickets
+     ✓ UI-12: shows no-results state and clears active filters
+     ✓ UI-13: changes requester and reloads My Tickets with the new requester
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  21:31:44
+   Duration  3.54s (transform 260ms, setup 115ms, collect 556ms, tests 683ms, environment 839ms, prepare 431ms)
+```
+
+```bash
+ RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/client
+
+ ✓ tests/lab-02/CreateTicket.test.tsx (9) 3908ms
+   ✓ Create Ticket screen (9) 3907ms
+     ✓ UI-01: redirects to requester selection without a selected requester
+     ✓ shows the create ticket form when a requester is selected
+     ✓ navigates to create ticket from the top bar
+     ✓ UI-02: shows an inline summary error without calling the create API
+     ✓ UI-03: reports the 20-character description minimum 984ms
+     ✓ UI-04: disables submit while a valid request is pending 1153ms
+     ✓ UI-05: shows a safe error and preserves values when the backend is unreachable 1175ms
+     ✓ UI-06: reaches every create-ticket form control with the keyboard 343ms
+     ✓ UI-07: renders generated fields as shaded, non-focusable read-only fields
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  21:21:14
+   Duration  5.21s (transform 129ms, setup 69ms, collect 265ms, tests 3.91s, environment 425ms, prepare 123ms)
+```
+
+```bash
+ RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/client
+
+ ✓ tests/lab-02/RequesterTicketDetail.test.tsx (2)
+   ✓ Requester ticket detail attachments (2)
+     ✓ UI-15: adds a valid attachment from ticket detail without reload
+     ✓ UI-16: renders a removed attachment as greyed-out with reason and disabled download
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  22:45:53
+   Duration  1.30s (transform 136ms, setup 60ms, collect 273ms, tests 203ms, environment 365ms, prepare 146ms)
+                                             cd client^C           
+PS D:\KMUTT\Year 3\Software Engineer\client> npm test -- tests/lab-02/AttachmentSection.test.tsx     
+npm notice run toktickit-client@1.0.0 test
+npm notice run vitest run tests/lab-02/AttachmentSection.test.tsx
+
+ RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/client
+
+ ✓ tests/lab-02/AttachmentSection.test.tsx (3)
+   ✓ Attachment controls (3)
+     ✓ UI-08: rejects gif or oversized PDF files before upload
+     ✓ UI-09: shows remaining slots and blocks the 6th file
+     ✓ UI-10: blocks removal without a non-empty reason
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  22:55:28
+   Duration  1.45s (transform 80ms, setup 92ms, collect 188ms, tests 277ms, environment 418ms, prepare 132ms)
+```

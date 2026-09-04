@@ -39,6 +39,14 @@
   margin-bottom: 16px;
 }
 
+.attachment-limit-indicator {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: right;
+}
+
 .attachment-row {
   display: flex;
   align-items: center;
