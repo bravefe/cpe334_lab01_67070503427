@@ -1,6 +1,7 @@
 import { DragEvent, useEffect, useRef, useState } from "react";
 import { downloadAttachment, fetchAttachments, removeAttachment, uploadAttachment } from "../../api/attachments";
 import { Attachment } from "../../lib/attachments";
+import { formatDate } from "../../lib/formatDate";
 import "../Attachment.css";
 
 interface AttachmentTicketDetailProps { requesterId: number; ticketNumber: string; }
@@ -33,7 +34,20 @@ export default function AttachmentTicketDetail({ requesterId, ticketNumber }: At
 
   return <section className="attachment-section" aria-label="Attachments">
     <div className="attachment-list">
-      {attachments.filter((attachment) => attachment.status === "ACTIVE").map((attachment) => <div className="attachment-row" key={attachment.attachmentId}><button className="attachment-name" type="button" onClick={() => void downloadAttachment(requesterId, attachment.attachmentId, attachment.originalFileName)}>{attachment.originalFileName}</button><button className="remove-attachment" type="button" onClick={() => void remove(attachment)} aria-label={`Remove ${attachment.originalFileName}`}>x</button></div>)}
+      {attachments.filter((attachment) => attachment.status === "ACTIVE").map((attachment) => (
+        <div className="attachment-row" key={attachment.attachmentId}>
+          <button
+            className="attachment-name"
+            type="button"
+            onClick={() => void downloadAttachment(requesterId, attachment.attachmentId, attachment.originalFileName)}
+            aria-label={`Download ${attachment.originalFileName} uploaded on ${formatDate(attachment.uploadedAt)}`}
+          >
+            <span>{attachment.originalFileName}</span>
+            <span className="attachment-uploaded-at">{formatDate(attachment.uploadedAt)}</span>
+          </button>
+          <button className="remove-attachment" type="button" onClick={() => void remove(attachment)} aria-label={`Remove ${attachment.originalFileName}`}>x</button>
+        </div>
+      ))}
       {/* {!attachments.some((attachment) => attachment.status === "ACTIVE") && <div className="attachment-empty">No attachments</div>} */}
     </div>
     <div className={`attachment-dropzone${dragging ? " is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={drop}>

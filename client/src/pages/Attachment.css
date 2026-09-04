@@ -3,18 +3,18 @@
   margin-top: 24px;
   gap: 24px;
   border-bottom: 1px solid var(--border);
-  /* margin-bottom: 20px; */
+  /* margin-bottom: 1px; */
   overflow-x: auto;
 }
 
 .attachment-section {
-  border-top: 1px solid var(--border);
+  /* border-top: 1px solid var(--border); */
   padding-top: 0;
 }
 
 .attachment-tab {
   min-height: 42px;
-  padding: 0 2px;
+  padding: 0px;
   border: 0;
   border-bottom: 3px solid transparent;
   border-radius: 0;
@@ -35,7 +35,7 @@
 
 .attachment-list {
   display: grid;
-  gap: 2px;
+  /* gap: 2px; */
   margin-bottom: 16px;
 }
 
@@ -50,23 +50,47 @@
 }
 
 .attachment-row:first-child {
+  /* border-bottom: none; */
   padding-top: 0;
 }
 
 .attachment-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-align: left;
-}
-
-.attachment-row .attachment-name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   flex: 1;
+  min-width: 0;
   border: 0;
   background: transparent;
   color: var(--primary-green);
   font: 700 14px "DM Sans";
   cursor: pointer;
+  text-align: left;
+  padding: 0;
+  outline: none;
+}
+
+.attachment-name:hover span:first-child {
+  text-decoration: underline;
+}
+.attachment-name:hover{
+  background: transparent;
+} 
+
+.attachment-name span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.attachment-uploaded-at {
+  color: var(--text);
+  font-size: 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-decoration: none;
 }
 
 .attachment-row .remove-attachment {
@@ -75,6 +99,7 @@
   border: 0;
   background: transparent;
   color: var(--error);
+  flex-shrink: 0;
 }
 
 .attachment-dropzone {

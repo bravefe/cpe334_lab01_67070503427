@@ -25,9 +25,25 @@ export default function AttachmentCreateTicket({ files, onChange }: AttachmentCr
     add(Array.from(event.dataTransfer.files));
   };
 
+  const downloadLocalFile = (file: File) => {
+    const url = URL.createObjectURL(file);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = file.name;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
+
   return <section className="attachment-section" aria-label="Attachments">
     <div className="attachment-list">
-      {files.map((file, index) => <div className="attachment-row" key={`${file.name}-${index}`}><span className="attachment-name">{file.name}</span><button className="remove-attachment" type="button" onClick={() => onChange(files.filter((_, fileIndex) => fileIndex !== index))}>x</button></div>)}
+      {files.map((file, index) => (
+        <div className="attachment-row" key={`${file.name}-${index}`}>
+          <button className="attachment-name" type="button" onClick={() => downloadLocalFile(file)}>
+            <span>{file.name}</span>
+          </button>
+          <button className="remove-attachment" type="button" onClick={() => onChange(files.filter((_, fileIndex) => fileIndex !== index))}>x</button>
+        </div>
+      ))}
       {/* {!files.length && <div className="attachment-empty">No attachments selected</div>} */}
     </div>
     <div className={`attachment-dropzone${dragging ? " is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={drop}>
