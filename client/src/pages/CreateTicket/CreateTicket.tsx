@@ -188,6 +188,11 @@ export default function CreateTicket({ requester, requesterId, onBack, onCreateT
             </button>
           </div>
         </section>
+
+        {/* <section className="ticket-form-card">
+          <AttachmentCreateTicket files={attachmentFiles} onChange={setAttachmentFiles} />
+        </section> */}
+
       </main>
     </>
   );

@@ -1,20 +1,19 @@
 import { Request, Response } from "express";
-import * as multer from "multer";
+import { createRequire } from "node:module";
+import type * as multerTypes from "multer";
 import path from "node:path";
-import { downloadableAttachment, listAttachments, maxFileSize, prepareUploadDirectory, saveAttachment, softRemoveAttachment, uploadDirectory } from "../services/attachmentService.js";
+import { downloadableAttachment, listAttachments, maxFileSize, saveAttachment, softRemoveAttachment, uploadDirectory } from "../services/attachmentService.js";
 
 type MulterFactory = {
-  (options?: multer.Options): multer.Multer;
-  diskStorage(options?: multer.DiskStorageOptions): multer.StorageEngine;
+  (options?: multerTypes.Options): multerTypes.Multer;
+  diskStorage(options?: multerTypes.DiskStorageOptions): multerTypes.StorageEngine;
 };
 
-const createMulter = multer as unknown as MulterFactory;
+const require = createRequire(import.meta.url);
+const createMulter = require("multer") as MulterFactory;
 const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp", "application/pdf"]);
 const storage = createMulter.diskStorage({
-  destination: async (_req: Request, _file: Express.Multer.File, callback: (error: Error | null, destination: string) => void) => {
-    await prepareUploadDirectory();
-    callback(null, uploadDirectory);
-  },
+  destination: uploadDirectory,
   filename: (_req: Request, file: Express.Multer.File, callback: (error: Error | null, filename: string) => void) => {
     callback(null, `${Date.now()}-${path.basename(file.originalname)}`);
   },
@@ -22,7 +21,7 @@ const storage = createMulter.diskStorage({
 export const attachmentUpload = createMulter({
   storage,
   limits: { fileSize: maxFileSize },
-  fileFilter: (_req: Request, file: Express.Multer.File, callback: multer.FileFilterCallback) => callback(null, allowedTypes.has(file.mimetype)),
+  fileFilter: (_req: Request, file: Express.Multer.File, callback: multerTypes.FileFilterCallback) => callback(null, allowedTypes.has(file.mimetype)),
 });
 
 function requesterId(req: Request) { const id = Number(req.header("X-Dev-Requester-Id")); return Number.isInteger(id) && id > 0 ? id : null; }
