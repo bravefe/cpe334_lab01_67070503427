@@ -14,6 +14,7 @@ interface CreateTicketProps {
   requesterId: number;
   onBack: () => void;
   onCreateTicket?: () => void;
+  onOpenTicket?: (ticketNumber: string) => void;
 }
 
 const emptyForm = {
@@ -24,7 +25,7 @@ const emptyForm = {
   requestedPriorityId: "",
 };
 
-export default function CreateTicket({ requester, requesterId, onBack, onCreateTicket }: CreateTicketProps) {
+export default function CreateTicket({ requester, requesterId, onBack, onCreateTicket, onOpenTicket }: CreateTicketProps) {
   const [form, setForm] = useState(emptyForm);
   const [categories, setCategories] = useState<Category[]>([]);
   const [relatedSystems, setRelatedSystems] = useState<RelatedSystem[]>([]);
@@ -92,6 +93,7 @@ export default function CreateTicket({ requester, requesterId, onBack, onCreateT
       setSuccessTicket(created.ticketNumber);
       setForm(emptyForm);
       setAttachmentFiles([]);
+      onOpenTicket?.(created.ticketNumber);
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "");
     } finally {

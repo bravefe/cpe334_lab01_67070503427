@@ -110,6 +110,7 @@ export default function App() {
         requesterId={requesterId}
         onBack={handleMyTickets}
         onCreateTicket={handleCreateTicket}
+        onOpenTicket={handleOpenTicket}
       />
     );
   }
