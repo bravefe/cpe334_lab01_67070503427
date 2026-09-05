@@ -24,6 +24,7 @@ export default function AttachmentTicketDetail({ requesterId, ticketNumber }: At
   const [dragging, setDragging] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [messageTone, setMessageTone] = useState<"error" | "warning">("error");
 
   const load = () => fetchAttachments(requesterId, ticketNumber).then((result) => setAttachments(Array.isArray(result.data) ? result.data : [])).catch((error: Error) => setMessage(error.message));
   useEffect(() => { void load(); }, [requesterId, ticketNumber]);
@@ -36,6 +37,7 @@ export default function AttachmentTicketDetail({ requesterId, ticketNumber }: At
 
     if (remainingSlots <= 0) {
       setMessage("Attachment limit reached. You can upload up to 5 active attachments.");
+      setMessageTone("warning");
       return;
     }
 
@@ -45,7 +47,10 @@ export default function AttachmentTicketDetail({ requesterId, ticketNumber }: At
       : valid.length > remainingSlots
         ? "Attachment limit reached. You can upload up to 5 active attachments."
         : "";
-    if (uploadMessage) setMessage(uploadMessage);
+    if (uploadMessage) {
+      setMessage(uploadMessage);
+      setMessageTone(valid.length > remainingSlots ? "warning" : "error");
+    }
     if (!accepted.length) return;
 
     setBusy(true);
@@ -118,6 +123,6 @@ export default function AttachmentTicketDetail({ requesterId, ticketNumber }: At
       </div>
     )}
     <input ref={input} type="file" accept=".jpg,.jpeg,.png,.webp,.pdf" multiple style={{ position: "absolute", width: 1, height: 1, opacity: 0 }} onChange={(event) => { void add(Array.from(event.target.files ?? [])); event.target.value = ""; }} />
-    {message && <p className="attachment-message">{message}</p>}
+    {message && <p className={`attachment-message ${messageTone}`}>{message}</p>}
   </section>;
 }

@@ -23,6 +23,7 @@ export default function AttachmentCreateTicket({ files, onChange }: AttachmentCr
   const input = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   const [message, setMessage] = useState("");
+  const [messageTone, setMessageTone] = useState<"error" | "warning">("error");
 
   const add = (newFiles: File[]) => {
     const valid = newFiles.filter(validFile);
@@ -31,6 +32,7 @@ export default function AttachmentCreateTicket({ files, onChange }: AttachmentCr
 
     if (remainingSlots <= 0) {
       setMessage("Attachment limit reached. You can upload up to 5 active attachments.");
+      setMessageTone("warning");
       return;
     }
 
@@ -38,6 +40,7 @@ export default function AttachmentCreateTicket({ files, onChange }: AttachmentCr
     const overflow = valid.length - accepted.length;
 
     if (invalid > 0 || overflow > 0) {
+      setMessageTone(overflow > 0 ? "warning" : "error");
       setMessage(
         overflow > 0
           ? "Attachment limit reached. You can upload up to 5 active attachments."
@@ -45,6 +48,7 @@ export default function AttachmentCreateTicket({ files, onChange }: AttachmentCr
       );
     } else {
       setMessage("");
+      setMessageTone("error");
     }
 
     onChange([...files, ...accepted].slice(0, MAX_ACTIVE_ATTACHMENTS));
@@ -89,6 +93,6 @@ export default function AttachmentCreateTicket({ files, onChange }: AttachmentCr
       </div>
     )}
     <input ref={input} type="file" accept=".jpg,.jpeg,.png,.webp,.pdf" multiple style={{ position: "absolute", width: 1, height: 1, opacity: 0 }} onChange={(event) => { add(Array.from(event.target.files ?? [])); event.target.value = ""; }} />
-    {message && <p className="attachment-message">{message}</p>}
+    {message && <p className={`attachment-message ${messageTone}`}>{message}</p>}
   </section>;
 }

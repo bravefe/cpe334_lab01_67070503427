@@ -37,12 +37,15 @@
   --shadow-selection: rgba(23, 59, 45, 0.12);
 
   --error: #b42318;
+  --warning: #b54708;
   --success: #16803c;
 
   --error-surface: #fdecec;
   --error-border: #e9bdb8;
   --error-banner-surface: #fef2f2;
   --error-banner-border: #fecaca;
+  --warning-surface: #fff7e8;
+  --warning-border: #f2c98b;
   --success-banner-surface: #edfdf4;
   --success-banner-border: #b9edc8;
   

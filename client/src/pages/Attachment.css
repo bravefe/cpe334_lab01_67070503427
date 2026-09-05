@@ -200,6 +200,14 @@
   font-weight: 700;
 }
 
+.attachment-message.warning {
+  padding: 10px 12px;
+  border: 1px solid var(--warning-border);
+  border-radius: 8px;
+  background: var(--warning-surface);
+  color: var(--warning);
+}
+
 @media (max-width: 767px) {
   .attachment-row {
     align-items: flex-end;
