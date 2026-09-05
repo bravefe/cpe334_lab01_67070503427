@@ -177,9 +177,6 @@ export default function CreateTicket({ requester, requesterId, onBack, onCreateT
             />
             {errors.description && <small>{errors.description}</small>}
           </label>
-          <label className="field full-width attachment-label">
-            <span>Attachment</span>
-          </label>
           <AttachmentCreateTicket files={attachmentFiles} onChange={setAttachmentFiles} />
 
           {submitError && <div className="error-banner">{submitError}</div>}

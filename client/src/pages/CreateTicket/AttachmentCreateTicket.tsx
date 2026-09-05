@@ -58,6 +58,9 @@ export default function AttachmentCreateTicket({ files, onChange }: AttachmentCr
   const remainingSlots = Math.max(0, MAX_ACTIVE_ATTACHMENTS - files.length);
 
   return <section className="attachment-section" aria-label="Attachments">
+    <label className="field full-width attachment-label" style={{flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+      <span>Attachment</span><div className="attachment-limit-indicator" style={{ margin: 0 }}>{remainingSlots} remaining</div>
+    </label>
     <div className="attachment-list">
       {files.map((file, index) => (
         <div className="attachment-row" key={`${file.name}-${index}`}>
@@ -67,7 +70,6 @@ export default function AttachmentCreateTicket({ files, onChange }: AttachmentCr
           <button className="remove-attachment" type="button" onClick={() => onChange(files.filter((_, fileIndex) => fileIndex !== index))}>x</button>
         </div>
       ))}
-      <div className="attachment-limit-indicator">{remainingSlots} remaining</div>
       {/* {!files.length && <div className="attachment-empty">No attachments selected</div>} */}
     </div>
     <div className={`attachment-dropzone${dragging ? " is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={drop}>
