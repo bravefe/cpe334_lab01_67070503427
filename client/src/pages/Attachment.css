@@ -199,3 +199,21 @@
   color: var(--error);
   font-weight: 700;
 }
+
+@media (max-width: 767px) {
+  .attachment-row {
+    align-items: flex-end;
+  }
+
+  .attachment-name {
+    flex-wrap: wrap;
+  }
+
+  .attachment-name > span:first-child {
+    flex: 1 1 100%;
+  }
+
+  .attachment-row .remove-attachment {
+    align-self: flex-end;
+  }
+}
