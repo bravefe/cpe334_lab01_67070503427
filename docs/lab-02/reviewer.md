@@ -265,3 +265,426 @@ I checked the PR. The attachment functionality and related tests appear to be im
 Make sure that your tests pass. That's all. Great job.
 Notify me when you want to merge.
 ```
+**Me:** Thank you very much all the document are now complete. You can now merge it.
+
+## Pull Requests I reviewed 
+| PR | Branch | Reviewer verdict |
+|----|--------|------------------|
+|  #16  | docs/lab2-spec-plan | Aprove |
+|  #17  | feat/lab2-db-context| Aprove |
+|  #18  | feature/6-create-ticket | Aprove |
+|  #19  | feature/7-my-tickets | Aprove |
+|  #20  | feature/8-ticket-detail-attachments | Aprove |
+|  #21  | feature/9-e2e-release | Aprove |
+
+### #16 docs/lab2-spec-plan
+```
+## Description
+This PR introduces the Spec-Driven Development (Spec DD) and Test-Driven Development (Test DD) documentation required for Lab 2, Phase 1. It establishes the foundational engineering contract prior to any codebase implementation.
+
+## Deliverables Completed
+* **Specification:** Added `docs/lab-02/specification.md` containing the Sprint Goal, Scope, Functional Requirements (FR-01 to FR-07), Business Rules (BR-01 to BR-05), Acceptance Criteria, and the Definition of Done.
+* **UI Rules:** Added `docs/lab-02/ui-spec.md` detailing the Zen Green theme color palette (`#006B3C`), responsive breakpoints (Desktop, Tablet, Mobile), and component states.
+* **API Contract:** Added `docs/lab-02/api-spec.md` outlining the required REST endpoints, HTTP status codes, and error response handling.
+* **Test Plan:** Added `docs/lab-02/tests.md` featuring the Planned-Test Table, acceptance-criterion traceability, and test strategy.
+
+## Related Issue 
+Related to #10
+
+## Notes for Reviewer
+Please ensure all 4 markdown files meet the Phase 1 documentation requirements. *(Note: I will capture the required timestamp screenshot of this PR before merging!)*
+```
+> **bravefe** requested changes
+
+**bravefe:**
+```
+Thank you for the detailed PR description. Before I approve the work, could you please recheck `docs/lab-02/tests.md` in detail?
+
+In particular, please verify that:
+
+* The test cases and expected results are sufficiently detailed and accurately reflect the requirements and acceptance criteria.
+
+Additionally, adding more detail to the specification file, where appropriate, would be welcome.
+
+Once you have rechecked and confirmed these points, please let me know so I can proceed with the review and approval.
+```
+
+**SaintCrois:** Of course! Will look into that. Thank you.
+
+**SaintCrois:** Hey! I have fixed the problem you've outlined. Please take a look!
+
+> **bravefe** approved these changes
+
+**bravefe** I’ve reviewed your changes, and they include the additional information discussed. If there are no further changes needed, I’ll proceed with merging the PR.
+
+**SaintCrois:** Wait. I found a bit of flaw in test.md. Please wait until further notice.
+
+**SaintCrois:** The problem had been solved. Please proceed with final review. Sorry for inconvenience.
+
+> **bravefe** merged commit d440f25 into lab2-staging
+
+### #17 feat/lab2-db-context
+```
+# What is it
+- Aligns the database schema and seed data with the approved Phase 1 specification for Lab 2 (Issue 6).
+- Corrects previous schema deviations before starting backend API development.
+- Keeps the implementation within the defined Lab 2 scope.
+
+# What changed
+- Updated `server/prisma/schema.prisma` to match `specification.md`.
+- Removed out-of-scope models:
+  - `PublicComment`
+  - `ServiceAction`
+  - `EventLog`
+- Renamed `ticketCode` → `ticketNumber`.
+- Renamed `fileSizeBytes` → `fileSize`.
+- Updated `server/prisma/seed.ts` to generate tickets using the required `TKT-2026-` prefix.
+- Seeded the database with:
+  - Active Requesters
+  - Categories
+  - Related Systems
+  - 10 dummy tickets
+
+# Testing
+- [x] Ran `npx prisma migrate dev`
+- [x] Ran `npx prisma db seed`
+- [x] Ran `npx prisma generate`
+- [x] Verified the generated TypeScript types.
+
+# Related Issue
+- Related to #11
+
+# Notes for Reviewer
+- Please verify that the Prisma schema matches the Phase 1 specification.
+- Please verify that no out-of-scope models or fields were added.
+- The database is now ready for the backend API implementation.
+```
+> **bravefe** approved these changes
+
+**bravefe:**
+```
+Flawless work! All the data has been implemented correctly with the appropriate names and attributes. The only thing I noticed is that some of the dummy data looks oddly familiar. 😄
+
+Other than that, there is nothing else that needs to be changed. Please let me know when you’re ready to merge the PR.
+```
+
+**SaintCrois:** Thank you! Hehe. Please proceed to merge this PR.
+
+> **bravefe** merged commit 28e97a6 into lab2-staging 
+
+### #18 feature/6-create-ticket
+```
+## Summary
+
+Implemented Issue 7: Ticket creation API, UI, validation, and tests.
+
+## Changes
+
+- Added active Development Requester loading and selection/context handling.
+- Added Create Ticket screen with:
+  - Summary
+  - Category
+  - Related System
+  - Requested Priority
+  - Description
+  - Attachments
+- Implemented ticket creation through `POST /api/tickets`.
+- Added backend ticket validation and requester ownership.
+- Added backend-generated unique Ticket Numbers.
+- Set newly created tickets to `New`.
+- Added attachment validation for:
+  - JPG
+  - PNG
+  - WEBP
+  - PDF
+  - Maximum 5 files
+  - Maximum 5MB per file
+- Added loading and duplicate-submission protection.
+- Added success confirmation with generated Ticket Number.
+- Added safe API/network error handling while preserving form values.
+- Added/updated automated API and UI tests.
+
+##Related Issue
+Related to #12 
+
+## Testing
+
+### Client
+- 9/9 tests passing
+
+### Server
+- 23/23 tests passing
+
+### Total
+- 32/32 tests passing
+```
+**bravefe:**
+```
+I’ve tested the ticket creation functionality, and it works as intended. The related `.test` files are also included, and all the tests are passing.
+<img width="1366" height="741" alt="image" src="https://github.com/user-attachments/assets/437a8e07-f056-43a8-a1ab-e1d8e35b4389" />
+
+Please let me know when you’re ready for me to merge it.
+```
+> **bravefe** approved these changes
+
+**SaintCrois:** Thank you! Please proceed to merge this PR.
+
+> **bravefe** merged commit d08016e into lab2-staging
+
+### #19 feature/7-my-tickets
+```
+## Summary
+
+Implemented Issue 8: My Tickets paginated list, search, filtering, sorting, and tests.
+
+## Changes
+
+### My Tickets API
+
+Added My Tickets functionality for the currently selected Development Requester.
+
+Added `GET /api/tickets` with:
+
+- Pagination
+- Search
+- Status filtering
+- Priority filtering
+- Category filtering
+- Related System filtering
+- Sorting
+- Pagination metadata
+
+Enforced server-side requester ownership so Requesters only see their own tickets.
+
+Added requester-context handling through `X-Requester-Id`.
+
+### My Tickets React Screen
+
+Added the My Tickets React screen with:
+
+- Ticket list
+- Search
+- Filters
+- Sorting
+- Clear Filters
+- Pagination controls
+- Loading state
+- Empty state
+- No-results state
+
+Added ticket selection/navigation from the My Tickets list.
+
+Added a responsive ticket-list layout for desktop and mobile views.
+
+### Automated API Tests
+
+Added automated API tests covering:
+
+- Requester ownership
+- Search
+- Filtering
+- Sorting
+- Pagination
+- Multiple Requester data isolation
+
+### Automated UI Tests
+
+Added/updated automated UI tests covering:
+
+- Ticket list rendering
+- Search/filter behavior
+- Clear Filters
+- Pagination
+- Loading state
+- Empty/no-results states
+- Requester-specific ticket visibility
+
+### Regression Verification
+
+Verified existing Create Ticket and Requester Selection functionality remains passing.
+
+## Related Issue
+
+Related to #13
+```
+
+> **bravefe** approved these changes
+
+**bravefe:** I've seen that the my-ticket page have been add. There is nothing to be change.
+
+**SaintCrois:** I'll assume you said there is no problem. If there is please comment. Else, please proceed to merge.
+
+> **bravefe** bravefe merged commit 2a1edb6 into lab2-staging
+
+
+### #20 feature/8-ticket-detail-attachments
+```
+## Summary
+
+Implemented Issue 8: Ticket Detail read-only view and attachment lifecycle.
+
+## Changes
+
+### Ticket Detail API
+
+Added ticket detail functionality for the currently selected Development Requester.
+
+Added `GET /api/tickets/:id` with:
+
+- Ticket number
+- Summary
+- Description
+- Category
+- Related System
+- Requested Priority
+- Current Status
+- Created/updated timestamps
+- Attachment metadata
+
+Enforced server-side requester ownership so Requesters can only view tickets they own.
+
+### Ticket Detail React Screen
+
+Added the Ticket Detail navigation flow from My Tickets.
+
+Added support for opening a selected ticket from the My Tickets list.
+
+Kept the Ticket Detail view Requester-facing and read-only.
+
+No IT Staff controls, comments, internal notes, or status-change controls were added.
+
+### Attachment Lifecycle
+
+Implemented attachment storage and lifecycle handling for existing tickets.
+
+Added:
+
+- Supporting attachment upload
+- JPG/PNG/WEBP/PDF validation
+- 5 MiB per-file limit
+- Maximum 5 attachments per ticket
+- Unique stored filenames
+- Attachment download for active attachments
+- Requester ownership enforcement
+- Soft removal of attachments
+- Required removal reason
+- Removal metadata retention
+- Download blocking after removal
+
+Uploaded files are stored using generated filenames rather than the original filename.
+
+### Automated API Tests
+
+Added automated API tests covering:
+
+- Ticket detail retrieval
+- Requester ownership enforcement
+- Attachment download
+- Attachment ownership enforcement
+- Required removal reason
+- Soft removal
+- Removal metadata
+- Blocked downloads after removal
+
+## Regression Verification
+
+Verified the complete server test suite:
+
+- 9 test files passed
+- 31 tests passed
+
+Verified the client production build successfully completes with TypeScript and Vite.
+
+Existing Create Ticket, My Tickets, and Requester Selection functionality remains passing.
+
+## Related Issue
+
+Related to #14 
+```
+> **bravefe** requested changes
+
+**bravefe:**
+```
+I’ve seen that the attachments have been implemented and that the API for reviewing tickets has also been added.
+
+Before I merge the PR, I have a few confirmation questions. Some of these are also related to issues from the past that I noticed while testing this branch myself.
+
+For the **My Tickets** page, should each ticket display additional information, considering that the API already provides fields such as **status** and **createdAt**? For example, should the ticket card/list item also show the current status and creation date?
+
+**Recommendation / Thought:**
+Would it be better for each major page to have its own dedicated route/address? For example:
+
+* `/create` — Create Ticket
+* `/tickets` — My Tickets
+* `/ticket/:id` — Ticket Details
+
+I think having separate routes would make the pages easier to navigate, bookmark, and maintain as the application grows.
+```
+**SaintCrois:** Thank you for your comments. The three suggestions will be implement in next issue as planned. If there are more suggestions you would like to make, please do so. If not, then please proceed to merge this request.
+
+**bravefe:** Ok, very nice. I shall now merge this PR.
+
+> **bravefe** merged commit a91306c into lab2-staging
+
+### #21 feature/9-e2e-release
+```
+## Summary of Changes
+
+This Pull Request completes **Issue 10: E2E tests, visual inspection, and release integration** for Lab 2 (TokTickIT Requester Ticketing MVP).
+
+Key highlights:
+1. **Full Playwright E2E Coverage**: Implemented end-to-end test suites in `e2e/lab-02/requester-ticket-flow.spec.ts` covering:
+   - Development Requester selection and context switching.
+   - Ticket creation, category/system/priority dropdown loading, and field-level validation errors.
+   - Attachment lifecycle: file format/size checks, uploading on creation and in detail view, active attachment downloading, and soft removal with reason.
+   - My Tickets search by ticket number, filtering (category, priority, status), sorting, and empty/no-results  @states.
+   - Requester data isolation and cross-requester unauthorized access rejection (403).
+   - API failure simulation with entered form data preserved.
+2. **Multi-Viewport & Responsive Testing**:
+   - Configured and verified tests across **Desktop (1280x720)**, **Tablet (800x1000)**, and **Mobile (390x844)** viewports.
+3. **Automated Screenshot Artifacts**:
+   - Automated generation of all 23 required PNG screenshots under `artifacts/lab-02/screenshots/` across `create-ticket/`, `my-tickets/`, and `ticket-detail/`.
+4. **Accessible Form Controls**:
+   - Added accessible `id` and `htmlFor` attributes to read-only fields on `TicketDetail.tsx` conforming to the UI specification.
+5. **Lab 2 Documentation Deliverables**:
+   - `docs/lab-02/ui-spec.md`: Completed Zen Green design tokens and full visual inspection checklist.
+   - `docs/lab-02/tests.md`: Updated test plan, commands, and passing traceability matrix.
+   - `docs/lab-02/reviewer.md`: Documented peer review records for PRs #10 through #15.
+   - `docs/lab-02/ai-use.md`: Recorded selected AI prompt logs (1–9) and reflection.
+
+---
+
+## Acceptance Criteria Checklist
+
+- [x] **Playwright E2E Multi-Viewport**: Tests execute complete lifecycle across desktop, tablet, and mobile projects.
+- [x] **Screenshots Captured**: All required screenshots generated and saved in `artifacts/lab-02/screenshots/`.
+- [x] **Visual Inspection Checklist**: Completed checklist in `ui-spec.md` confirming Zen Green theme alignment, no clipping, and responsive behavior.
+- [x] **Reviewer Record**: Complete review logs, PR links, comments, and approvals in `docs/lab-02/reviewer.md`.
+- [x] **AI Use & Reflection**: 6–10 selected prompts and reflection in `docs/lab-02/ai-use.md`.
+- [x] **All Automated Tests Pass**: All unit, API, UI, and E2E tests pass from documented commands.
+
+## Related Issue
+Related to #15 
+
+---
+
+## Verification & Test Results
+
+### 1. Playwright E2E Suite (9/9 passed)
+```bash
+npx playwright test e2e/lab-02/requester-ticket-flow.spec.ts --config=client/playwright.config.ts --workers=1
+```
+> **bravefe** approved these changes
+
+**bravefe:** 
+```
+Everything is included according to the lab sheet. The website artifact and the E2E testing are also included. It seems you decided to include the page route/address as well, which is fine since it isn’t required for the lab.
+
+The document is complete. In my opinion, I would have included a bit more back-and-forth communication regarding some of the issues in reviewer.md, but apart from that, your project is ready to be submitted.
+
+Please let me know when you’re ready to merge.
+```
+
+**SaintCrois:** Thank you! Please proceed to merge.
+
+> **bravefe** merged commit 6c6e69f into lab2-staging
