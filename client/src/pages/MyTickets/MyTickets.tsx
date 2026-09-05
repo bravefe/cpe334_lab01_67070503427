@@ -39,8 +39,10 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
     priorities: Priority[];
     statuses: Status[];
   }>({ categories: [], priorities: [], statuses: [] });
+  const [referenceError, setReferenceError] = useState("");
 
-  useEffect(() => {
+  const loadReferenceData = () => {
+    setReferenceError("");
     Promise.all([fetchCategories(), fetchPriorities(), fetchStatuses()])
       .then(([categories, priorities, statuses]) =>
         setOptions({
@@ -49,7 +51,11 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
           statuses: statuses.data,
         }),
       )
-      .catch(() => undefined);
+      .catch((requestError: Error) => setReferenceError(requestError.message));
+  };
+
+  useEffect(() => {
+    loadReferenceData();
   }, []);
 
   useEffect(() => {
@@ -153,6 +159,12 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
             all="All Statuses"
           />
         </section>
+        {referenceError && (
+          <div className="error-banner">
+            <span>Filter options could not be loaded. Please try again.</span>
+            <button type="button" onClick={loadReferenceData}>Retry</button>
+          </div>
+        )}
 
         <section className="ticket-panel">
           {state === "loading" && <div className="loading rows">Loading tickets...</div>}
@@ -179,9 +191,12 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
                     : "Create your first support request to get started."}
               </p>
               {requesterId && (
-                <button className="primary" onClick={requesterId ? onCreateTicket : clear}>
+                <button className="primary" onClick={meta.totalItems ? clear : onCreateTicket}>
                   {meta.totalItems ? "Clear Filters" : "＋ Create Ticket"}
                 </button>
+              )}
+              {!requesterId && (
+                <button className="primary" onClick={onChange}>Choose Requester</button>
               )}
             </div>
           )}

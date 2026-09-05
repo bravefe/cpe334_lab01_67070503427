@@ -84,10 +84,6 @@ export default function App() {
   }
 
   if (path === "/my-tickets") {
-    if (!requesterId) {
-      return <ChooseRequester {...sharedProps} onSelect={handleSelect} onMyTickets={handleMyTickets} />;
-    }
-
     return (
       <MyTickets
         requester={selectedRequester}
@@ -101,10 +97,6 @@ export default function App() {
   }
 
   if (path === "/create-ticket") {
-    if (!requesterId) {
-      return <ChooseRequester {...sharedProps} onSelect={handleSelect} onMyTickets={handleMyTickets} />;
-    }
-
     return (
       <CreateTicket
         requester={selectedRequester}

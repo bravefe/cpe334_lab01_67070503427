@@ -11,7 +11,7 @@ import "./CreateTicket.css";
 
 interface CreateTicketProps {
   requester?: Requester;
-  requesterId: number;
+  requesterId: number | null;
   onBack: () => void;
   onCreateTicket?: () => void;
   onOpenTicket?: (ticketNumber: string) => void;
@@ -30,6 +30,7 @@ export default function CreateTicket({ requester, requesterId, onBack, onCreateT
   const [categories, setCategories] = useState<Category[]>([]);
   const [relatedSystems, setRelatedSystems] = useState<RelatedSystem[]>([]);
   const [priorities, setPriorities] = useState<Priority[]>([]);
+  const [referenceError, setReferenceError] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -37,18 +38,19 @@ export default function CreateTicket({ requester, requesterId, onBack, onCreateT
   const [attachmentFiles, setAttachmentFiles] = useState<File[]>([]);
 
     useEffect(() => {
-    fetchCategories()
-        .then((result) => setCategories(result.data))
-        .catch((error) => console.error("Failed to fetch categories:", error));
-
-    fetchPriorities()
-        .then((result) => setPriorities(result.data))
-        .catch((error) => console.error("Failed to fetch priorities:", error));
-
-    fetchRelatedSystems()
-        .then((result) => setRelatedSystems(result.data))
-        .catch((error) => console.error("Failed to fetch related systems:", error));
+    loadReferenceData();
     }, []);
+
+  const loadReferenceData = () => {
+    setReferenceError("");
+    Promise.all([fetchCategories(), fetchPriorities(), fetchRelatedSystems()])
+      .then(([categoriesResult, prioritiesResult, systemsResult]) => {
+        setCategories(categoriesResult.data);
+        setPriorities(prioritiesResult.data);
+        setRelatedSystems(systemsResult.data);
+      })
+      .catch((error: Error) => setReferenceError(error.message));
+  };
 
   const updateField = (field: string, value: string) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -75,6 +77,10 @@ export default function CreateTicket({ requester, requesterId, onBack, onCreateT
 
   const submit = async () => {
     if (!validate()) return;
+    if (!requesterId) {
+      setSubmitError("Choose a requester before submitting a ticket.");
+      return;
+    }
 
     setSubmitting(true);
     setSubmitError("");
@@ -164,6 +170,13 @@ export default function CreateTicket({ requester, requesterId, onBack, onCreateT
               {errors.requestedPriorityId && <small>{errors.requestedPriorityId}</small>}
             </label>
           </div>
+
+          {referenceError && (
+            <div className="error-banner">
+              <span>Reference data could not be loaded. Please try again.</span>
+              <button type="button" onClick={loadReferenceData}>Retry</button>
+            </div>
+          )}
 
           <label className="field full-width">
             <span>Summary</span>
