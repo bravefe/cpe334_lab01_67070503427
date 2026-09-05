@@ -1,0 +1,203 @@
+.ticket-detail-page {
+  width: min(100% - 48px, 1800px);
+  margin: 0 auto;
+  padding-top: 24px;
+}
+
+.ticket-detail-page .detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.ticket-detail-page .detail-header h1 {
+  margin: 0;
+}
+
+.ticket-detail-page .detail-header p {
+  margin: 4px 0 0;
+}
+
+.ticket-detail-page .back-link {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.ticket-detail-page .ticket-form-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 8px 22px var(--shadow-card);
+  padding: 28px;
+}
+
+.ticket-detail-page .info-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.ticket-detail-page .form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.ticket-detail-page .field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.ticket-detail-page .field > span {
+  font-size: 0.86rem;
+}
+
+.ticket-detail-page .field.read-only {
+  background: var(--readonly-surface);
+  border: 1px solid var(--readonly-border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  min-height: 68px;
+  box-sizing: border-box;
+}
+
+.ticket-detail-page .field.read-only > span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.ticket-detail-page .field-value {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.ticket-detail-page .priority-value,
+.ticket-detail-page .status-value {
+  font-weight: 700;
+}
+
+.ticket-detail-page .field input,
+.ticket-detail-page .field select,
+.ticket-detail-page .field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--control-border);
+  border-radius: 8px;
+  background: var(--readonly-surface);
+  padding: 11px 12px;
+  font: 14px "DM Sans";
+  color: var(--text);
+}
+
+.ticket-detail-page .field textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.ticket-detail-page .field input:read-only,
+.ticket-detail-page .field textarea:read-only {
+  cursor: default;
+  opacity: 1;
+}
+
+.ticket-detail-page .field input:read-only:focus,
+.ticket-detail-page .field textarea:read-only:focus {
+  outline: none;
+}
+
+.ticket-detail-page .full-width {
+  margin-top: 12px;
+}
+
+.ticket-detail-page .success-banner {
+  margin-top: 18px;
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: var(--success-banner-surface);
+  border: 1px solid var(--success-banner-border);
+  color: var(--success);
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+
+.ticket-detail-page .attachment-box {
+  margin-top: 18px;
+  border: 1.5px dashed var(--attachment-border);
+  border-radius: 10px;
+  min-height: 120px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  background: var(--attachment-surface);
+  color: var(--muted);
+  padding: 18px;
+}
+
+.ticket-detail-page .attachment-box p,
+.ticket-detail-page .attachment-box span {
+  margin: 0;
+}
+
+.ticket-detail-page .attachment-box p {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.ticket-detail-page .attachment-box span {
+  font-size: 0.9rem;
+}
+
+.ticket-detail-page .empty {
+  padding: 40px;
+  text-align: center;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .ticket-detail-page .info-grid,
+  .ticket-detail-page .form-grid {
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .ticket-detail-page {
+    width: min(100% - 32px, 1200px);
+    padding-top: 18px;
+  }
+
+  .ticket-detail-page .detail-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ticket-detail-page .back-link {
+    width: 100%;
+  }
+
+  .ticket-detail-page .ticket-form-card {
+    padding: 18px;
+  }
+
+  .ticket-detail-page .info-grid,
+  .ticket-detail-page .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,74 +1,128 @@
-import { useState } from "react";
-import { checkSystem, Category } from "./api.js";
-
-// UI states you must handle for Issue 4: idle, loading, success, error.
-type UiState = "idle" | "loading" | "success" | "error";
+import { useEffect, useState } from "react";
+import { fetchRequesters } from "./api/requesters";
+import { Requester } from "./lib/requester";
+import ChooseRequester from "./pages/ChooseRequester/ChooseRequester";
+import CreateTicket from "./pages/CreateTicket/CreateTicket";
+import MyTickets from "./pages/MyTickets/MyTickets";
+import TicketDetail from "./pages/TicketDetail/TicketDetail";
 
 export default function App() {
-  const [state, setState] = useState<UiState>("idle");
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [requesters, setRequesters] = useState<Requester[]>([]);
+  const [requesterId, setRequesterId] = useState<number | null>(() =>
+    Number(localStorage.getItem("requesterId")) || null,
+  );
+  const [path, setPath] = useState(window.location.pathname);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  void categories;
 
-  async function handleCheck() {
-    // TODO(Issue 4): set loading, call checkSystem(), then either
-    //   - success: store categories and show Online + the list, or
-    //   - error: show Offline + a useful message.
-    setState("loading");
+  const loadRequesters = () => {
+    setLoading(true);
     setError("");
+    fetchRequesters()
+      .then((result) => setRequesters(result.data))
+      .catch((requestError: Error) => setError(requestError.message))
+      .finally(() => setLoading(false));
+  };
 
-    try {
-      const result = await checkSystem();
-      setCategories(result.categories);
-      setState("success");
-    } catch (err) {
-      setCategories([]);
-      setError(err instanceof Error ? err.message : "Unable to connect to the backend.");
-      setState("error");
+  useEffect(() => {
+    loadRequesters();
+  }, []);
+
+  useEffect(() => {
+    if (window.location.pathname === "/") {
+      setPath("/choose-requester");
     }
+  }, []);
+
+  useEffect(() => {
+    const handlePopState = () => setPath(window.location.pathname);
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  const goTo = (nextPath: string) => {
+    window.history.pushState({}, "", nextPath);
+    setPath(new URL(nextPath, window.location.origin).pathname);
+  };
+
+  const selectedRequester = requesters.find((item) => item.id === requesterId);
+
+  const handleSelect = (id: number) => {
+    localStorage.setItem("requesterId", String(id));
+    setRequesterId(id);
+    goTo("/my-tickets");
+  };
+
+  const handleChangeRequester = () => {
+    goTo("/choose-requester");
+  };
+
+  const handleMyTickets = () => goTo("/my-tickets");
+  const handleCreateTicket = () => goTo("/create-ticket");
+  const handleOpenTicket = (ticketNumber: string) => goTo(`/ticket/${ticketNumber}`);
+  const handleCreatedTicket = (ticketNumber: string) => goTo(`/ticket/${ticketNumber}?created=1`);
+
+  const sharedProps = {
+    requesters,
+    requester: selectedRequester,
+    loading,
+    error,
+    retry: loadRequesters,
+    onChange: handleChangeRequester,
+    onMyTickets: handleMyTickets,
+    onCreateTicket: handleCreateTicket,
+  };
+
+  if (path === "/choose-requester") {
+    return (
+      <ChooseRequester
+        {...sharedProps}
+        onSelect={handleSelect}
+        onMyTickets={handleMyTickets}
+      />
+    );
   }
 
-  return (
-    <div className="container py-5" style={{ maxWidth: 640 }}>
-      <h1 className="h3 mb-4">
-        TokTickIT <span className="text-success">IT Service Desk</span>
-      </h1>
+  if (path === "/my-tickets") {
+    return (
+      <MyTickets
+        requester={selectedRequester}
+        requesterId={requesterId}
+        onChange={handleChangeRequester}
+        onMyTickets={handleMyTickets}
+        onCreateTicket={handleCreateTicket}
+        onOpenTicket={handleOpenTicket}
+      />
+    );
+  }
 
-      <button className="btn btn-success" onClick={handleCheck} disabled={state === "loading"}>
-        {state === "loading" ? "Loading…" : "Check System"}
-      </button>
+  if (path === "/create-ticket") {
+    return (
+      <CreateTicket
+        requester={selectedRequester}
+        requesterId={requesterId}
+        onBack={handleMyTickets}
+        onCreateTicket={handleCreateTicket}
+        onOpenTicket={handleCreatedTicket}
+      />
+    );
+  }
 
-      <h3 className="Bootstrap_is_installed mt-3">
-        Bootstrap is installed
-      </h3>
+  const ticketMatch = path.match(/^\/ticket\/(.+)$/);
+  if (ticketMatch) {
+    if (!requesterId) {
+      return <ChooseRequester {...sharedProps} onSelect={handleSelect} onMyTickets={handleMyTickets} />;
+    }
 
-      {state === "loading" && (
-        <p className="mt-3">Checking system status…</p>
-      )}
+    return (
+      <TicketDetail
+        requester={selectedRequester}
+        requesterId={requesterId}
+        ticketNumber={ticketMatch[1]}
+        onBack={handleMyTickets}
+      />
+    );
+  }
 
-      {state === "success" && (
-        <div className="success mt-3">
-          <strong>System Status: Online</strong>
-          {categories.length === 0 ? (
-            <p>Failed to fetch category list.</p>
-          ) : (
-            <ul className="mt-2">
-              {categories.map((category) => (
-                <li key={category.id}>{category.name}</li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
-
-      {state === "error" && (
-        <div className="error mt-3">
-          <strong>System Status: Offline</strong>
-        </div>
-      )}
-
-    </div>
-  );
+  return <ChooseRequester {...sharedProps} onSelect={handleSelect} onMyTickets={handleMyTickets} />;
 }
-
-
