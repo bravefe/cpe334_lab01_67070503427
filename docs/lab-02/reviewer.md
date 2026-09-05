@@ -5,11 +5,20 @@
 ## Pull Requests I authored (reviewed by my partner)
 | PR | Branch | Reviewer verdict |
 |----|--------|------------------|
-|  #23  | feature/5-specification | Aprove |
-|  #25  | feature/6-database| Aprove |
-|  #30, #31, #32  | feature/7-ticket-2 | Aprove |
-|  #33  | feature/8-create-ticket | Aprove |
-|  #34  | feature/9-attachment | Aprove |
+|  [#23](https://github.com/bravefe/cpe334_lab01_67070503427/pull/23)  | feature/5-specification | Aprove |
+|  [#25](https://github.com/bravefe/cpe334_lab01_67070503427/pull/23)  | feature/6-database| Aprove |
+|  [#30](https://github.com/bravefe/cpe334_lab01_67070503427/pull/30), [#31](https://github.com/bravefe/cpe334_lab01_67070503427/pull/31), [#32](https://github.com/bravefe/cpe334_lab01_67070503427/pull/32)  | feature/7-ticket-2 | Aprove |
+|  [#33](https://github.com/bravefe/cpe334_lab01_67070503427/pull/33)  | feature/8-create-ticket | Aprove |
+|  [#34](https://github.com/bravefe/cpe334_lab01_67070503427/pull/34)  | feature/9-attachment | Aprove |
+
+#23 https://github.com/bravefe/cpe334_lab01_67070503427/pull/23
+#25 https://github.com/bravefe/cpe334_lab01_67070503427/pull/25
+#30 https://github.com/bravefe/cpe334_lab01_67070503427/pull/30
+#31 https://github.com/bravefe/cpe334_lab01_67070503427/pull/31
+#32 https://github.com/bravefe/cpe334_lab01_67070503427/pull/32
+#33 https://github.com/bravefe/cpe334_lab01_67070503427/pull/33
+#34 https://github.com/bravefe/cpe334_lab01_67070503427/pull/34
+
 
 ### #23 feature/5-specification
 ```
@@ -267,15 +276,24 @@ Notify me when you want to merge.
 ```
 **Me:** Thank you very much all the document are now complete. You can now merge it.
 
-## Pull Requests I reviewed 
+## Pull Requests I reviewed
+
 | PR | Branch | Reviewer verdict |
 |----|--------|------------------|
-|  #16  | docs/lab2-spec-plan | Aprove |
-|  #17  | feat/lab2-db-context| Aprove |
-|  #18  | feature/6-create-ticket | Aprove |
-|  #19  | feature/7-my-tickets | Aprove |
-|  #20  | feature/8-ticket-detail-attachments | Aprove |
-|  #21  | feature/9-e2e-release | Aprove |
+| [#16](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/16) | `docs/lab2-spec-plan` | Approve |
+| [#17](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/17) | `feat/lab2-db-context` | Approve |
+| [#18](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/18) | `feature/6-create-ticket` | Approve |
+| [#19](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/19) | `feature/7-my-tickets` | Approve |
+| [#20](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/20) | `feature/8-ticket-detail-attachments` | Approve |
+| [#21](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/21) | `feature/9-e2e-release` | Approve |
+
+#16 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/16
+#17 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/17
+#18 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/18
+#19 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/19
+#20 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/20
+#21 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/21
+
 
 ### #16 docs/lab2-spec-plan
 ```
