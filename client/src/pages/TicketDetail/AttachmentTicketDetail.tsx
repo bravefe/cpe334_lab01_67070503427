@@ -62,6 +62,8 @@ export default function AttachmentTicketDetail({ requesterId, ticketNumber }: At
     }
   };
 
+  const activeAttachmentCount = attachments.filter((item) => item.status === "ACTIVE").length;
+
   return <section className="attachment-section" aria-label="Attachments">
     <div className="attachment-list">
       {attachments.map((attachment) => {
@@ -81,9 +83,9 @@ export default function AttachmentTicketDetail({ requesterId, ticketNumber }: At
               <span>{attachment.originalFileName}</span>
               {isRemoved && (
                 <span className="attachment-removed-meta">
-                  <span className="attachment-removal-reason"> Reason: {attachment.removalReason ?? "Attachment removed"}</span>
+                  <span className="attachment-removal-reason">Reason: <span>{attachment.removalReason ?? "Attachment removed"}</span></span>
                   {attachment.removedAt && <span>Removed at: {formatDate(attachment.removedAt)}</span>}
-                  {/* <span className="attachment-status-badge">Removed</span> */}
+                  <span className="attachment-status-badge">Removed</span>
                 </span>
               )}
               <span className="attachment-uploaded-at">{formatDate(attachment.uploadedAt)}</span>
@@ -96,9 +98,12 @@ export default function AttachmentTicketDetail({ requesterId, ticketNumber }: At
         );
       })}
     </div>
-    <div className={`attachment-dropzone${dragging ? " is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={drop}>
-      <p>{busy ? "Uploading..." : "Drag and drop your file here"}</p><button type="button" disabled={busy} onClick={() => input.current?.click()}>+ Add File</button><input ref={input} type="file" accept=".jpg,.jpeg,.png,.webp,.pdf" multiple onChange={(event) => { void add(Array.from(event.target.files ?? [])); event.target.value = ""; }} />
-    </div>
+    {activeAttachmentCount < MAX_ACTIVE_ATTACHMENTS && (
+      <div className={`attachment-dropzone${dragging ? " is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={drop}>
+        <p>{busy ? "Uploading..." : "Drag and drop your file here"}</p><button type="button" disabled={busy} onClick={() => input.current?.click()}>+ Add File</button>
+      </div>
+    )}
+    <input ref={input} type="file" accept=".jpg,.jpeg,.png,.webp,.pdf" multiple style={{ position: "absolute", width: 1, height: 1, opacity: 0 }} onChange={(event) => { void add(Array.from(event.target.files ?? [])); event.target.value = ""; }} />
     {message && <p className="attachment-message">{message}</p>}
   </section>;
 }

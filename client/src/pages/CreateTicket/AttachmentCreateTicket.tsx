@@ -72,11 +72,13 @@ export default function AttachmentCreateTicket({ files, onChange }: AttachmentCr
       ))}
       {/* {!files.length && <div className="attachment-empty">No attachments selected</div>} */}
     </div>
-    <div className={`attachment-dropzone${dragging ? " is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={drop}>
-      <p>Drag and drop your file here</p>
-      <button type="button" onClick={() => input.current?.click()}>+ Add File</button>
-      <input ref={input} type="file" accept=".jpg,.jpeg,.png,.webp,.pdf" multiple onChange={(event) => { add(Array.from(event.target.files ?? [])); event.target.value = ""; }} />
-    </div>
+    {remainingSlots > 0 && (
+      <div className={`attachment-dropzone${dragging ? " is-dragging" : ""}`} onDragOver={(event) => { event.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={drop}>
+        <p>Drag and drop your file here</p>
+        <button type="button" onClick={() => input.current?.click()}>+ Add File</button>
+      </div>
+    )}
+    <input ref={input} type="file" accept=".jpg,.jpeg,.png,.webp,.pdf" multiple style={{ position: "absolute", width: 1, height: 1, opacity: 0 }} onChange={(event) => { add(Array.from(event.target.files ?? [])); event.target.value = ""; }} />
     {message && <p className="attachment-message">{message}</p>}
   </section>;
 }
