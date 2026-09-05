@@ -280,9 +280,6 @@ Full detail lives in `docs/lab-02/ui-spec.md`; this section summarizes what it m
 - One `Priority` → many `Ticket.requestedPriorityId`; one `Priority` → many `Ticket.itPriorityId`.
 - One `Status` → many `Ticket`.
 - One `Ticket` → many `Attachment`.
-<!-- - One `Ticket` → many `PublicComment`.
-- One `Ticket` → many `ServiceAction`.
-- One `Ticket` → many `EventLog`. -->
 - One `Category` → many `Ticket`.
 - One `RelatedSystem` → many `Ticket`.
 
@@ -391,26 +388,26 @@ Full request/response bodies live in `docs/lab-02/api-spec.md`; this is the cont
 ## 10. Definition of Done
 
 ### 10.1 Product Completion (must be true before the coding agent may report "done")
-- [ ] All FR-01–FR-15 are implemented and demonstrable.
-- [ ] All AC-01–AC-28 have passing, traceable automated test evidence (see `tests.md`).
-- [ ] No required test is skipped, disabled, commented out, or flaky.
-- [ ] Data model, API, and UI conform to §§6–8 of this document; any deviation is logged and
+-  All FR-01–FR-15 are implemented.
+-  All AC-01–AC-26 have passing, traceable automated test evidence.
+-  No required test is skipped, disabled, commented out, or flaky.
+-  Data model, API, and UI conform to §§6–8 of this document; any deviation is logged and
       re-approved here first.
-- [ ] Success, validation-failure, API-failure, and boundary cases are all handled per §5's
+-  Success, validation-failure, API-failure, and boundary cases are all handled per §5's
       Business Rules — not just the happy path.
-- [ ] Ownership enforcement (BR-09–BR-11) is verified with an explicit cross-Requester test, not
+-  Ownership enforcement (BR-09–BR-11) is verified with an explicit cross-Requester test, not
       just visual inspection.
-- [ ] Responsive layout is verified at desktop, tablet, and mobile per §6 and §8.7 of the lab
+-  Responsive layout is verified at desktop, tablet, and mobile per §6 and §8.7 of the lab
       handout, with no clipping, overlap, or unintended horizontal scroll.
-- [ ] README setup and test-run instructions are current and match the final main branch.
+-  README setup and test-run instructions are current and match the final main branch.
 
 ### 10.2 Course Delivery Requirements (checked separately, per §13.2 of the handout)
-- [ ] GitHub Issues created and moved through Backlog → Specified → Started → PR Review →
+-  GitHub Issues created and moved through Backlog → Specified → Started → PR Review →
       Fixing → Done for every feature branch.
-- [ ] Each feature branch merged into `lab2-staging` via a peer-reviewed Pull Request; one release
+-  Each feature branch merged into `lab2-staging` via a peer-reviewed Pull Request; one release
       PR opened from `lab2-staging` to `main`.
-- [ ] `reviewer.md` and `ai-use.md` completed and rendered.
-- [ ] Required screenshots and PDF submission assembled per the handout's Part 1–9 structure.
+-  `reviewer.md` and `ai-use.md` completed and rendered.
+-  Required screenshots and PDF submission assembled per the handout's Part 1–9 structure.
 
 ---
 
@@ -423,7 +420,7 @@ Full request/response bodies live in `docs/lab-02/api-spec.md`; this is the cont
 2. **Ownership-failure status code.** A Ticket or Attachment that exists but isn't owned by the
    current Requester returns **404**, not 403, so the response never confirms the resource exists
    under a different owner (BR-11).
-3. **`itPriority` and Ticket Owner columns exist but are unused.** They're included in the Lab 2
+3. **`itPriority` columns exist but are unused.** They're included in the Lab 2
    schema for forward compatibility so Lab 3+ doesn't require a breaking migration, but are never
    set, validated, or shown to the Requester — those illustrative columns in the sample My Tickets
    screenshot belong to the IT Staff view, which is out of scope here.

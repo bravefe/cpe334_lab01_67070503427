@@ -127,6 +127,7 @@ test.describe("Requester ticket flow", () => {
 			await page.getByLabel("Search").fill("E2E-06 searchable");
 			await page.getByLabel("Search").press("Enter");
 			await expect(page.getByText(summary)).toBeVisible();
+			await page.screenshot({ path: testInfo.outputPath(`my-tickets-search-${viewport.name}.png`), fullPage: true });
 			await page.getByLabel("Current Status").selectOption({ label: "New" });
 			await expect(page.getByText(summary)).toBeVisible();
 			await page.screenshot({ path: testInfo.outputPath(`my-tickets-filter-${viewport.name}.png`), fullPage: true });
