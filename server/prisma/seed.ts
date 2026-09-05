@@ -63,16 +63,16 @@ async function main() {
   const requesters: [string, string, boolean][] = [
     ["Frodo Baggins", "frodo.b@shiremail.example.com", true],
     ["Samwise Gamgee", "sam.gamgee@shiremail.example.com", true],
-    ["Aragorn II Elessar, Son of Arathorn", "a.elessar@gondor.example.com", true],
-    ["Legolas Greenleaf, Prince of Mirkwood", "legolasg@woodland.example.com", true],
+    ["Aragorn, Son of Arathorn", "a.elessar@gondor.example.com", true],
+    ["Legolas Greenleaf", "legolasg@woodland.example.com", true],
     ["Gimli, Son of Glóin", "gimli.o@erebor.example.com", true],
     ["Boromir, Son of Denethor", "boromir@gondor.example.com", true],
     ["Meriadoc Brandybuck", "merry.b@shiremail.example.com", true],
     ["Peregrin Took", "pippin.t@shiremail.example.com", true],
-    ["Galadriel, Lady of Lothlórien", "galadriel@lothlorien.example.com", true],
-    ["Éowyn, Lady of Rohan", "eowyn.r@rohan.example.com", true],
+    ["Galadriel", "galadriel@lothlorien.example.com", true],
+    ["Éowyn", "eowyn.r@rohan.example.com", true],
     ["Gandalf the Grey", "gandalf@istari.example.com", false],
-    ["Gollum (Sméagol)", "smeagol@goblinmail.example.com", true],
+    ["Gollum", "smeagol@goblinmail.example.com", true],
   ];
 
   for (const [name, email, isActive] of requesters) {
