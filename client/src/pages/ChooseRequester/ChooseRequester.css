@@ -11,7 +11,7 @@
   border: 1px solid var(--border);
   border-top: 5px solid var(--primary-green);
   padding: 42px;
-  box-shadow: 0 10px 24px rgba(23, 59, 45, 0.12);
+  box-shadow: 0 10px 24px var(--shadow-selection);
   border-radius: 12px;
 }
 
@@ -31,7 +31,7 @@
   width: 100%;
   height: 46px;
   padding: 0 12px;
-  border: 1px solid #c9d3ce;
+  border: 1px solid var(--control-border);
   border-radius: 8px;
   color: var(--text);
   background: var(--surface);
@@ -45,9 +45,9 @@
 
 .error {
   padding: 18px;
-  background: #fdecec;
+  background: var(--error-surface);
   color: var(--error);
-  border: 1px solid #e9bdb8;
+  border: 1px solid var(--error-border);
   border-radius: 8px;
   margin-top: 20px;
 }

@@ -3,6 +3,45 @@ import request from "supertest";
 import { app } from "../../src/app.js";
 
 describe("POST /api/create-ticket", () => {
+  it("UNIT-01: should generate a unique ticket number in the correct format", async () => {
+    const response1 = await request(app)
+      .post("/api/create-ticket")
+      .set("X-Dev-Requester-Id", "1")
+      .send({
+        categoryId: 1,
+        relatedSystemId: 1,
+        summary: "UNIT-01 first ticket",
+        description:
+          "This is a valid test description that is longer than twenty characters.",
+        requestedPriorityId: 1,
+      });
+
+    const response2 = await request(app)
+      .post("/api/create-ticket")
+      .set("X-Dev-Requester-Id", "1")
+      .send({
+        categoryId: 1,
+        relatedSystemId: 1,
+        summary: "UNIT-01 second ticket",
+        description:
+          "This is a valid test description that is longer than twenty characters.",
+        requestedPriorityId: 1,
+      });
+
+    expect(response1.status).toBe(201);
+    expect(response2.status).toBe(201);
+
+    const ticketNumber1 = response1.body.data.ticketNumber;
+    const ticketNumber2 = response2.body.data.ticketNumber;
+
+    // Verify TKT-<YYYY>-<6-digit sequence> format
+    expect(ticketNumber1).toMatch(/^TKT-\d{4}-\d{6}$/);
+    expect(ticketNumber2).toMatch(/^TKT-\d{4}-\d{6}$/);
+
+    // Verify each generated ticket number is unique
+    expect(ticketNumber1).not.toBe(ticketNumber2);
+  });
+
   it("API-01: should create a ticket with valid data", async () => {
     const response = await request(app)
       .post("/api/create-ticket")
@@ -120,6 +159,29 @@ describe("POST /api/create-ticket", () => {
 
     expect(body).toMatch(/150/);
     expect(body.toLowerCase()).toMatch(/summary/);
+  });
+
+  it.each([
+    ["categoryId", 9999, 1, 1],
+    ["relatedSystemId", 1, 9999, 1],
+    ["requestedPriorityId", 1, 1, 9999],
+  ])("API-07: rejects an invalid %s with HTTP 400", async (field, categoryId, relatedSystemId, requestedPriorityId) => {
+    const response = await request(app)
+      .post("/api/create-ticket")
+      .set("X-Dev-Requester-Id", "1")
+      .send({
+        categoryId,
+        relatedSystemId,
+        summary: "Invalid reference test",
+        description: "This is a valid test description that is longer than twenty characters.",
+        requestedPriorityId,
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
+    expect(response.body.error.fieldErrors).toEqual(
+      expect.arrayContaining([expect.objectContaining({ field })]),
+    );
   });
 
   it("API-06: should keep the ticket when attachment upload fails", async () => {

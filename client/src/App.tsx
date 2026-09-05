@@ -42,7 +42,7 @@ export default function App() {
 
   const goTo = (nextPath: string) => {
     window.history.pushState({}, "", nextPath);
-    setPath(nextPath);
+    setPath(new URL(nextPath, window.location.origin).pathname);
   };
 
   const selectedRequester = requesters.find((item) => item.id === requesterId);
@@ -60,6 +60,7 @@ export default function App() {
   const handleMyTickets = () => goTo("/my-tickets");
   const handleCreateTicket = () => goTo("/create-ticket");
   const handleOpenTicket = (ticketNumber: string) => goTo(`/ticket/${ticketNumber}`);
+  const handleCreatedTicket = (ticketNumber: string) => goTo(`/ticket/${ticketNumber}?created=1`);
 
   const sharedProps = {
     requesters,
@@ -83,10 +84,6 @@ export default function App() {
   }
 
   if (path === "/my-tickets") {
-    if (!requesterId) {
-      return <ChooseRequester {...sharedProps} onSelect={handleSelect} onMyTickets={handleMyTickets} />;
-    }
-
     return (
       <MyTickets
         requester={selectedRequester}
@@ -100,16 +97,13 @@ export default function App() {
   }
 
   if (path === "/create-ticket") {
-    if (!requesterId) {
-      return <ChooseRequester {...sharedProps} onSelect={handleSelect} onMyTickets={handleMyTickets} />;
-    }
-
     return (
       <CreateTicket
         requester={selectedRequester}
         requesterId={requesterId}
         onBack={handleMyTickets}
         onCreateTicket={handleCreateTicket}
+        onOpenTicket={handleCreatedTicket}
       />
     );
   }

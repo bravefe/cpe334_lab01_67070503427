@@ -7,6 +7,7 @@ import {
   createTicketService,
   getTicketDetailService,
   getTicketsService,
+  TicketValidationError,
 } from "../services/ticketService.js";
 
 function getRequesterId(req: Request): number | null {
@@ -122,7 +123,18 @@ export async function createTicket(
     });
 
     res.status(201).json({ data: ticket });
-  } catch (_error) {
+  } catch (error) {
+    if (error instanceof TicketValidationError) {
+      res.status(400).json({
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Ticket validation failed.",
+          fieldErrors: [{ field: error.field, message: error.message }],
+        },
+      });
+      return;
+    }
+
     res.status(500).json({
       error: { code: "INTERNAL_ERROR", message: "ERROR 500: Unable to create ticket." },
     });

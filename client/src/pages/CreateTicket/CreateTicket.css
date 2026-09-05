@@ -14,7 +14,7 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 14px;
-  box-shadow: 0 8px 22px rgba(23, 59, 45, 0.06);
+  box-shadow: 0 8px 22px var(--shadow-card);
   padding: 28px;
 }
 
@@ -48,9 +48,9 @@
 .create-ticket-page .field select,
 .create-ticket-page .field textarea {
   width: 100%;
-  border: 1px solid #c9d3ce;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background: #fff;
+  background: var(--surface);
   padding: 11px 12px;
   font: 14px "DM Sans";
   resize: vertical;
@@ -59,7 +59,7 @@
 
 .create-ticket-page .field input:focus,
 .create-ticket-page .field textarea:focus {
-  outline: 3px solid rgba(0, 107, 60, 0.24);
+  outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
@@ -68,8 +68,8 @@
 }
 
 .create-ticket-page .field.read-only {
-  background: #f2f4f3;
-  border: 1px solid #dde5e1;
+  background: var(--readonly-surface);
+  border: 1px solid var(--readonly-border);
   border-radius: 8px;
   padding: 12px 14px;
 }
@@ -88,15 +88,21 @@
   margin-top: 12px;
 }
 
+.create-ticket-page .field.full-width.attachment-label {
+  margin-bottom: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
 .create-ticket-page .attachment-box {
   margin-top: 18px;
-  border: 1.5px dashed #bfd6c9;
+  border: 1.5px dashed var(--attachment-border);
   border-radius: 10px;
   min-height: 120px;
   display: grid;
   place-items: center;
   text-align: center;
-  background: #f9fbfa;
+  background: var(--attachment-surface);
   color: var(--muted);
   padding: 18px;
 }
@@ -107,7 +113,7 @@
 }
 
 .create-ticket-page .secondary-button {
-  background: #fff;
+  background: var(--surface);
   border-color: var(--border);
 }
 
@@ -127,14 +133,14 @@
 }
 
 .create-ticket-page .error-banner {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: var(--error-banner-surface);
+  border: 1px solid var(--error-banner-border);
   color: var(--error);
 }
 
 .create-ticket-page .success-banner {
-  background: #edfdf4;
-  border: 1px solid #b9edc8;
+  background: var(--success-banner-surface);
+  border: 1px solid var(--success-banner-border);
   color: var(--success);
 }
 

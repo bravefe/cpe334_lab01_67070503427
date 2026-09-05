@@ -1,47 +1,38 @@
-3 | Attachment `isActive` enum field renamed to `status`; values are `ACTIVE` and
-REMOVED
-
 # Lab 2 — AI Use
 
-### **LLM/agent used:** ChatGPT
+### **LLM/Agent Used: ChatGPT**
 
-| # | Prompt (summarised) | What I did with the result |
-| - | - | - | 
-| 1 | look at my project data structure step 1: add `unique` for what is need like id or cood step 2: turn it md format into table step 3: request what could make thsi database bette no need to write code just change my md file paste design/database.md| scema.prisma newly added database design and seed for employee and specific status and priority. |
+| # | Prompt (Summarised) | What I Did with the Result |
+| - | - | - |
+| 1 | Reviewed my database structure, identified fields that should be unique, converted the design into Markdown tables, and suggested improvements. | Reviewed the suggestions and updated `design/database.md`. |
+| 2 | Asked ChatGPT to organize and improve my project documentation. | Reorganized the specification, API, database, and test documentation for consistency. |
+| 3 | Asked ChatGPT to split the project files into a clearer structure: `route`, `controller`, and `service` for the server side, and `api`, `lib`, and `page` for the client side. | Reviewed the proposed structure and reorganized the files to make the project easier to maintain. |
 
-### **LLM/agent used:** Gemini
+Also, use ChatGPT For smaller syntax or ui change
 
-| # | Prompt (summarised) | What I did with the result |
-| - | - | - | 
+### **LLM/Agent Used: Gemini**
 
+| # | Prompt (Summarised) | What I Did with the Result |
+| - | - | - |
+| 1 | Updated the database design with ticket priorities, statuses, and their relationships. | Applied the changes to the schema, seed data, and documentation. |
+| 2 | Added `PublicComments`, `ServiceActions`, and `EventLog` with their required relationships and operations. | Implemented the models and updated the related documentation. |
+| 3 | Asked Gemini to rewrite and implement tests based on my specification and test results. | Reviewed the tests and used the results to fix the implementation. |
 
-### **LLM/agent used:** Claude Sonnet 5
+### **LLM/Agent Used: VS Code Copilot Extension — ChatGPT 5.6 Luna**
 
-| # | Prompt (summarised) | What I did with the result |
-| - | - | - | 
-I want to make change to the database return me the 2 md file effect from the change i make
-add to ticket
-[- add requestedPriority
-- add iTPriority
-link to the same Priority table seed it as High Medium Low
-- add current Status 
-link to status table seed as , In Progress, Open, Pending]
-
-add PublicComments, ServiceActions, EventLog Similar to atachments but only have remove create at have link to ticket the message and public comment have link to DevRequester
-
-### **LLM/agent used:** VScode Copilot Extension
-
-| # | Prompt (summarised) | What I did with the result |
-| - | - | - | 
-| 1 | paste 7. + implement it to this 2 files
-step 1 write a prisma file for the database
-step 2 seed.ts with what writen in the seed part + 5 random devrequester and 
-10 ticket with code formate corect ly 1-10 leave itPriority id as nul| |
-| 2 | pasted 7||
-| 3 | Attachment `isActive` enum field renamed to `status`; values are `ACTIVE` and `REMOVED`. | |
-| 4 | Paste Specification and only build my ticket and requster selet menu | |
-| 5 | Split the file | |
-
-you will also need tochange the specificaiotn .md and api-spec.md||
+| # | Prompt (Summarised) | What I Did with the Result |
+| - | - | - |
+| 1 | Asked it to create the Prisma schema and seed data based on the database specification. | Reviewed and adapted the generated files to my project. |
+| 2 | Pasted the specification and asked it to implement only the **My Tickets** and **Requester Selection** pages. | Reviewed the implementation and adjusted it to match the specification. |
+| 3 | Asked it to organize the code into `page`, `lib`, `api`, `route`, and `service` folders. | Reviewed and adjusted the generated structure. |
+| 4 | Asked it to re-check the implementation against `specification.md`. It found eight major issues. | Fixed the issues and updated `specification.md` and `api-spec.md`. |
+| 5 | Pasted the complete specification and instructed it to implement only specific pages. | Checked that the changes stayed within the requested scope. |
+| 6 | Pasted `test.md` and asked it to implement the tests file by file. After each implementation, and run test only after the code is complete. | Made small fixes based on failed tests and repeated the process until all tests passed. |
 
 ## Reflection
+
+This lab mainly revolved around **pasting an already-prepared specification into AI and using it to guide the implementation**. I found that AI was useful for quickly generating code, tests, database changes, and documentation.
+
+One thing I learned is that limiting Copilot's commands is sometimes necessary. If I give it too much freedom, it can sometimes go out of context or make changes that are not needed. I also found that I should not allow it to run npm run build unnecessarily during development, since it generate files. For the next lab, I might remove or restrict this command during the development phase.
+
+Overall, AI helped speed up development and identify errors, while testing reviewing and made small adjustment.

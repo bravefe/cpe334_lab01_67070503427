@@ -15,21 +15,6 @@ Coverage includes:
 - Accessibility and visual requirements
 - Attachment upload, download, and soft-removal lifecycle
 
-The **API tests** verify backend behavior, validation, persistence, ownership enforcement, and error responses. **UI tests** verify client-side validation, interaction, loading states, and screen behavior. **Style tests** verify required visual states such as badges and read-only fields. **Responsive tests** verify layouts at mobile viewport sizes. **E2E tests** verify complete Requester workflows across the frontend and backend.
-
-No planned test is skipped, disabled, commented out, or intentionally left flaky. Every test starts as `Pending` and is updated to `Pass` or `Fail` after implementation and execution.
-
-| Status | Used For |
-|---|---|
-| 200 | Successful retrieval (list, detail, attachment/comment/action/log metadata, download, remove) |
-| 201 | Ticket created; Attachment uploaded |
-| 400 | Validation failure |
-| 404 | Ticket/Attachment/Comment/Action/Log not found, or not owned by the current Requester (BR-11) |
-| 409 | Soft-remove attempted on an already-removed Attachment |
-| 413 | Attachment exceeds 5 MB |
-| 415 | Attachment type not in the allowed list |
-| 422 | Upload would exceed the 5 active-Attachment limit |
-| 500 | Unexpected server error (generic, safe message only — no stack traces to client) |
 
 ## 2. Planned Tests
 
@@ -38,98 +23,82 @@ No planned test is skipped, disabled, commented out, or intentionally left flaky
 | Test ID | Type | Requirement | What It Tests | Expected Result | Final |
 |---|---|---|---|---|---|
 | UNIT-01 | Unit | BR-01 | Ticket Number generator format `TKT-<YYYY>-<6-digit seq>` | Generated code matches format and is unique per call | Pending |
-| API-01 | API | AC-01 | `POST /create-ticket` with valid data | 201; one Ticket saved; backend-generated Ticket Number returned | Pending |
-| API-02 | API | AC-05 | `POST /create-ticket` with empty `summary` | 400 with `fieldErrors` for `summary`; no Ticket persisted | Pending |
-| API-03 | API | AC-06 | `POST /create-ticket` with `description` < 20 chars | 400 naming the 20-char minimum | Pending |
-| API-04 | API | AC-07 | `POST /create-ticket` with `summary` = exactly 150 chars | 201; Ticket created (upper boundary passes) | Pending |
-| API-05 | API | AC-08 | `POST /create-ticket` with `summary` = 151 chars | 400; Ticket not created (upper boundary fails) | Pending |
-| API-06 | API | AC-14 | Ticket create succeeds, Attachment upload then fails | Ticket persists with its number; failed Attachment reported separately (BR-21) | Pending |
+| API-01 | API | AC-01 | `POST /create-ticket` with valid data | 201; one Ticket saved; backend-generated Ticket Number returned | Pass |
+| API-02 | API | AC-05 | `POST /create-ticket` with empty `summary` | 400 with `fieldErrors` for `summary`; no Ticket persisted | Pass |
+| API-03 | API | AC-06 | `POST /create-ticket` with `description` < 20 chars | 400 naming the 20-char minimum | Pass |
+| API-04 | API | AC-07 | `POST /create-ticket` with `summary` = exactly 150 chars | 201; Ticket created (upper boundary passes) | Pass |
+| API-05 | API | AC-08 | `POST /create-ticket` with `summary` = 151 chars | 400; Ticket not created (upper boundary fails) | Pass |
+| API-06 | API | AC-14 | Ticket create succeeds, Attachment upload then fails | Ticket persists with its number; failed Attachment reported separately (BR-21) | Pass |
+
+```bash
+ RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/server
+
+ ✓ tests/lab-02/create-ticket.api.test.ts (7) 485ms
+   ✓ POST /api/create-ticket (7) 485ms
+     ✓ UNIT-01: should generate a unique ticket number in the correct format 441ms
+     ✓ API-01: should create a ticket with valid data
+     ✓ API-02: should reject a ticket with an empty summary
+     ✓ API-03: should reject a description shorter than 20 characters
+     ✓ API-04: should accept a summary with exactly 150 characters
+     ✓ API-05: should reject a summary with 151 characters
+     ✓ API-06: should keep the ticket when attachment upload fails
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  14:34:58
+   Duration  7.70s (transform 88ms, setup 0ms, collect 5.89s, tests 485ms, environment 0ms, prepare 878ms)
+```
 
 ### `server/tests/lab-02/attachments.api.test.ts`
 
-| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
-|---|---|---|---|---|---|
-| API-01 | API | AC-01 | `POST /api/tickets` with valid data | 201; one Ticket saved; backend-generated Ticket Number returned | Pending |
-| API-02 | API | AC-05 | `POST /api/tickets` with empty `summary` | 400 with `fieldErrors` for `summary`; no Ticket persisted | Pending |
-| API-03 | API | AC-06 | `POST /api/tickets` with `description` < 20 chars | 400 naming the 20-char minimum | Pending |
-| API-04 | API | AC-07 | `POST /api/tickets` with `summary` = exactly 150 chars | 201; Ticket created (upper boundary passes) | Pending |
-| API-05 | API | AC-08 | `POST /api/tickets` with `summary` = 151 chars | 400; Ticket not created (upper boundary fails) | Pending |
-| API-06 | API | AC-14 | Ticket create succeeds, Attachment upload then fails | Ticket persists with its number; failed Attachment reported separately (BR-21) | Pending |
-| API-07 | API | AC-13 | `POST /api/tickets` when server errors after validation passes | 500 safe envelope; no Ticket row persisted (BR-20) | Pending |
+| Test ID | Requirement | What It Tests | Expected Result | Final |
+|---|---|---|---|---|
+| API-07 | AC-09 / BR-22 | Upload `.gif` attachment | 415 Unsupported Media Type; attachment is rejected and not created. | Pass |
+| API-08 | AC-10 / BR-23 | Upload valid PDF > 5 MB | 413 Payload Too Large; attachment is rejected and not created. | Pass |
+| API-09 | AC-11 / BR-24 | Upload 6th active attachment | 422 Unprocessable Entity; upload is rejected because the ticket already has 5 active attachments, and no new attachment is created. | Pass |
+| API-10 | AC-21 / FR-12 | Upload valid attachment to owned ticket | 201 Created; attachment is created successfully with status `ACTIVE` and is associated with the owned ticket. | Pass |
+| API-11 | FR-05 / FR-12 | List ticket attachments | 200 OK; attachment list is returned with both active and removed attachments, including their relevant metadata. | Pass |
+| API-12 | AC-22 / FR-13 | Download active attachment | 200 OK; original attachment file content is returned successfully. | Pass |
+| API-13 | AC-23 / FR-14 | Remove attachment with valid reason | 200 OK; attachment status changes from `ACTIVE` to `REMOVED` and the removal reason is stored. | Pass |
+| API-14 | BR-26 | Remove attachment with empty reason | 400 Bad Request; removal is rejected, a reason is required, and the attachment remains `ACTIVE`. | Pass |
+| API-15 | BR-27 | Download removed attachment | 404 Not Found; removed attachment cannot be downloaded and no file content is returned. | Pass |
+| API-16 | BR-11 / FR-15 | Requester's attachment belongs to another Requester | 404 Not Found; attachment data is not revealed to a Requester who does not own the Ticket. | Pass |
+| API-17 | BR-24 | Add attachment after one is removed | 201 Created; new attachment is created successfully because the removed attachment does not count toward the 5-active-attachment limit. | Pass |
+
+```bash
+ RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/server
+
+ ✓ tests/lab-02/attachments.api.test.ts (11) 591ms
+   ✓ Attachment API (11) 590ms
+     ✓ API-07: rejects GIF attachments without creating one
+     ✓ API-08: rejects a valid PDF larger than 5 MB
+     ✓ API-09: rejects a sixth active attachment
+     ✓ API-10: uploads a valid attachment to an owned ticket
+     ✓ API-11: lists active and removed attachment metadata
+     ✓ API-12: downloads an active attachment with its original content
+     ✓ API-13: removes an attachment with a valid reason
+     ✓ API-14: rejects an empty removal reason and keeps the attachment active
+     ✓ API-15: does not download a removed attachment
+     ✓ API-16: hides another requester's attachment
+     ✓ API-24: allows an upload after an attachment is removed
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  22:56:49
+   Duration  2.72s (transform 93ms, setup 0ms, collect 1.25s, tests 591ms, environment 0ms, prepare 449ms)
+```
 
 ### `server/tests/lab-02/my-tickets.api.test.ts`
 
 | Test ID | Type | Requirement | What It Tests | Expected Result | Final |
 |---|---|---|---|---|---|
-| API-16 | API | AC-04 | `GET /api/tickets` as Requester B | List contains none of Requester A's Tickets | Pending |
-| API-17 | API | AC-15 | `GET /api/tickets?search=<partial ticket #>` | Only Tickets whose number contains the text returned | Pending |
-| API-18 | API | AC-16 | `GET /api/tickets?category=&requestedPriorityId=` combined | Only Tickets matching both filters returned (BR-13) | Pending |
-| API-19 | API | AC-17 | Toggle `sortDir` on `sortBy=createdAt` | List order reverses accordingly | Pending |
-| API-20 | API | AC-18 | Page forward beyond page size | Next set of Tickets loads; `page`/`totalPages` metadata correct | Pending |
-| API-21 | API | BR-15 | `page`/`pageSize` with invalid values (e.g. negative, non-numeric) | Falls back to defaults (page 1, size 10) instead of erroring | Pending |
-| API-22 | API | AC-25 | `GET /api/dev-requesters` with one inactive Requester seeded | Inactive Requester absent from response (BR-06) | Pending |
-
-
-
-### `server/tests/lab-02/ticket-detail.api.test.ts`
-
-| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
-|---|---|---|---|---|---|
-| API-23 | API | AC-03 | `GET /api/tickets/:ticketCode` for Requester A's Ticket while B is current | 404; no Ticket data returned (BR-11) | Pending |
-
-### `client/tests/lab-02/CreateTicket.test.tsx`
-
-| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
-|---|---|---|---|---|---|
-| UI-01 | UI | AC-02 | Navigate to Create Ticket with no Requester selected | Redirected to Requester Selection screen (BR-08) | Pending |
-| UI-02 | UI | AC-05 | Click Submit with Summary empty | Inline field message shown; no API call made | Pending |
-| UI-03 | UI | AC-06 | Type a 19-character Description and submit | Boundary message names the 20-char minimum | Pending |
-| UI-04 | UI | AC-12 | Click Submit on a valid form | Submit disabled + busy indicator until request resolves (BR-19) | Pending |
-| UI-05 | UI | AC-13 | Submit valid form while backend is unreachable | Safe error banner shown; all field values remain in the form | Pending |
-| UI-06 | UI | AC-28 | Tab through the Create Ticket form using keyboard only | Every control reachable in logical order with visible focus indicator | Pending |
-| UI-07 | UI | BR-01, BR-03 | Render Create Ticket system-generated fields (Ticket #, Date, Requester) | Read-only fields use distinct shading, no focus ring, not tab-stoppable | Pending |
-
-### `client/tests/lab-02/MyTickets.test.tsx`
-
-| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
-|---|---|---|---|---|---|
-| UI-11 | UI | AC-19 | Open My Tickets for a Requester with zero Tickets | Empty state (not No-Results) shown with Create Ticket CTA | Pending |
-| UI-12 | UI | AC-20 | Apply filters that match no owned Tickets | No-Results state shown with a Clear Filters action | Pending |
-| UI-13 | UI | AC-26 | Use Change Requester to pick a different active Requester | My Tickets reloads showing only the new Requester's Tickets (BR-07) | Pending |
-
-
-### `client/tests/lab-02/AttachmentSection.test.tsx`
-
-| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
-|---|---|---|---|---|---|
-| UI-08 | UI | AC-09, AC-10 | Select a `.gif` or an oversized PDF in the Attachment control | Rejected client-side before any upload call, with a clear message | Pending |
-| UI-09 | UI | AC-11 | Attachment control on a Ticket with 5 active Attachments | Remaining-slots indicator shows 0; a 6th file is blocked with a limit message | Pending |
-| UI-10 | UI | AC-23 | Click Remove on an Attachment without entering a reason | Removal blocked until a non-empty reason is entered | Pending |
-
-### `client/tests/lab-02/RequesterTicketDetail.test.tsx`
-
-| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
-|---|---|---|---|---|---|
-| UI-15 | UI | AC-21 | Add a valid Attachment from Ticket Detail | New Attachment appears in list as Active without a page reload | Pending |
-| UI-16 | UI | AC-24 | View Ticket Detail after an Attachment was soft-removed | Attachment shown greyed-out with metadata/reason; download control disabled | Pending |
-
-### `e2e/lab-02/requester-ticket-flow.spec.ts`
-
-| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
-|---|---|---|---|---|---|
-| E2E-01 | E2E | AC-01, AC-05 | Complete Requester selection → Create Ticket submission flow | Confirmation displays the backend-generated Ticket Number | Pending |
-| E2E-02 | E2E | AC-03, AC-04 | Requester A creates a Ticket; switch to Requester B and search My Tickets / open by number | Requester B never sees A's Ticket in list or detail | Pending |
-| E2E-03 | E2E | AC-21, AC-22, AC-23, AC-24 | Full Attachment lifecycle: add, download, soft-remove with reason | Attachment shows Active then Removed with metadata; download disabled after removal | Pending |
-| E2E-04 | E2E | AC-25, AC-26 | Open selector (inactive Requester seeded), select one, then Change Requester | Inactive Requester absent; switching reloads My Tickets to the new Requester's data only | Pending |
-
-## 3. Traceability Summary
-
-- 28 Acceptance Criteria are covered.
-- Ownership enforcement (BR-09–BR-11) is verified through API and E2E tests.
-- The full Attachment lifecycle is tested at API, UI, and E2E levels.
-- Responsive behavior is tested for both Create Ticket and My Tickets.
-- Server tests use 4 files; client tests use 4 files; all E2E and responsive tests use `requester-ticket-flow.spec.ts`.
-- All tests start as `Pending` and are updated to `Pass` or `Fail` after implementation and execution.
+| API-16 | API | AC-04 | `GET /api/tickets` as Requester B | List contains none of Requester A's Tickets | Pass |
+| API-17 | API | AC-15 | `GET /api/tickets?search=<partial ticket #>` | Only Tickets whose number contains the text returned | Pass |
+| API-18 | API | AC-16 | `GET /api/tickets?category=&requestedPriorityId=` combined | Only Tickets matching both filters returned (BR-13) | Pass |
+| API-19 | API | AC-17 | Toggle `sortDir` on `sortBy=createdAt` | List order reverses accordingly | Pass |
+| API-20 | API | AC-18 | Page forward beyond page size | Next set of Tickets loads; `page`/`totalPages` metadata correct | Pass |
+| API-21 | API | BR-15 | `page`/`pageSize` with invalid values (e.g. negative, non-numeric) | Falls back to defaults (page 1, size 10) instead of erroring | Pass |
+| API-22 | API | AC-25 | `GET /api/dev-requesters` with one inactive Requester seeded | Inactive Requester absent from response (BR-06) | Pass |
 
 ```bash
  RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/server
@@ -151,23 +120,12 @@ No planned test is skipped, disabled, commented out, or intentionally left flaky
    Duration  766ms (transform 84ms, setup 0ms, collect 242ms, tests 151ms, environment 0ms, prepare 103ms)
 ```
 
-```bash
- RUN  v2.1.9 C:/KMUTT/3.1/Software/Pai/server
 
- ✓ tests/lab-02/create-ticket.api.test.ts (6) 1158ms
-   ✓ POST /api/create-ticket (6) 1156ms
-     ✓ API-01: should create a ticket with valid data 713ms
-     ✓ API-02: should reject a ticket with an empty summary
-     ✓ API-03: should reject a description shorter than 20 characters
-     ✓ API-04: should accept a summary with exactly 150 characters
-     ✓ API-05: should reject a summary with 151 characters
-     ✓ API-06: should keep the ticket when attachment upload fails
+### `server/tests/lab-02/ticket-detail.api.test.ts`
 
- Test Files  1 passed (1)
-      Tests  6 passed (6)
-   Start at  10:25:58
-   Duration  4.50s (transform 284ms, setup 0ms, collect 1.24s, tests 1.16s, environment 0ms, prepare 725ms)
-```
+| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
+|---|---|---|---|---|---|
+| API-23 | API | AC-03 | `GET /api/tickets/:ticketCode` for Requester A's Ticket while B is current | 404; no Ticket data returned (BR-11) | Pass |
 
 ```bash
  RUN  v2.1.9 C:/KMUTT/3.1/Software/Pai/server
@@ -182,3 +140,149 @@ No planned test is skipped, disabled, commented out, or intentionally left flaky
    Start at  10:27:30
    Duration  3.47s (transform 340ms, setup 0ms, collect 1.11s, tests 312ms, environment 1ms, prepare 818ms)
 ```
+
+### `client/tests/lab-02/CreateTicket.test.tsx`
+
+| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
+|---|---|---|---|---|---|
+| UI-01 | UI | AC-02 | Navigate to Create Ticket with no Requester selected | Redirected to Requester Selection screen (BR-08) | Pass |
+| UI-02 | UI | AC-05 | Click Submit with Summary empty | Inline field message shown; no API call made | Pass |
+| UI-03 | UI | AC-06 | Type a 19-character Description and submit | Boundary message names the 20-char minimum | Pass |
+| UI-04 | UI | AC-12 | Click Submit on a valid form | Submit disabled + busy indicator until request resolves (BR-19) | Pass |
+| UI-05 | UI | AC-13 | Submit valid form while backend is unreachable | Safe error banner shown; all field values remain in the form | Pass |
+| UI-06 | UI | AC-28 | Tab through the Create Ticket form using keyboard only | Every control reachable in logical order with visible focus indicator | Pass |
+| UI-07 | UI | BR-01, BR-03 | Render Create Ticket system-generated fields (Ticket #, Date, Requester) | Read-only fields use distinct shading, no focus ring, not tab-stoppable | Pass |
+
+```bash
+ RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/client
+
+ ✓ tests/lab-02/CreateTicket.test.tsx (9) 3908ms
+   ✓ Create Ticket screen (9) 3907ms
+     ✓ UI-01: redirects to requester selection without a selected requester
+     ✓ shows the create ticket form when a requester is selected
+     ✓ navigates to create ticket from the top bar
+     ✓ UI-02: shows an inline summary error without calling the create API
+     ✓ UI-03: reports the 20-character description minimum 984ms
+     ✓ UI-04: disables submit while a valid request is pending 1153ms
+     ✓ UI-05: shows a safe error and preserves values when the backend is unreachable 1175ms
+     ✓ UI-06: reaches every create-ticket form control with the keyboard 343ms
+     ✓ UI-07: renders generated fields as shaded, non-focusable read-only fields
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  21:21:14
+   Duration  5.21s (transform 129ms, setup 69ms, collect 265ms, tests 3.91s, environment 425ms, prepare 123ms)
+```
+
+### `client/tests/lab-02/MyTickets.test.tsx`
+
+| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
+|---|---|---|---|---|---|
+| UI-11 | UI | AC-19 | Open My Tickets for a Requester with zero Tickets | Empty state (not No-Results) shown with Create Ticket CTA | Pass |
+| UI-12 | UI | AC-20 | Apply filters that match no owned Tickets | No-Results state shown with a Clear Filters action | Pass |
+| UI-13 | UI | AC-26 | Use Change Requester to pick a different active Requester | My Tickets reloads showing only the new Requester's Tickets (BR-07) | Pass |
+
+```bash 
+ RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/client
+
+ ✓ tests/lab-02/MyTickets.test.tsx (3) 683ms
+   ✓ My Tickets screen (3) 682ms
+     ✓ UI-11: shows the empty state and Create Ticket CTA for a requester with no tickets
+     ✓ UI-12: shows no-results state and clears active filters
+     ✓ UI-13: changes requester and reloads My Tickets with the new requester
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  21:31:44
+   Duration  3.54s (transform 260ms, setup 115ms, collect 556ms, tests 683ms, environment 839ms, prepare 431ms)
+```
+
+
+### `client/tests/lab-02/AttachmentSection.test.tsx`
+
+| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
+|---|---|---|---|---|---|
+| UI-08 | UI | AC-09, AC-10 | Select a `.gif` or an oversized PDF in the Attachment control | Rejected client-side before any upload call, with a clear message | Pass |
+| UI-09 | UI | AC-11 | Attachment control on a Ticket with 5 active Attachments | Remaining-slots indicator shows 0; a 6th file is blocked with a limit message | Pass |
+| UI-10 | UI | AC-23 | Click Remove on an Attachment without entering a reason | Removal blocked until a non-empty reason is entered | Pass |
+
+```bash
+ RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/client
+
+ ✓ tests/lab-02/AttachmentSection.test.tsx (3)
+   ✓ Attachment controls (3)
+     ✓ UI-08: rejects gif or oversized PDF files before upload
+     ✓ UI-09: shows remaining slots and blocks the 6th file
+     ✓ UI-10: blocks removal without a non-empty reason
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  22:55:28
+   Duration  1.45s (transform 80ms, setup 92ms, collect 188ms, tests 277ms, environment 418ms, prepare 132ms)
+```
+
+### `client/tests/lab-02/RequesterTicketDetail.test.tsx`
+
+| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
+|---|---|---|---|---|---|
+| UI-15 | UI | AC-21 | Add a valid Attachment from Ticket Detail | New Attachment appears in list as Active without a page reload | Pass |
+| UI-16 | UI | AC-24 | View Ticket Detail after an Attachment was soft-removed | Attachment shown greyed-out with metadata/reason; download control disabled | Pass |
+
+```bash
+ RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/client
+
+ ✓ tests/lab-02/RequesterTicketDetail.test.tsx (2)
+   ✓ Requester ticket detail attachments (2)
+     ✓ UI-15: adds a valid attachment from ticket detail without reload
+     ✓ UI-16: renders a removed attachment as greyed-out with reason and disabled download
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  22:45:53
+   Duration  1.30s (transform 136ms, setup 60ms, collect 273ms, tests 203ms, environment 365ms, prepare 146ms)
+```
+
+
+### `e2e/lab-02/requester-ticket-flow.spec.ts`
+
+| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
+|---|---|---|---|---|---|
+| E2E-01  | E2E  | AC-01                      | Complete Requester selection → Create Ticket submission flow with valid data                                 | Ticket is created successfully, the backend-generated Ticket Number is displayed, and Ticket Details opens                          | Pass  |
+| E2E-02  | E2E  | AC-03, AC-04               | Requester A creates a Ticket; switch to Requester B and search My Tickets / open A's Ticket by number        | Requester B never sees A's Ticket in the My Tickets list or Ticket Detail                                                           | Pass  |
+| E2E-03  | E2E  | AC-21, AC-22, AC-23, AC-24 | Full Attachment lifecycle: add, download, soft-remove with reason                                            | Attachment appears as Active, can be downloaded, then shows as Removed with metadata and reason; download is disabled after removal | Pass  |
+| E2E-04  | E2E  | AC-25, AC-26               | Open Requester selector with an inactive Requester seeded, select an active Requester, then Change Requester | Inactive Requester is absent; switching Requester reloads My Tickets with only the newly selected Requester's Tickets               | Pass  |
+| E2E-05  | E2E  | —                          | Opens an invalid Ticket and verifies the application's validation/error handling                             | Invalid Ticket is rejected and an appropriate error state is shown without exposing Ticket data                                     | Pass  |
+| E2E-06  | E2E  | AC-15, AC-16               | Search My Tickets by partial Ticket Number and apply Category + Requested Priority filters                   | Only Tickets matching the search text and/or all selected filters are displayed                                                     | Pass  |
+| E2E-07  | E2E  | AC-11                      | Adds Attachments up to the active limit, removes one, then attempts to fill the available slot again         | Attachment limit is enforced; after one Attachment is removed, the available slot can be used again                                 | Pass  |
+| E2E-08  | E2E  | AC-16                      | Applies a Category and Requested Priority filter without entering a search term                              | My Tickets displays only Tickets matching the applied filters; unrelated Tickets are excluded                                       | Pass  |
+| E2E-09  | E2E  | AC-11                      | Attempts to exceed the maximum number of Attachments on Create Ticket                                        | Upload beyond the configured Attachment limit is rejected and the limit message is shown                                            | Pass  |
+
+
+
+```bash 
+npm notice run software-engineer@1.0.0 test:e2e
+npm notice run playwright test e2e/lab-02/requester-ticket-flow.spec.ts
+[WebServer] npm notice run toktickit-client@1.0.0 dev
+[WebServer] npm notice run vite --host 127.0.0.1
+
+Running 9 tests using 1 worker
+
+  ✓  1 …ket-flow.spec.ts:48:6 › Requester ticket flow › E2E-01: creates a ticket and shows the backend-generated number (4.1s)
+  ✓  2 …er-ticket-flow.spec.ts:54:6 › Requester ticket flow › E2E-02: prevents another requester from seeing the ticket (1.3s)
+  ✓  3 …\lab-02\requester-ticket-flow.spec.ts:71:6 › Requester ticket flow › E2E-03: completes the attachment lifecycle (1.6s)
+  ✓  4 …uester-ticket-flow.spec.ts:95:6 › Requester ticket flow › E2E-05: shows validation errors for an invalid ticket (1.2s)
+  ✓  5 …2e\lab-02\requester-ticket-flow.spec.ts:111:6 › Requester ticket flow › E2E-06: searches and filters My Tickets (1.4s)
+  ✓  6 …icket-flow.spec.ts:130:6 › Requester ticket flow › E2E-07: refills the sixth attachment slot after deleting one (1.4s)
+  ✓  7 …ter-ticket-flow.spec.ts:158:6 › Requester ticket flow › E2E-08: captures My Tickets with a filter and no search (1.4s)
+  ✓  8 …r-ticket-flow.spec.ts:175:6 › Requester ticket flow › E2E-09: captures the seventh file limit on Create Ticket (851ms)
+  ✓  9 …-flow.spec.ts:191:6 › Requester ticket flow › E2E-04: switches requester data and excludes inactive requesters (794ms)
+
+  9 passed (15.9s)
+  ```
+
+## 3. Traceability Summary
+
+- The full Attachment lifecycle is tested at API, UI, and E2E levels.
+- Responsive behavior is tested for both Create Ticket and My Tickets.
+- Server tests use 4 files; client tests use 4 files; all E2E and responsive tests use `requester-ticket-flow.spec.ts`.
+- All tests start as `Pending` and are updated to `Pass` or `Fail` after implementation and execution.

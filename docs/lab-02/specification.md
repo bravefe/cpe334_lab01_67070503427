@@ -7,7 +7,7 @@
 
 Deliver a working Requester-facing ticketing experience: a Requester can select a temporary
 Development identity, create an IT support ticket with supporting attachments, receive a
-system-generated Ticket Number, and locate, inspect, and manage that ticket afterward — all
+system-generated Ticket Number, and locate, inspect, and manage that ticket afterward, all
 while one Requester is fully prevented from seeing another Requester's data. The sprint also
 establishes the reusable Zen Green visual and component language that later sprints build on.
 
@@ -18,8 +18,8 @@ establishes the reusable Zen Green visual and component language that later spri
 IT wants to start accepting real support tickets from end users before full login exists. Since
 authentication is a Lab 3 concern, Lab 2 needs a stand-in: a simple screen where a tester picks
 which seeded Requester they're acting as. Once picked, that identity should behave like a "real"
-logged-in user for every screen that follows — creating tickets, browsing "My Tickets," opening a
-ticket's detail, and adding or removing attachments — and no other seeded Requester's tickets
+logged-in user for every screen that follows: creating tickets, browsing "My Tickets," opening a
+ticket's detail, and adding or removing attachments, and no other seeded Requester's tickets
 should ever be visible in that session. The three screens (Create Ticket, My Tickets, Ticket
 Detail) should share one consistent visual system (Zen Green) so later labs don't have to
 reinvent forms, lists, badges, and empty/error states from scratch.
@@ -138,7 +138,7 @@ reinvent forms, lists, badges, and empty/error states from scratch.
 | BR-24 | A Ticket may have at most five active Attachments at any time; soft-removed Attachments do not count toward this limit. |
 | BR-25 | Attachment removal is a soft removal: the Attachment row and its metadata are retained permanently; only its status changes from `ACTIVE` to `REMOVED`. |
 | BR-26 | A non-empty removal reason is required to soft-remove an Attachment and is stored with the removal. |
-| BR-27 | A `REMOVED` Attachment can never be downloaded or previewed. Its metadata (original file name, uploaded date, removed date, removal reason) remains visible in Ticket Detail with a visible "Removed" indicator. |
+| BR-27 | A `REMOVED` Attachment can never be downloaded or previewed. Its metadata (original file name, uploaded date, removed date, removal reason) remains visible in Ticket Detail. |
 
 ### Inactive Requesters
 
@@ -223,8 +223,8 @@ Full detail lives in `docs/lab-02/ui-spec.md`; this section summarizes what it m
 **DevRequester**
 | Field | Type | Notes |
 |---|---|---|
-| id | Int/UUID PK | |
-| fullName | String | required |
+| id | Int PK | |
+| name | String | required |
 | email | String | unique |
 | isActive | Boolean | default `true`; inactive Requesters excluded from selector (BR-06, BR-28) |
 | createdAt | DateTime | |
@@ -247,7 +247,7 @@ Full detail lives in `docs/lab-02/ui-spec.md`; this section summarizes what it m
 **Ticket** 
 | Field | Type | Notes |
 |---|---|---|
-| id | Int/UUID PK | internal key |
+| id | Int PK | internal key |
 | ticketNumber | String | unique, indexed; format per TKT-YYY-XXXXXX |
 | requesterId | FK → DevRequester | required; indexed for My Tickets queries |
 | categoryId | FK → Category | required; indexed for filtering |
@@ -257,14 +257,13 @@ Full detail lives in `docs/lab-02/ui-spec.md`; this section summarizes what it m
 | requestedPriorityId | FK → Priority | required |
 | itPriorityId | FK → Priority — nullable | reserved, unused in Lab 2 (BR-04) |
 | currentStatusId | FK → Status | required; defaults to the `New` row; indexed for filtering |
-| ownerId | FK — nullable | reserved for IT Staff assignment, unused in Lab 2 |
 | createdAt | DateTime | indexed; drives default sort |
 | updatedAt | DateTime | drives "Last Updated" |
 
 **Attachment**
 | Field | Type | Notes |
 |---|---|---|
-| id | Int/UUID PK | |
+| id | Int PK | |
 | ticketId | FK → Ticket | required; indexed |
 | originalFileName | String | as uploaded, display-only |
 | storedFileName | String | sanitized/randomized on-disk name, never derived from user input directly |
@@ -275,42 +274,11 @@ Full detail lives in `docs/lab-02/ui-spec.md`; this section summarizes what it m
 | removedAt | DateTime — nullable | |
 | uploadedAt | DateTime | |
 
-<!-- **PublicComment**
-| Field | Type | Notes |
-|---|---|---|
-| id | Int/UUID PK | |
-| ticketId | FK → Ticket | required; indexed |
-| authorId | FK → DevRequester | required (A1) |
-| message | Text | required, non-empty |
-| createdAt | DateTime | |
-| removedAt | DateTime — nullable | soft-remove marker only (A3); `null` = visible |
-
-**ServiceAction**
-| Field | Type | Notes |
-|---|---|---|
-| id | Int/UUID PK | |
-| ticketId | FK → Ticket | required; indexed |
-| message | Text | required, non-empty |
-| createdAt | DateTime | |
-| removedAt | DateTime — nullable | soft-remove marker only (A3) |
-
-**EventLog**
-| Field | Type | Notes |
-|---|---|---|
-| id | Int/UUID PK | |
-| ticketId | FK → Ticket | required; indexed |
-| message | Text | required, non-empty |
-| createdAt | DateTime | |
-| removedAt | DateTime — nullable | soft-remove marker only (A3) | -->
-
 ### 7.2 Relationships
 - One `DevRequester` → many `Ticket` (one `Ticket` → one `DevRequester`).
 - One `Priority` → many `Ticket.requestedPriorityId`; one `Priority` → many `Ticket.itPriorityId`.
 - One `Status` → many `Ticket`.
 - One `Ticket` → many `Attachment`.
-<!-- - One `Ticket` → many `PublicComment`.
-- One `Ticket` → many `ServiceAction`.
-- One `Ticket` → many `EventLog`. -->
 - One `Category` → many `Ticket`.
 - One `RelatedSystem` → many `Ticket`.
 
@@ -322,9 +290,8 @@ Full detail lives in `docs/lab-02/ui-spec.md`; this section summarizes what it m
   `Attachment.ticketId`.
 - Indexes: `Ticket.requesterId` (My Tickets scoping), `Ticket.createdAt` (default sort),
   `Ticket.categoryId` / `Ticket.requestedPriorityId` / `Ticket.currentStatusId` (filters),
-  `Attachment.ticketId`, `Attachment.status`.
-- Nullability: `itPriorityId`, `ownerId`, `removalReason`, `removedAt` (Attachment),
-  `removedAt`;
+  `Attachment.ticketId`.
+- Nullability: `itPriorityId`, `removalReason`, `removedAt` (Attachment);
   all Requester-facing required fields are `NOT NULL`.
 
 ### 7.4 Seed Data 
@@ -419,26 +386,26 @@ Full request/response bodies live in `docs/lab-02/api-spec.md`; this is the cont
 ## 10. Definition of Done
 
 ### 10.1 Product Completion (must be true before the coding agent may report "done")
-- [ ] All FR-01–FR-15 are implemented and demonstrable.
-- [ ] All AC-01–AC-28 have passing, traceable automated test evidence (see `tests.md`).
-- [ ] No required test is skipped, disabled, commented out, or flaky.
-- [ ] Data model, API, and UI conform to §§6–8 of this document; any deviation is logged and
+-  All FR-01–FR-15 are implemented.
+-  All AC-01–AC-26 have passing, traceable automated test evidence.
+-  No required test is skipped, disabled, commented out, or flaky.
+-  Data model, API, and UI conform to §§6–8 of this document; any deviation is logged and
       re-approved here first.
-- [ ] Success, validation-failure, API-failure, and boundary cases are all handled per §5's
+-  Success, validation-failure, API-failure, and boundary cases are all handled per §5's
       Business Rules — not just the happy path.
-- [ ] Ownership enforcement (BR-09–BR-11) is verified with an explicit cross-Requester test, not
+-  Ownership enforcement (BR-09–BR-11) is verified with an explicit cross-Requester test, not
       just visual inspection.
-- [ ] Responsive layout is verified at desktop, tablet, and mobile per §6 and §8.7 of the lab
+-  Responsive layout is verified at desktop, tablet, and mobile per §6 and §8.7 of the lab
       handout, with no clipping, overlap, or unintended horizontal scroll.
-- [ ] README setup and test-run instructions are current and match the final main branch.
+-  README setup and test-run instructions are current and match the final main branch.
 
 ### 10.2 Course Delivery Requirements (checked separately, per §13.2 of the handout)
-- [ ] GitHub Issues created and moved through Backlog → Specified → Started → PR Review →
+-  GitHub Issues created and moved through Backlog → Specified → Started → PR Review →
       Fixing → Done for every feature branch.
-- [ ] Each feature branch merged into `lab2-staging` via a peer-reviewed Pull Request; one release
+-  Each feature branch merged into `lab2-staging` via a peer-reviewed Pull Request; one release
       PR opened from `lab2-staging` to `main`.
-- [ ] `reviewer.md` and `ai-use.md` completed and rendered.
-- [ ] Required screenshots and PDF submission assembled per the handout's Part 1–9 structure.
+-  `reviewer.md` and `ai-use.md` completed and rendered.
+-  Required screenshots and PDF submission assembled per the handout's Part 1–9 structure.
 
 ---
 
@@ -451,7 +418,7 @@ Full request/response bodies live in `docs/lab-02/api-spec.md`; this is the cont
 2. **Ownership-failure status code.** A Ticket or Attachment that exists but isn't owned by the
    current Requester returns **404**, not 403, so the response never confirms the resource exists
    under a different owner (BR-11).
-3. **`itPriority` and Ticket Owner columns exist but are unused.** They're included in the Lab 2
+3. **`itPriority` columns exist but are unused.** They're included in the Lab 2
    schema for forward compatibility so Lab 3+ doesn't require a breaking migration, but are never
    set, validated, or shown to the Requester — those illustrative columns in the sample My Tickets
    screenshot belong to the IT Staff view, which is out of scope here.

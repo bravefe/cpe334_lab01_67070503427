@@ -1,0 +1,25 @@
+{
+  "name": "software-engineer",
+  "version": "1.0.0",
+  "description": "TokTickIT is a full-stack IT service desk application for managing Account & Access, Hardware, Software, and Network support requests. The project is built incrementally across multiple lab sprints, with each sprint adding new features, validation, testing, and UI improvements.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test:e2e": "playwright test e2e/lab-02/requester-ticket-flow.spec.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bravefe/cpe334_lab01_67070503427.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/bravefe/cpe334_lab01_67070503427/issues"
+  },
+  "homepage": "https://github.com/bravefe/cpe334_lab01_67070503427#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
+  }
+}

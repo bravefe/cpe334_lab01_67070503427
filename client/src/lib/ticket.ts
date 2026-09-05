@@ -1,5 +1,6 @@
 import { Category, Priority, RelatedSystem, Status } from "./reference";
 import { Requester } from "./requester";
+import { Attachment } from "./attachments";
 
 export interface Ticket {
   ticketNumber: string;
@@ -23,17 +24,8 @@ export interface TicketDetail extends Ticket {
   relatedSystemId: number;
   requestedPriorityId: number;
   currentStatusId: number;
-  attachments: AttachmentDetail[];
+  attachments: Attachment[];
   relatedSystem?: RelatedSystem;
-}
-
-export interface AttachmentDetail {
-  attachmentId: number;
-  originalFileName: string;
-  status: "ACTIVE" | "REMOVED";
-  uploadedAt: string;
-  removedAt?: string;
-  removalReason?: string;
 }
 
 export interface TicketQuery {

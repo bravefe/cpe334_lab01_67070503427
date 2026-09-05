@@ -57,7 +57,7 @@
 }
 
 .topbar a:hover { 
-  background: rgba(255, 255, 255, 0.08); 
+  background: var(--hover-overlay);
   cursor: pointer;
 }
 
@@ -80,8 +80,8 @@
   gap: 0.25rem;
 }
 
-.profile a:hover { background: rgba(255, 255, 255, 0.08); }
-.topbar button:hover { background: rgba(255, 255, 255, 0.08); }
+.profile a:hover { background: var(--hover-overlay); }
+.topbar button:hover { background: var(--hover-overlay); }
 
 @media (max-width: 767px) {
   .topbar {
@@ -91,7 +91,7 @@
     flex-wrap: wrap;
   }
 
-  .logo { display: none; }
+  /* .logo { display: none; } */
 
   .topbar a {
     min-height: 44px;

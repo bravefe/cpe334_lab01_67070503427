@@ -1,17 +1,20 @@
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { fetchCategories, fetchPriorities, fetchRelatedSystems } from "../../api/referenceData";
 import { createTicket } from "../../api/tickets";
+import { uploadAttachment } from "../../api/attachments";
 import { Category, Priority, RelatedSystem } from "../../lib/reference";
 import { Requester } from "../../lib/requester";
 import { CreateTicketPayload } from "../../lib/ticket";
 import TopBar from "../TopBar";
+import AttachmentCreateTicket from "./AttachmentCreateTicket";
 import "./CreateTicket.css";
 
 interface CreateTicketProps {
   requester?: Requester;
-  requesterId: number;
+  requesterId: number | null;
   onBack: () => void;
   onCreateTicket?: () => void;
+  onOpenTicket?: (ticketNumber: string) => void;
 }
 
 const emptyForm = {
@@ -22,29 +25,32 @@ const emptyForm = {
   requestedPriorityId: "",
 };
 
-export default function CreateTicket({ requester, requesterId, onBack, onCreateTicket }: CreateTicketProps) {
+export default function CreateTicket({ requester, requesterId, onBack, onCreateTicket, onOpenTicket }: CreateTicketProps) {
   const [form, setForm] = useState(emptyForm);
   const [categories, setCategories] = useState<Category[]>([]);
   const [relatedSystems, setRelatedSystems] = useState<RelatedSystem[]>([]);
   const [priorities, setPriorities] = useState<Priority[]>([]);
+  const [referenceError, setReferenceError] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [successTicket, setSuccessTicket] = useState<string | null>(null);
+  const [attachmentFiles, setAttachmentFiles] = useState<File[]>([]);
 
     useEffect(() => {
-    fetchCategories()
-        .then((result) => setCategories(result.data))
-        .catch((error) => console.error("Failed to fetch categories:", error));
-
-    fetchPriorities()
-        .then((result) => setPriorities(result.data))
-        .catch((error) => console.error("Failed to fetch priorities:", error));
-
-    fetchRelatedSystems()
-        .then((result) => setRelatedSystems(result.data))
-        .catch((error) => console.error("Failed to fetch related systems:", error));
+    loadReferenceData();
     }, []);
+
+  const loadReferenceData = () => {
+    setReferenceError("");
+    Promise.all([fetchCategories(), fetchPriorities(), fetchRelatedSystems()])
+      .then(([categoriesResult, prioritiesResult, systemsResult]) => {
+        setCategories(categoriesResult.data);
+        setPriorities(prioritiesResult.data);
+        setRelatedSystems(systemsResult.data);
+      })
+      .catch((error: Error) => setReferenceError(error.message));
+  };
 
   const updateField = (field: string, value: string) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -71,6 +77,10 @@ export default function CreateTicket({ requester, requesterId, onBack, onCreateT
 
   const submit = async () => {
     if (!validate()) return;
+    if (!requesterId) {
+      setSubmitError("Choose a requester before submitting a ticket.");
+      return;
+    }
 
     setSubmitting(true);
     setSubmitError("");
@@ -85,8 +95,20 @@ export default function CreateTicket({ requester, requesterId, onBack, onCreateT
 
     try {
       const created = await createTicket(requesterId, payload);
+      const uploadResults = await Promise.allSettled(
+        attachmentFiles.map((file) => uploadAttachment(requesterId, created.ticketNumber, file)),
+      );
+      const failedFiles = attachmentFiles.filter((_, index) => uploadResults[index]?.status === "rejected");
       setSuccessTicket(created.ticketNumber);
       setForm(emptyForm);
+      setAttachmentFiles([]);
+      if (failedFiles.length > 0) {
+        setSubmitError(
+          `Ticket created, but these attachments failed to upload: ${failedFiles.map((file) => file.name).join(", ")}. Open Ticket Details to retry.`,
+        );
+      } else {
+        onOpenTicket?.(created.ticketNumber);
+      }
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "");
     } finally {
@@ -149,6 +171,13 @@ export default function CreateTicket({ requester, requesterId, onBack, onCreateT
             </label>
           </div>
 
+          {referenceError && (
+            <div className="error-banner">
+              <span>Reference data could not be loaded. Please try again.</span>
+              <button type="button" onClick={loadReferenceData}>Retry</button>
+            </div>
+          )}
+
           <label className="field full-width">
             <span>Summary</span>
             <input
@@ -170,12 +199,7 @@ export default function CreateTicket({ requester, requesterId, onBack, onCreateT
             />
             {errors.description && <small>{errors.description}</small>}
           </label>
-
-          {/* <div className="attachment-box">
-            <p>Drag and drop your file here</p>
-            <span>or</span>
-            <button type="button" className="secondary-button">Browse File</button>
-          </div> */}
+          <AttachmentCreateTicket files={attachmentFiles} onChange={setAttachmentFiles} />
 
           {submitError && <div className="error-banner">{submitError}</div>}
           {successTicket && <div className="success-banner">Ticket created: {successTicket}</div>}
@@ -187,6 +211,11 @@ export default function CreateTicket({ requester, requesterId, onBack, onCreateT
             </button>
           </div>
         </section>
+
+        {/* <section className="ticket-form-card">
+          <AttachmentCreateTicket files={attachmentFiles} onChange={setAttachmentFiles} />
+        </section> */}
+
       </main>
     </>
   );
