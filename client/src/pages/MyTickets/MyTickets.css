@@ -276,8 +276,8 @@ footer button.selected {
     grid-column: 1 / -1;
   }
 
-  th:nth-child(3),
+  /* th:nth-child(3),
   td:nth-child(3) {
     display: none;
-  }
+  } */
 }
