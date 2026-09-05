@@ -2,6 +2,11 @@ import { expect, test, type Page } from "@playwright/test";
 
 const frodo = "Frodo Baggins";
 const samwise = "Samwise Gamgee";
+const screenshotViewports = [
+	{ name: "normal", width: 1280, height: 900 },
+	{ name: "991", width: 991, height: 900 },
+	{ name: "767", width: 767, height: 900 },
+] as const;
 
 async function chooseRequester(page: Page, name: string) {
 	await page.goto("/choose-requester");
@@ -50,7 +55,6 @@ test.describe("Requester ticket flow", () => {
 	});
 
 	test("E2E-03: completes the attachment lifecycle", async ({ page }, testInfo) => {
-		await page.setViewportSize({ width: 767, height: 900 });
 		await chooseRequester(page, frodo);
 		const ticketNumber = await createTicket(page, `E2E-03 ${Date.now()}`);
 		await page.goto(`/ticket/${ticketNumber}`);
@@ -60,12 +64,53 @@ test.describe("Requester ticket flow", () => {
 		const downloadPromise = page.waitForEvent("download");
 		await page.getByRole("button", { name: /Download e2e-attachment\.pdf/ }).click();
 		expect((await downloadPromise).suggestedFilename()).toBe("e2e-attachment.pdf");
-		await page.screenshot({ path: testInfo.outputPath("attachment-mobile-inline.png"), fullPage: true });
+		for (const viewport of screenshotViewports) {
+			await page.setViewportSize({ width: viewport.width, height: viewport.height });
+			await page.screenshot({ path: testInfo.outputPath(`attachment-active-${viewport.name}.png`), fullPage: true });
+		}
 		page.once("dialog", (dialog) => dialog.accept("No longer needed"));
 		await page.getByRole("button", { name: "Remove e2e-attachment.pdf" }).click();
 		await expect(page.getByText("No longer needed")).toBeVisible();
 		await expect(page.getByRole("button", { name: /Download e2e-attachment\.pdf/ })).toBeDisabled();
-		await page.screenshot({ path: testInfo.outputPath("attachment-lifecycle.png"), fullPage: true });
+		for (const viewport of screenshotViewports) {
+			await page.setViewportSize({ width: viewport.width, height: viewport.height });
+			await page.screenshot({ path: testInfo.outputPath(`attachment-removed-${viewport.name}.png`), fullPage: true });
+		}
+	});
+
+	test("E2E-05: shows validation errors for an invalid ticket", async ({ page }, testInfo) => {
+		await chooseRequester(page, frodo);
+		await page.getByRole("button", { name: /Create Ticket/ }).first().click();
+
+		for (const viewport of screenshotViewports) {
+			await page.setViewportSize({ width: viewport.width, height: viewport.height });
+			await page.getByRole("button", { name: "Submit", exact: true }).click();
+			await expect(page.getByText("Summary is required.")).toBeVisible();
+			await expect(page.getByText("Description is required.")).toBeVisible();
+			await expect(page.getByText("Please select a category.")).toBeVisible();
+			await expect(page.getByText("Please select a related system.")).toBeVisible();
+			await expect(page.getByText("Please select a priority.")).toBeVisible();
+			await page.screenshot({ path: testInfo.outputPath(`invalid-ticket-${viewport.name}.png`), fullPage: true });
+		}
+	});
+
+	test("E2E-06: searches and filters My Tickets", async ({ page }, testInfo) => {
+		await chooseRequester(page, frodo);
+		const summary = `E2E-06 searchable ${Date.now()}`;
+		await createTicket(page, summary);
+		await page.getByRole("button", { name: "My Tickets" }).click();
+		await expect(page).toHaveURL(/\/my-tickets$/);
+
+		for (const viewport of screenshotViewports) {
+			await page.setViewportSize({ width: viewport.width, height: viewport.height });
+			await page.getByLabel("Search").fill("E2E-06 searchable");
+			await page.getByLabel("Search").press("Enter");
+			await expect(page.getByText(summary)).toBeVisible();
+			await page.getByLabel("Current Status").selectOption({ label: "New" });
+			await expect(page.getByText(summary)).toBeVisible();
+			await page.screenshot({ path: testInfo.outputPath(`my-tickets-filter-${viewport.name}.png`), fullPage: true });
+			await page.getByRole("button", { name: /Clear Filters/ }).click();
+		}
 	});
 
 	test("E2E-04: switches requester data and excludes inactive requesters", async ({ page }) => {
