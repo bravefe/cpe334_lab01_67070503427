@@ -49,6 +49,9 @@ test.describe("Requester ticket flow", () => {
 		await chooseRequester(page, frodo);
 		const ticketNumber = await createTicket(page, `E2E-01 ${Date.now()}`);
 		expect(ticketNumber).toMatch(/^TKT-\d{4}-\d{6}$/);
+		await expect(page).toHaveURL(new RegExp(`/ticket/${ticketNumber}\\?created=1$`));
+		await expect(page.getByRole("heading", { name: "Ticket Details" })).toBeVisible();
+		await expect(page.getByText(`Ticket created: ${ticketNumber}`)).toBeVisible();
 	});
 
 	test("E2E-02: prevents another requester from seeing the ticket", async ({ page }, testInfo) => {

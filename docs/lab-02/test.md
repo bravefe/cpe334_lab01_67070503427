@@ -249,10 +249,16 @@ Coverage includes:
 
 | Test ID | Type | Requirement | What It Tests | Expected Result | Final |
 |---|---|---|---|---|---|
-| E2E-01 | E2E | AC-01, AC-05 | Complete Requester selection → Create Ticket submission flow | Confirmation displays the backend-generated Ticket Number | Pass |
-| E2E-02 | E2E | AC-03, AC-04 | Requester A creates a Ticket; switch to Requester B and search My Tickets / open by number | Requester B never sees A's Ticket in list or detail | Pass |
-| E2E-03 | E2E | AC-21, AC-22, AC-23, AC-24 | Full Attachment lifecycle: add, download, soft-remove with reason | Attachment shows Active then Removed with metadata; download disabled after removal | Pass |
-| E2E-04 | E2E | AC-25, AC-26 | Open selector (inactive Requester seeded), select one, then Change Requester | Inactive Requester absent; switching reloads My Tickets to the new Requester's data only | Pass |
+| E2E-01  | E2E  | AC-01                      | Complete Requester selection → Create Ticket submission flow with valid data                                 | Ticket is created successfully, the backend-generated Ticket Number is displayed, and Ticket Details opens                          | Pass  |
+| E2E-02  | E2E  | AC-03, AC-04               | Requester A creates a Ticket; switch to Requester B and search My Tickets / open A's Ticket by number        | Requester B never sees A's Ticket in the My Tickets list or Ticket Detail                                                           | Pass  |
+| E2E-03  | E2E  | AC-21, AC-22, AC-23, AC-24 | Full Attachment lifecycle: add, download, soft-remove with reason                                            | Attachment appears as Active, can be downloaded, then shows as Removed with metadata and reason; download is disabled after removal | Pass  |
+| E2E-04  | E2E  | AC-25, AC-26               | Open Requester selector with an inactive Requester seeded, select an active Requester, then Change Requester | Inactive Requester is absent; switching Requester reloads My Tickets with only the newly selected Requester's Tickets               | Pass  |
+| E2E-05  | E2E  | —                          | Opens an invalid Ticket and verifies the application's validation/error handling                             | Invalid Ticket is rejected and an appropriate error state is shown without exposing Ticket data                                     | Pass  |
+| E2E-06  | E2E  | AC-15, AC-16               | Search My Tickets by partial Ticket Number and apply Category + Requested Priority filters                   | Only Tickets matching the search text and/or all selected filters are displayed                                                     | Pass  |
+| E2E-07  | E2E  | AC-11                      | Adds Attachments up to the active limit, removes one, then attempts to fill the available slot again         | Attachment limit is enforced; after one Attachment is removed, the available slot can be used again                                 | Pass  |
+| E2E-08  | E2E  | AC-16                      | Applies a Category and Requested Priority filter without entering a search term                              | My Tickets displays only Tickets matching the applied filters; unrelated Tickets are excluded                                       | Pass  |
+| E2E-09  | E2E  | AC-11                      | Attempts to exceed the maximum number of Attachments on Create Ticket                                        | Upload beyond the configured Attachment limit is rejected and the limit message is shown                                            | Pass  |
+
 
 
 ```bash 
@@ -261,19 +267,23 @@ npm notice run playwright test e2e/lab-02/requester-ticket-flow.spec.ts
 [WebServer] npm notice run toktickit-client@1.0.0 dev
 [WebServer] npm notice run vite --host 127.0.0.1
 
-Running 4 tests using 1 worker
+Running 9 tests using 1 worker
 
-  ✓  1 …cket-flow.spec.ts:33:6 › Requester ticket flow › E2E-01: creates a ticket and shows the backend-generated number (1.1s)
-  ✓  2 …ter-ticket-flow.spec.ts:39:6 › Requester ticket flow › E2E-02: prevents another requester from seeing the ticket (1.2s)
-  ✓  3 …e\lab-02\requester-ticket-flow.spec.ts:52:6 › Requester ticket flow › E2E-03: completes the attachment lifecycle (1.3s)
-  ✓  4 …et-flow.spec.ts:68:6 › Requester ticket flow › E2E-04: switches requester data and excludes inactive requesters (756ms)
+  ✓  1 …ket-flow.spec.ts:48:6 › Requester ticket flow › E2E-01: creates a ticket and shows the backend-generated number (4.1s)
+  ✓  2 …er-ticket-flow.spec.ts:54:6 › Requester ticket flow › E2E-02: prevents another requester from seeing the ticket (1.3s)
+  ✓  3 …\lab-02\requester-ticket-flow.spec.ts:71:6 › Requester ticket flow › E2E-03: completes the attachment lifecycle (1.6s)
+  ✓  4 …uester-ticket-flow.spec.ts:95:6 › Requester ticket flow › E2E-05: shows validation errors for an invalid ticket (1.2s)
+  ✓  5 …2e\lab-02\requester-ticket-flow.spec.ts:111:6 › Requester ticket flow › E2E-06: searches and filters My Tickets (1.4s)
+  ✓  6 …icket-flow.spec.ts:130:6 › Requester ticket flow › E2E-07: refills the sixth attachment slot after deleting one (1.4s)
+  ✓  7 …ter-ticket-flow.spec.ts:158:6 › Requester ticket flow › E2E-08: captures My Tickets with a filter and no search (1.4s)
+  ✓  8 …r-ticket-flow.spec.ts:175:6 › Requester ticket flow › E2E-09: captures the seventh file limit on Create Ticket (851ms)
+  ✓  9 …-flow.spec.ts:191:6 › Requester ticket flow › E2E-04: switches requester data and excludes inactive requesters (794ms)
 
-  4 passed (6.4s)
+  9 passed (15.9s)
   ```
 
 ## 3. Traceability Summary
 
-- Ownership enforcement (BR-09–BR-11) is verified through API and E2E tests.
 - The full Attachment lifecycle is tested at API, UI, and E2E levels.
 - Responsive behavior is tested for both Create Ticket and My Tickets.
 - Server tests use 4 files; client tests use 4 files; all E2E and responsive tests use `requester-ticket-flow.spec.ts`.
