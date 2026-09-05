@@ -91,7 +91,7 @@
     flex-wrap: wrap;
   }
 
-  .logo { display: none; }
+  /* .logo { display: none; } */
 
   .topbar a {
     min-height: 44px;

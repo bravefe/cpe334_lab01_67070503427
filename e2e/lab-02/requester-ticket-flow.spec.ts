@@ -49,7 +49,8 @@ test.describe("Requester ticket flow", () => {
 		await expect(page.locator(".error-message")).toContainText(/not found|not authorized|owned/i);
 	});
 
-	test("E2E-03: completes the attachment lifecycle", async ({ page }) => {
+	test("E2E-03: completes the attachment lifecycle", async ({ page }, testInfo) => {
+		await page.setViewportSize({ width: 767, height: 900 });
 		await chooseRequester(page, frodo);
 		const ticketNumber = await createTicket(page, `E2E-03 ${Date.now()}`);
 		await page.goto(`/ticket/${ticketNumber}`);
@@ -59,10 +60,12 @@ test.describe("Requester ticket flow", () => {
 		const downloadPromise = page.waitForEvent("download");
 		await page.getByRole("button", { name: /Download e2e-attachment\.pdf/ }).click();
 		expect((await downloadPromise).suggestedFilename()).toBe("e2e-attachment.pdf");
+		await page.screenshot({ path: testInfo.outputPath("attachment-mobile-inline.png"), fullPage: true });
 		page.once("dialog", (dialog) => dialog.accept("No longer needed"));
 		await page.getByRole("button", { name: "Remove e2e-attachment.pdf" }).click();
 		await expect(page.getByText("No longer needed")).toBeVisible();
 		await expect(page.getByRole("button", { name: /Download e2e-attachment\.pdf/ })).toBeDisabled();
+		await page.screenshot({ path: testInfo.outputPath("attachment-lifecycle.png"), fullPage: true });
 	});
 
 	test("E2E-04: switches requester data and excludes inactive requesters", async ({ page }) => {
