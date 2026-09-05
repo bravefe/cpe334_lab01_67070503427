@@ -45,13 +45,17 @@ test.describe("Requester ticket flow", () => {
 		await page.evaluate(() => localStorage.clear());
 	});
 
-	test("E2E-01: creates a ticket and shows the backend-generated number", async ({ page }) => {
+	test("E2E-01: creates a ticket and shows the backend-generated number", async ({ page }, testInfo) => {
 		await chooseRequester(page, frodo);
 		const ticketNumber = await createTicket(page, `E2E-01 ${Date.now()}`);
 		expect(ticketNumber).toMatch(/^TKT-\d{4}-\d{6}$/);
 		await expect(page).toHaveURL(new RegExp(`/ticket/${ticketNumber}\\?created=1$`));
 		await expect(page.getByRole("heading", { name: "Ticket Details" })).toBeVisible();
 		await expect(page.getByText(`Ticket created: ${ticketNumber}`)).toBeVisible();
+		for (const viewport of screenshotViewports) {
+			await page.setViewportSize({ width: viewport.width, height: viewport.height });
+			await page.screenshot({ path: testInfo.outputPath(`ticket-created-success-${viewport.name}.png`), fullPage: true });
+		}
 	});
 
 	test("E2E-02: prevents another requester from seeing the ticket", async ({ page }, testInfo) => {
