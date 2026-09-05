@@ -6,7 +6,17 @@ interface AttachmentCreateTicketProps {
   onChange: (files: File[]) => void;
 }
 
-const validFile = (file: File) => /\.(jpg|jpeg|png|webp|pdf)$/i.test(file.name) && file.size <= 5 * 1024 * 1024;
+const allowedMimeTypes: Record<string, string> = {
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".png": "image/png",
+  ".webp": "image/webp",
+  ".pdf": "application/pdf",
+};
+const validFile = (file: File) => {
+  const extension = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
+  return allowedMimeTypes[extension] === file.type && file.size <= 5 * 1024 * 1024;
+};
 const MAX_ACTIVE_ATTACHMENTS = 5;
 
 export default function AttachmentCreateTicket({ files, onChange }: AttachmentCreateTicketProps) {

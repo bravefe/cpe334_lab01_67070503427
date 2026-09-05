@@ -123,6 +123,27 @@ describe("Create Ticket screen", () => {
     await waitFor(() => expect(screen.queryByRole("button", { name: "Submitting..." })).not.toBeInTheDocument());
   });
 
+  it("reports failed attachments after creating the ticket", async () => {
+    const user = userEvent.setup();
+    fetchMock.mockImplementation((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/api/create-ticket")) return Promise.resolve(response({ data: { ticketNumber: "TKT-2026-000003" } }, 201));
+      if (url.includes("/attachments")) return Promise.reject(new Error("Attachment upload failed"));
+      return defaultFetch(input);
+    });
+
+    renderCreateTicket();
+    await screen.findByRole("heading", { name: "Create Ticket" });
+    await fillRequiredFields(user);
+    await user.type(screen.getByPlaceholderText("Describe your issue in detail..."), "This description is long enough.");
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    await user.upload(fileInput, new File(["attachment"], "failed-upload.pdf", { type: "application/pdf" }));
+    await user.click(screen.getByRole("button", { name: "Submit" }));
+
+    expect(await screen.findByText("Ticket created: TKT-2026-000003")).toBeInTheDocument();
+    expect(await screen.findByText(/failed to upload: failed-upload\.pdf/i)).toBeInTheDocument();
+  });
+
   it("UI-05: shows a safe error and preserves values when the backend is unreachable", async () => {
     const user = userEvent.setup();
     fetchMock.mockImplementation((input: RequestInfo | URL) => String(input).includes("/api/create-ticket") ? Promise.reject(new Error("Network unavailable")) : defaultFetch(input));

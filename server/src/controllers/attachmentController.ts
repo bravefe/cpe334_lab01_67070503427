@@ -11,7 +11,12 @@ type MulterFactory = {
 
 const require = createRequire(import.meta.url);
 const createMulter = require("multer") as MulterFactory;
-const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp", "application/pdf"]);
+const allowedTypes: Record<string, string[]> = {
+  "image/jpeg": [".jpg", ".jpeg"],
+  "image/png": [".png"],
+  "image/webp": [".webp"],
+  "application/pdf": [".pdf"],
+};
 const storage = createMulter.diskStorage({
   destination: uploadDirectory,
   filename: (_req: Request, file: Express.Multer.File, callback: (error: Error | null, filename: string) => void) => {
@@ -21,7 +26,10 @@ const storage = createMulter.diskStorage({
 export const attachmentUpload = createMulter({
   storage,
   limits: { fileSize: maxFileSize },
-  fileFilter: (_req: Request, file: Express.Multer.File, callback: multerTypes.FileFilterCallback) => callback(null, allowedTypes.has(file.mimetype)),
+  fileFilter: (_req: Request, file: Express.Multer.File, callback: multerTypes.FileFilterCallback) => {
+    const extension = path.extname(file.originalname).toLowerCase();
+    callback(null, allowedTypes[file.mimetype]?.includes(extension) ?? false);
+  },
 });
 
 

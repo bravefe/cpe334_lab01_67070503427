@@ -89,11 +89,20 @@ export default function CreateTicket({ requester, requesterId, onBack, onCreateT
 
     try {
       const created = await createTicket(requesterId, payload);
-      await Promise.all(attachmentFiles.map((file) => uploadAttachment(requesterId, created.ticketNumber, file)));
+      const uploadResults = await Promise.allSettled(
+        attachmentFiles.map((file) => uploadAttachment(requesterId, created.ticketNumber, file)),
+      );
+      const failedFiles = attachmentFiles.filter((_, index) => uploadResults[index]?.status === "rejected");
       setSuccessTicket(created.ticketNumber);
       setForm(emptyForm);
       setAttachmentFiles([]);
-      onOpenTicket?.(created.ticketNumber);
+      if (failedFiles.length > 0) {
+        setSubmitError(
+          `Ticket created, but these attachments failed to upload: ${failedFiles.map((file) => file.name).join(", ")}. Open Ticket Details to retry.`,
+        );
+      } else {
+        onOpenTicket?.(created.ticketNumber);
+      }
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "");
     } finally {
