@@ -51,21 +51,19 @@ Coverage includes:
 
 ### `server/tests/lab-02/attachments.api.test.ts`
 
-| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
-|---|---|---|---|---|---|
-| Test ID | Requirement | What It Tests | Expected Result |
-| ------- | ------------- | --------------------------------------------------- | ------------------------------------------------------------ |
-| API-07 | AC-09 / BR-22 | Upload `.gif` attachment | 415; attachment not created |
-| API-08 | AC-10 / BR-23 | Upload valid PDF > 5 MB | 413; attachment not created |
-| API-09 | AC-11 / BR-24 | Upload 6th active attachment | 422; attachment not created |
-| API-10 | AC-21 / FR-12 | Upload valid attachment to owned ticket | 201; Attachment created as `ACTIVE` |
-| API-11 | FR-05 / FR-12 | List ticket attachments | 200; active + removed metadata returned |
-| API-12 | AC-22 / FR-13 | Download active attachment | 200; original file content returned |
-| API-13 | AC-23 / FR-14 | Remove attachment with valid reason | 200; status becomes `REMOVED` |
-| API-14 | BR-26 | Remove attachment with empty reason | 400; attachment remains `ACTIVE` |
-| API-15 | BR-27 | Download removed attachment | 404; file content not returned |
-| API-16 | BR-11 / FR-15 | Requester's attachment belongs to another Requester | 404; no attachment data revealed |
-| API-16 | BR-24 | Add attachment after one is removed | 201; removed attachment does not count toward 5-active limit |
+| Test ID | Requirement | What It Tests | Expected Result | Final |
+|---|---|---|---|---|
+| API-07 | AC-09 / BR-22 | Upload `.gif` attachment | 415 Unsupported Media Type; attachment is rejected and not created. | Pass |
+| API-08 | AC-10 / BR-23 | Upload valid PDF > 5 MB | 413 Payload Too Large; attachment is rejected and not created. | Pass |
+| API-09 | AC-11 / BR-24 | Upload 6th active attachment | 422 Unprocessable Entity; upload is rejected because the ticket already has 5 active attachments, and no new attachment is created. | Pass |
+| API-10 | AC-21 / FR-12 | Upload valid attachment to owned ticket | 201 Created; attachment is created successfully with status `ACTIVE` and is associated with the owned ticket. | Pass |
+| API-11 | FR-05 / FR-12 | List ticket attachments | 200 OK; attachment list is returned with both active and removed attachments, including their relevant metadata. | Pass |
+| API-12 | AC-22 / FR-13 | Download active attachment | 200 OK; original attachment file content is returned successfully. | Pass |
+| API-13 | AC-23 / FR-14 | Remove attachment with valid reason | 200 OK; attachment status changes from `ACTIVE` to `REMOVED` and the removal reason is stored. | Pass |
+| API-14 | BR-26 | Remove attachment with empty reason | 400 Bad Request; removal is rejected, a reason is required, and the attachment remains `ACTIVE`. | Pass |
+| API-15 | BR-27 | Download removed attachment | 404 Not Found; removed attachment cannot be downloaded and no file content is returned. | Pass |
+| API-16 | BR-11 / FR-15 | Requester's attachment belongs to another Requester | 404 Not Found; attachment data is not revealed to a Requester who does not own the Ticket. | Pass |
+| API-17 | BR-24 | Add attachment after one is removed | 201 Created; new attachment is created successfully because the removed attachment does not count toward the 5-active-attachment limit. | Pass |
 
 ```bash
  RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/server
