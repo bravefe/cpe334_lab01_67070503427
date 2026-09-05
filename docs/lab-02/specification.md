@@ -7,7 +7,7 @@
 
 Deliver a working Requester-facing ticketing experience: a Requester can select a temporary
 Development identity, create an IT support ticket with supporting attachments, receive a
-system-generated Ticket Number, and locate, inspect, and manage that ticket afterward — all
+system-generated Ticket Number, and locate, inspect, and manage that ticket afterward, all
 while one Requester is fully prevented from seeing another Requester's data. The sprint also
 establishes the reusable Zen Green visual and component language that later sprints build on.
 
@@ -18,8 +18,8 @@ establishes the reusable Zen Green visual and component language that later spri
 IT wants to start accepting real support tickets from end users before full login exists. Since
 authentication is a Lab 3 concern, Lab 2 needs a stand-in: a simple screen where a tester picks
 which seeded Requester they're acting as. Once picked, that identity should behave like a "real"
-logged-in user for every screen that follows — creating tickets, browsing "My Tickets," opening a
-ticket's detail, and adding or removing attachments — and no other seeded Requester's tickets
+logged-in user for every screen that follows: creating tickets, browsing "My Tickets," opening a
+ticket's detail, and adding or removing attachments, and no other seeded Requester's tickets
 should ever be visible in that session. The three screens (Create Ticket, My Tickets, Ticket
 Detail) should share one consistent visual system (Zen Green) so later labs don't have to
 reinvent forms, lists, badges, and empty/error states from scratch.
@@ -274,34 +274,6 @@ Full detail lives in `docs/lab-02/ui-spec.md`; this section summarizes what it m
 | removalReason | String — nullable | required when status = REMOVED (BR-26) |
 | removedAt | DateTime — nullable | |
 | uploadedAt | DateTime | |
-
-<!-- **PublicComment**
-| Field | Type | Notes |
-|---|---|---|
-| id | Int/UUID PK | |
-| ticketId | FK → Ticket | required; indexed |
-| authorId | FK → DevRequester | required (A1) |
-| message | Text | required, non-empty |
-| createdAt | DateTime | |
-| removedAt | DateTime — nullable | soft-remove marker only (A3); `null` = visible |
-
-**ServiceAction**
-| Field | Type | Notes |
-|---|---|---|
-| id | Int/UUID PK | |
-| ticketId | FK → Ticket | required; indexed |
-| message | Text | required, non-empty |
-| createdAt | DateTime | |
-| removedAt | DateTime — nullable | soft-remove marker only (A3) |
-
-**EventLog**
-| Field | Type | Notes |
-|---|---|---|
-| id | Int/UUID PK | |
-| ticketId | FK → Ticket | required; indexed |
-| message | Text | required, non-empty |
-| createdAt | DateTime | |
-| removedAt | DateTime — nullable | soft-remove marker only (A3) | -->
 
 ### 7.2 Relationships
 - One `DevRequester` → many `Ticket` (one `Ticket` → one `DevRequester`).

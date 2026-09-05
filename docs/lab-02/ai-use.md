@@ -27,6 +27,8 @@ link to the same Priority table seed it as High Medium Low
 - add current Status 
 link to status table seed as , In Progress, Open, Pending]
 
+I ask ad to rewrite my test file and implement the test result i paste
+
 add PublicComments, ServiceActions, EventLog Similar to atachments but only have remove create at have link to ticket the message and public comment have link to DevRequester
 
 ### **LLM/agent used:** VScode Copilot Extension
