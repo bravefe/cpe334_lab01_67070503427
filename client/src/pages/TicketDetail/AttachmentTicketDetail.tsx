@@ -30,14 +30,19 @@ export default function AttachmentTicketDetail({ requesterId, ticketNumber }: At
     }
 
     const accepted = valid.slice(0, remainingSlots);
-    if (invalid > 0 || valid.length > remainingSlots) setMessage(invalid > 0 ? "Only JPG, PNG, WEBP, and PDF files up to 5 MB are allowed." : "Attachment limit reached. You can upload up to 5 active attachments.");
+    const uploadMessage = invalid > 0
+      ? "Only JPG, PNG, WEBP, and PDF files up to 5 MB are allowed."
+      : valid.length > remainingSlots
+        ? "Attachment limit reached. You can upload up to 5 active attachments."
+        : "";
+    if (uploadMessage) setMessage(uploadMessage);
     if (!accepted.length) return;
 
     setBusy(true);
     try {
       const uploaded = await Promise.all(accepted.map((file) => uploadAttachment(requesterId, ticketNumber, file)));
       setAttachments((current) => [...uploaded, ...current]);
-      setMessage("");
+      setMessage(uploadMessage);
     } catch (error) { setMessage(error instanceof Error ? error.message : "Unable to upload attachment."); }
     finally { setBusy(false); }
   };
