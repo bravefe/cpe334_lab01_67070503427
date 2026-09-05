@@ -161,6 +161,29 @@ describe("POST /api/create-ticket", () => {
     expect(body.toLowerCase()).toMatch(/summary/);
   });
 
+  it.each([
+    ["categoryId", 9999, 1, 1],
+    ["relatedSystemId", 1, 9999, 1],
+    ["requestedPriorityId", 1, 1, 9999],
+  ])("API-07: rejects an invalid %s with HTTP 400", async (field, categoryId, relatedSystemId, requestedPriorityId) => {
+    const response = await request(app)
+      .post("/api/create-ticket")
+      .set("X-Dev-Requester-Id", "1")
+      .send({
+        categoryId,
+        relatedSystemId,
+        summary: "Invalid reference test",
+        description: "This is a valid test description that is longer than twenty characters.",
+        requestedPriorityId,
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
+    expect(response.body.error.fieldErrors).toEqual(
+      expect.arrayContaining([expect.objectContaining({ field })]),
+    );
+  });
+
   it("API-06: should keep the ticket when attachment upload fails", async () => {
     const response = await request(app)
       .post("/api/create-ticket")

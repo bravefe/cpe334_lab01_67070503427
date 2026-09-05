@@ -31,7 +31,7 @@ I ask ad to rewrite my test file and implement the test result i paste
 
 add PublicComments, ServiceActions, EventLog Similar to atachments but only have remove create at have link to ticket the message and public comment have link to DevRequester
 
-### **LLM/agent used:** VScode Copilot Extension
+### **LLM/agent used:** VScode Copilot Extension ChatGPT 5.6 Luna
 
 | # | Prompt (summarised) | What I did with the result |
 | - | - | - | 
@@ -42,7 +42,8 @@ step 2 seed.ts with what writen in the seed part + 5 random devrequester and
 | 2 | pasted 7||
 | 3 | Attachment `isActive` enum field renamed to `status`; values are `ACTIVE` and `REMOVED`. | |
 | 4 | Paste Specification and only build my ticket and requster selet menu | |
-| 5 | Split the file | |
+| 5 | Split the file into | result return me file in page folder lib folder and api foder for client for server return route service|
+tell it to reschek everthing acording to specification.md it return 8 main erro then tell it to implement it
 
 you will also need tochange the specificaiotn .md and api-spec.md||
 

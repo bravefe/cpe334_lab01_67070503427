@@ -30,14 +30,22 @@ export async function listAttachments(ticketNumber: string, requesterId: number)
 
 export async function saveAttachment(ticketNumber: string, requesterId: number, file: Express.Multer.File) {
   const ticket = await ownedTicket(ticketNumber, requesterId);
-  if (!ticket) return { kind: "not-found" as const };
+  if (!ticket) {
+    await fs.unlink(file.path).catch(() => undefined);
+    return { kind: "not-found" as const };
+  }
   const activeCount = await getPrisma().attachment.count({ where: { ticketId: ticket.id, status: "ACTIVE" } });
   if (activeCount >= 5) {
     await fs.unlink(file.path).catch(() => undefined);
     return { kind: "limit" as const };
   }
-  const attachment = await getPrisma().attachment.create({ data: { ticketId: ticket.id, originalFileName: file.originalname, storedFileName: path.basename(file.filename), mimeType: file.mimetype, fileSize: file.size } });
-  return { kind: "created" as const, attachment: formatAttachment(attachment) };
+  try {
+    const attachment = await getPrisma().attachment.create({ data: { ticketId: ticket.id, originalFileName: file.originalname, storedFileName: path.basename(file.filename), mimeType: file.mimetype, fileSize: file.size } });
+    return { kind: "created" as const, attachment: formatAttachment(attachment) };
+  } catch (error) {
+    await fs.unlink(file.path).catch(() => undefined);
+    throw error;
+  }
 }
 
 export async function downloadableAttachment(attachmentId: number, requesterId: number) {

@@ -100,11 +100,10 @@ export default function AttachmentTicketDetail({ requesterId, ticketNumber }: At
                 <span className="attachment-removed-meta">
                   <span className="attachment-removal-reason">Reason: <span>{attachment.removalReason ?? "Attachment removed"}</span></span>
                   {attachment.removedAt && <span>Removed at: {formatDate(attachment.removedAt)}</span>}
-                  {/* <span className="attachment-status-badge">Removed</span> */}
                 </span>
               )}
               <span className="attachment-uploaded-at">{formatDate(attachment.uploadedAt)}</span>
-              {/* <span className="attachment-status-badge">Removed</span> */}
+              {isRemoved && <span className="attachment-status-badge">Removed</span>}
             </button>
             {!isRemoved ? (
               <button className="remove-attachment" type="button" onClick={() => void remove(attachment)} aria-label={`Remove ${attachment.originalFileName}`}>x</button>

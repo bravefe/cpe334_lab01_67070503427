@@ -138,7 +138,7 @@ reinvent forms, lists, badges, and empty/error states from scratch.
 | BR-24 | A Ticket may have at most five active Attachments at any time; soft-removed Attachments do not count toward this limit. |
 | BR-25 | Attachment removal is a soft removal: the Attachment row and its metadata are retained permanently; only its status changes from `ACTIVE` to `REMOVED`. |
 | BR-26 | A non-empty removal reason is required to soft-remove an Attachment and is stored with the removal. |
-| BR-27 | A `REMOVED` Attachment can never be downloaded or previewed. Its metadata (original file name, uploaded date, removed date, removal reason) remains visible in Ticket Detail with a visible "Removed" indicator. |
+| BR-27 | A `REMOVED` Attachment can never be downloaded or previewed. Its metadata (original file name, uploaded date, removed date, removal reason) remains visible in Ticket Detail. |
 
 ### Inactive Requesters
 

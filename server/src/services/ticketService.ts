@@ -20,6 +20,13 @@ interface GetTicketDetailParams {
   ticketNumber: string;
 }
 
+export class TicketValidationError extends Error {
+  constructor(public readonly field: string, message: string) {
+    super(message);
+    this.name = "TicketValidationError";
+  }
+}
+
 async function generateTicketNumber(): Promise<string> {
   const prisma = getPrisma();
   const year = new Date().getFullYear();
@@ -82,6 +89,15 @@ export async function getTicketsService({
     ...(statusId ? { currentStatusId: statusId } : {}),
   };
 
+  const orderBy = sortBy === "requestedPriorityId"
+    ? [{ requestedPriority: { sortOrder: sortDir } }]
+    : sortBy === "currentStatusId"
+      ? [{ currentStatus: { name: sortDir } }]
+      : [
+          { [sortBy]: sortDir },
+          ...(sortBy === "createdAt" ? [{ ticketNumber: sortDir }] : []),
+        ];
+
   const [totalItems, tickets] = await Promise.all([
     getPrisma().ticket.count({ where }),
     getPrisma().ticket.findMany({
@@ -92,10 +108,7 @@ export async function getTicketsService({
         currentStatus: true,
         requester: true,
       },
-      orderBy: [
-        { [sortBy]: sortDir },
-        ...(sortBy === "createdAt" ? [{ ticketNumber: sortDir }] : []),
-      ] as never,
+      orderBy: orderBy as never,
       skip: (page - 1) * pageSize,
       take: pageSize,
     }),
@@ -128,48 +141,60 @@ export async function createTicketService({
   ]);
 
   if (!category || !category.isActive) {
-    throw new Error("Invalid category.");
+    throw new TicketValidationError("categoryId", "Category is invalid or inactive.");
   }
 
   if (!relatedSystem || !relatedSystem.isActive) {
-    throw new Error("Invalid related system.");
+    throw new TicketValidationError("relatedSystemId", "Related system is invalid or inactive.");
   }
 
   if (!priority) {
-    throw new Error("Invalid priority.");
+    throw new TicketValidationError("requestedPriorityId", "Requested priority is invalid.");
   }
 
   if (!defaultStatus) {
     throw new Error("Default status unavailable.");
   }
 
-  const ticketNumber = await generateTicketNumber();
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const ticketNumber = await generateTicketNumber();
 
-  const created = await prisma.ticket.create({
-    data: {
-      ticketNumber,
-      requesterId,
-      categoryId,
-      relatedSystemId,
-      summary,
-      description,
-      requestedPriorityId,
-      currentStatusId: defaultStatus.id,
-    },
-  });
+    try {
+      const created = await prisma.ticket.create({
+        data: {
+          ticketNumber,
+          requesterId,
+          categoryId,
+          relatedSystemId,
+          summary,
+          description,
+          requestedPriorityId,
+          currentStatusId: defaultStatus.id,
+        },
+      });
 
-  return {
-    ticketNumber: created.ticketNumber,
-    requesterId: created.requesterId,
-    summary: created.summary,
-    description: created.description,
-    categoryId: created.categoryId,
-    relatedSystemId: created.relatedSystemId,
-    requestedPriorityId: created.requestedPriorityId,
-    currentStatusId: created.currentStatusId,
-    createdAt: created.createdAt.toISOString(),
-    updatedAt: created.updatedAt.toISOString(),
-  };
+      return {
+        ticketNumber: created.ticketNumber,
+        requesterId: created.requesterId,
+        summary: created.summary,
+        description: created.description,
+        categoryId: created.categoryId,
+        relatedSystemId: created.relatedSystemId,
+        requestedPriorityId: created.requestedPriorityId,
+        currentStatusId: created.currentStatusId,
+        createdAt: created.createdAt.toISOString(),
+        updatedAt: created.updatedAt.toISOString(),
+      };
+    } catch (error) {
+      const isUniqueTicketNumberConflict = typeof error === "object"
+        && error !== null
+        && "code" in error
+        && error.code === "P2002";
+      if (!isUniqueTicketNumberConflict || attempt === 2) throw error;
+    }
+  }
+
+  throw new Error("Unable to generate a unique ticket number.");
 }
 
 export async function getTicketDetailService({

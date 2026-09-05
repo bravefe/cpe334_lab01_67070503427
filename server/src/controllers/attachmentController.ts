@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { createRequire } from "node:module";
+import { promises as fs } from "node:fs";
 import type * as multerTypes from "multer";
 import path from "node:path";
-import { downloadableAttachment, listAttachments, maxFileSize, saveAttachment, softRemoveAttachment, uploadDirectory } from "../services/attachmentService.js";
+import { downloadableAttachment, listAttachments, maxFileSize, saveAttachment, softRemoveAttachment, storedFileName, uploadDirectory } from "../services/attachmentService.js";
 
 type MulterFactory = {
   (options?: multerTypes.Options): multerTypes.Multer;
@@ -20,7 +21,7 @@ const allowedTypes: Record<string, string[]> = {
 const storage = createMulter.diskStorage({
   destination: uploadDirectory,
   filename: (_req: Request, file: Express.Multer.File, callback: (error: Error | null, filename: string) => void) => {
-    callback(null, `${Date.now()}-${path.basename(file.originalname)}`);
+    callback(null, storedFileName(file.originalname));
   },
 });
 export const attachmentUpload = createMulter({
@@ -51,7 +52,11 @@ export async function getAttachments(req: Request, res: Response) {
 }
 
 export async function uploadAttachment(req: Request, res: Response) {
-  const id = requesterId(req); if (!id) return error(res, 400, "VALIDATION_ERROR", "A valid requester context is required.");
+  const id = requesterId(req);
+  if (!id) {
+    if (req.file) await fs.unlink(req.file.path).catch(() => undefined);
+    return error(res, 400, "VALIDATION_ERROR", "A valid requester context is required.");
+  }
   if (!req.file) return error(res, 415, "UNSUPPORTED_MEDIA_TYPE", "Only JPG, PNG, WEBP, and PDF files are allowed.");
   const result = await saveAttachment(String(req.params.ticketNumber), id, req.file);
   if (result.kind === "not-found") return error(res, 404, "NOT_FOUND", "Ticket not found.");
