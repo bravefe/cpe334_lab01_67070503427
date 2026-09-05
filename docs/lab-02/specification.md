@@ -223,8 +223,8 @@ Full detail lives in `docs/lab-02/ui-spec.md`; this section summarizes what it m
 **DevRequester**
 | Field | Type | Notes |
 |---|---|---|
-| id | Int/UUID PK | |
-| fullName | String | required |
+| id | Int PK | |
+| name | String | required |
 | email | String | unique |
 | isActive | Boolean | default `true`; inactive Requesters excluded from selector (BR-06, BR-28) |
 | createdAt | DateTime | |
@@ -247,7 +247,7 @@ Full detail lives in `docs/lab-02/ui-spec.md`; this section summarizes what it m
 **Ticket** 
 | Field | Type | Notes |
 |---|---|---|
-| id | Int/UUID PK | internal key |
+| id | Int PK | internal key |
 | ticketNumber | String | unique, indexed; format per TKT-YYY-XXXXXX |
 | requesterId | FK → DevRequester | required; indexed for My Tickets queries |
 | categoryId | FK → Category | required; indexed for filtering |
@@ -257,14 +257,13 @@ Full detail lives in `docs/lab-02/ui-spec.md`; this section summarizes what it m
 | requestedPriorityId | FK → Priority | required |
 | itPriorityId | FK → Priority — nullable | reserved, unused in Lab 2 (BR-04) |
 | currentStatusId | FK → Status | required; defaults to the `New` row; indexed for filtering |
-| ownerId | FK — nullable | reserved for IT Staff assignment, unused in Lab 2 |
 | createdAt | DateTime | indexed; drives default sort |
 | updatedAt | DateTime | drives "Last Updated" |
 
 **Attachment**
 | Field | Type | Notes |
 |---|---|---|
-| id | Int/UUID PK | |
+| id | Int PK | |
 | ticketId | FK → Ticket | required; indexed |
 | originalFileName | String | as uploaded, display-only |
 | storedFileName | String | sanitized/randomized on-disk name, never derived from user input directly |
@@ -291,9 +290,8 @@ Full detail lives in `docs/lab-02/ui-spec.md`; this section summarizes what it m
   `Attachment.ticketId`.
 - Indexes: `Ticket.requesterId` (My Tickets scoping), `Ticket.createdAt` (default sort),
   `Ticket.categoryId` / `Ticket.requestedPriorityId` / `Ticket.currentStatusId` (filters),
-  `Attachment.ticketId`, `Attachment.status`.
-- Nullability: `itPriorityId`, `ownerId`, `removalReason`, `removedAt` (Attachment),
-  `removedAt`;
+  `Attachment.ticketId`.
+- Nullability: `itPriorityId`, `removalReason`, `removedAt` (Attachment);
   all Requester-facing required fields are `NOT NULL`.
 
 ### 7.4 Seed Data 
