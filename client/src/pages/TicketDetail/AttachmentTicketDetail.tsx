@@ -54,8 +54,8 @@ export default function AttachmentTicketDetail({ requesterId, ticketNumber }: At
     }
 
     try {
-      await removeAttachment(requesterId, attachment.attachmentId, trimmedReason);
-      setAttachments((current) => current.filter((item) => item.attachmentId !== attachment.attachmentId));
+      const removedAttachment = await removeAttachment(requesterId, attachment.attachmentId, trimmedReason);
+      setAttachments((current) => current.map((item) => item.attachmentId === attachment.attachmentId ? removedAttachment : item));
       setMessage("");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to remove attachment.");
@@ -79,6 +79,13 @@ export default function AttachmentTicketDetail({ requesterId, ticketNumber }: At
               aria-label={`Download ${attachment.originalFileName} uploaded on ${formatDate(attachment.uploadedAt)}`}
             >
               <span>{attachment.originalFileName}</span>
+              {isRemoved && (
+                <span className="attachment-removed-meta">
+                  <span className="attachment-status-badge">Removed</span>
+                  <span className="attachment-removal-reason">{attachment.removalReason ?? "Attachment removed"}</span>
+                  {attachment.removedAt && <span>Removed at: {formatDate(attachment.removedAt)}</span>}
+                </span>
+              )}
               <span className="attachment-uploaded-at">{formatDate(attachment.uploadedAt)}</span>
             </button>
             {isRemoved ? (

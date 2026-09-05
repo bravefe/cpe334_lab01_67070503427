@@ -94,7 +94,7 @@ describe("Requester ticket detail attachments", () => {
     expect(screen.queryByText("Loading ticket...")).not.toBeInTheDocument();
   });
 
-  it("UI-16: renders a removed attachment as greyed-out with reason and disabled download", async () => {
+  it("UI-16: renders a removed attachment with reason and removal time", async () => {
     fetchMock.mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
       const method = (init?.method ?? "GET").toUpperCase();
@@ -156,7 +156,8 @@ describe("Requester ticket detail attachments", () => {
 
     expect(removedRow).toHaveClass("removed");
     expect(downloadButton).toBeDisabled();
-    expect(screen.getByText("No longer needed")).toBeInTheDocument();
-    expect(screen.getByText("Removed")).toBeInTheDocument();
+    expect(screen.getAllByText("No longer needed").length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Removed at:/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Removed").length).toBeGreaterThan(0);
   });
 });
