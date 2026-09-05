@@ -127,6 +127,17 @@
   margin-top: 12px;
 }
 
+.ticket-detail-page .success-banner {
+  margin-top: 18px;
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: var(--success-banner-surface);
+  border: 1px solid var(--success-banner-border);
+  color: var(--success);
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+
 .ticket-detail-page .attachment-box {
   margin-top: 18px;
   border: 1.5px dashed var(--attachment-border);

@@ -93,6 +93,7 @@ export default function CreateTicket({ requester, requesterId, onBack, onCreateT
       setSuccessTicket(created.ticketNumber);
       setForm(emptyForm);
       setAttachmentFiles([]);
+      onOpenTicket?.(created.ticketNumber);
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "");
     } finally {

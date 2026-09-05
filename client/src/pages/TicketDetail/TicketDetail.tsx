@@ -28,6 +28,7 @@ export default function TicketDetail({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("attachments");
+  const createdFromForm = new URLSearchParams(window.location.search).get("created") === "1";
 
   useEffect(() => {
     setLoading(true);
@@ -65,6 +66,8 @@ export default function TicketDetail({
             ← Back to My Tickets
           </button>
         </div>
+
+        {createdFromForm && <div className="success-banner">Ticket created: {ticketNumber}</div>}
 
         {loading && <div className="empty">Loading ticket...</div>}
 

@@ -18,6 +18,7 @@ async function createTicket(page: Page, summary: string) {
 	await page.getByPlaceholder("Enter a short summary of your issue...").fill(summary);
 	await page.getByPlaceholder("Describe your issue in detail...").fill("This is a complete end-to-end ticket description.");
 	await page.getByRole("button", { name: "Submit", exact: true }).click();
+	 await expect(page).toHaveURL(/\/ticket\/TKT-\d{4}-\d{6}\?created=1$/);
 	const confirmation = page.locator(".success-banner");
 	await expect(confirmation).toContainText("Ticket created: TKT-");
 	return (await confirmation.textContent())!.replace("Ticket created: ", "").trim();
