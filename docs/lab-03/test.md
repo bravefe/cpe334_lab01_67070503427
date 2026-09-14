@@ -1,288 +1,281 @@
-# TokTickIT — Lab 2 Test Plan
+# TokTickIT — Lab 3 Test Plan (Test DD / TDD)
 
-## 1. Test Strategy
+The specific test folders are:
 
-This test plan is based on the Sprint Engineering Specification, API Spec, and UI Spec before implementation is complete (Test-DD). Testing follows a TDD approach: write the test, implement the required behavior, and keep the test passing.
+* `server/tests/lab-03`
+* `client/tests/lab-03`
+* `e2e/lab-03`
 
-Testing covers four levels: **Unit, API, UI, and E2E**. Tests are grouped by screen or endpoint and consolidated into the defined test files rather than creating a separate file for each scenario.
+This plan is written before implementation, per the course requirement, and drives the tests written alongside each feature branch. The **Final** column is `Planned` for every row in this document; it is updated to `Pass`/`Fail` as each test is written and run, and the fully updated table (all `Pass` on `main`) is what gets pasted into the Part 3 submission evidence. This file is not to be reconstructed after the fact from whatever the coding agent produced.
 
-Coverage includes:
-- Happy paths and successful operations
-- Validation and boundary conditions
-- Ownership and cross-Requester isolation
-- Server and network failure handling
-- Loading, empty, and no-results states
-- Accessibility and visual requirements
-- Attachment upload, download, and soft-removal lifecycle
+Two rows below are carried over verbatim from the handout's own worked example (`API-01`, `API-08`, `E2E-02`) and kept at those IDs for continuity; all other IDs are assigned sequentially per category. File paths follow the **required minimum structure** in the handout §12; a small number of rows live in files marked *(addition)* — these are beyond the required minimum but needed for honest coverage of Lab 3 requirements (e.g. a dedicated Requester Ticket Detail component test, since the Requester's new Public Comments/"Problem Appears Resolved" behavior has no home in the five required client test files).
 
+## 0. Coverage Summary
 
-## 2. Planned Tests
+| Category | Count | Primary file(s) |
+| - | -: | - |
+| Unit | 12 | `server/tests/lab-03/unit/*.unit.test.ts` *(addition)* |
+| API / Integration | 44 | `server/tests/lab-03/*.api.test.ts` |
+| UI Component | 30 | `client/tests/lab-03/*.test.tsx` |
+| UI Style | 3 | `client/tests/lab-03/ZenGreenStyle.test.tsx` *(addition)* + manual checklist |
+| Responsive | 3 | `e2e/lab-03/responsive.spec.ts` *(addition)* + manual checklist |
+| Security / Authorization | 9 | `server/tests/lab-03/authorization.api.test.ts` |
+| Migration / Regression | 5 | `server/tests/lab-03/migration.api.test.ts` *(addition)* |
+| End-to-End | 8 | `e2e/lab-03/*.spec.ts` |
 
-### `server/tests/lab-02/create-ticket.api.test.ts`
+## 1. Unit Tests
 
-| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
-|---|---|---|---|---|---|
-| UNIT-01 | Unit | BR-01 | Ticket Number generator format `TKT-<YYYY>-<6-digit seq>` | Generated code matches format and is unique per call | Pending |
-| API-01 | API | AC-01 | `POST /create-ticket` with valid data | 201; one Ticket saved; backend-generated Ticket Number returned | Pass |
-| API-02 | API | AC-05 | `POST /create-ticket` with empty `summary` | 400 with `fieldErrors` for `summary`; no Ticket persisted | Pass |
-| API-03 | API | AC-06 | `POST /create-ticket` with `description` < 20 chars | 400 naming the 20-char minimum | Pass |
-| API-04 | API | AC-07 | `POST /create-ticket` with `summary` = exactly 150 chars | 201; Ticket created (upper boundary passes) | Pass |
-| API-05 | API | AC-08 | `POST /create-ticket` with `summary` = 151 chars | 400; Ticket not created (upper boundary fails) | Pass |
-| API-06 | API | AC-14 | Ticket create succeeds, Attachment upload then fails | Ticket persists with its number; failed Attachment reported separately (BR-21) | Pass |
+File: `server/tests/lab-03/unit/password.unit.test.ts`
 
-```bash
- RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/server
+| ID | Requirement | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| UNIT-01 | BR-07 | bcrypt hash/verify round-trip; hash never equals plaintext | Correct password verifies true; hash string differs from input | Planned |
+| UNIT-02 | FR-02 (password policy) | Password-rule validator against a table of valid/invalid strings (length, upper/lower, number, special char) | Each case matches its expected pass/fail | Planned |
 
- ✓ tests/lab-02/create-ticket.api.test.ts (7) 485ms
-   ✓ POST /api/create-ticket (7) 485ms
-     ✓ UNIT-01: should generate a unique ticket number in the correct format 441ms
-     ✓ API-01: should create a ticket with valid data
-     ✓ API-02: should reject a ticket with an empty summary
-     ✓ API-03: should reject a description shorter than 20 characters
-     ✓ API-04: should accept a summary with exactly 150 characters
-     ✓ API-05: should reject a summary with 151 characters
-     ✓ API-06: should keep the ticket when attachment upload fails
+File: `server/tests/lab-03/unit/session.unit.test.ts`
 
- Test Files  1 passed (1)
-      Tests  7 passed (7)
-   Start at  14:34:58
-   Duration  7.70s (transform 88ms, setup 0ms, collect 5.89s, tests 485ms, environment 0ms, prepare 878ms)
-```
+| ID | Requirement | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| UNIT-03 | A-3/A-4 | JWT sign/verify helper: valid token verifies; tampered signature rejected; expired token rejected | Verify returns claims only for a valid, unexpired, correctly signed token | Planned |
+| UNIT-04 | BR-09 | Logout denylist check helper treats a denylisted `jti` as invalid even before natural expiry | Denylisted token fails verification | Planned |
 
-### `server/tests/lab-02/attachments.api.test.ts`
+File: `server/tests/lab-03/unit/status-transitions.unit.test.ts`
 
-| Test ID | Requirement | What It Tests | Expected Result | Final |
-|---|---|---|---|---|
-| API-07 | AC-09 / BR-22 | Upload `.gif` attachment | 415 Unsupported Media Type; attachment is rejected and not created. | Pass |
-| API-08 | AC-10 / BR-23 | Upload valid PDF > 5 MB | 413 Payload Too Large; attachment is rejected and not created. | Pass |
-| API-09 | AC-11 / BR-24 | Upload 6th active attachment | 422 Unprocessable Entity; upload is rejected because the ticket already has 5 active attachments, and no new attachment is created. | Pass |
-| API-10 | AC-21 / FR-12 | Upload valid attachment to owned ticket | 201 Created; attachment is created successfully with status `ACTIVE` and is associated with the owned ticket. | Pass |
-| API-11 | FR-05 / FR-12 | List ticket attachments | 200 OK; attachment list is returned with both active and removed attachments, including their relevant metadata. | Pass |
-| API-12 | AC-22 / FR-13 | Download active attachment | 200 OK; original attachment file content is returned successfully. | Pass |
-| API-13 | AC-23 / FR-14 | Remove attachment with valid reason | 200 OK; attachment status changes from `ACTIVE` to `REMOVED` and the removal reason is stored. | Pass |
-| API-14 | BR-26 | Remove attachment with empty reason | 400 Bad Request; removal is rejected, a reason is required, and the attachment remains `ACTIVE`. | Pass |
-| API-15 | BR-27 | Download removed attachment | 404 Not Found; removed attachment cannot be downloaded and no file content is returned. | Pass |
-| API-16 | BR-11 / FR-15 | Requester's attachment belongs to another Requester | 404 Not Found; attachment data is not revealed to a Requester who does not own the Ticket. | Pass |
-| API-17 | BR-24 | Add attachment after one is removed | 201 Created; new attachment is created successfully because the removed attachment does not count toward the 5-active-attachment limit. | Pass |
+| ID | Requirement | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| UNIT-05 | BR-19 | Transition-matrix pure function against every `(from, to)` pair in `specification.md` §6.1 | Listed pairs return `true`; all others return `false` (exhaustive, table-driven) | Planned |
+| UNIT-06 | BR-19 | Terminal status (`CANCELLED`) has zero legal outbound transitions | Function returns `false` for every target from `CANCELLED` | Planned |
 
-```bash
- RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/server
+File: `server/tests/lab-03/unit/email.unit.test.ts`
 
- ✓ tests/lab-02/attachments.api.test.ts (11) 591ms
-   ✓ Attachment API (11) 590ms
-     ✓ API-07: rejects GIF attachments without creating one
-     ✓ API-08: rejects a valid PDF larger than 5 MB
-     ✓ API-09: rejects a sixth active attachment
-     ✓ API-10: uploads a valid attachment to an owned ticket
-     ✓ API-11: lists active and removed attachment metadata
-     ✓ API-12: downloads an active attachment with its original content
-     ✓ API-13: removes an attachment with a valid reason
-     ✓ API-14: rejects an empty removal reason and keeps the attachment active
-     ✓ API-15: does not download a removed attachment
-     ✓ API-16: hides another requester's attachment
-     ✓ API-24: allows an upload after an attachment is removed
+| ID | Requirement | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| UNIT-07 | BR-11 | Email equality comparator is case-insensitive (`A@x.com` == `a@x.com`) | Comparator returns equal | Planned |
+| UNIT-08 | BR-11 | Email format validator rejects malformed addresses | Invalid formats rejected, valid formats accepted | Planned |
 
- Test Files  1 passed (1)
-      Tests  11 passed (11)
-   Start at  22:56:49
-   Duration  2.72s (transform 93ms, setup 0ms, collect 1.25s, tests 591ms, environment 0ms, prepare 449ms)
-```
+File: `server/tests/lab-03/unit/content.unit.test.ts`
 
-### `server/tests/lab-02/my-tickets.api.test.ts`
+| ID | Requirement | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| UNIT-09 | BR-23 | Comment/Note content validator: trims whitespace, rejects empty-after-trim, enforces 2000-char cap | Boundary cases (0, 1, 2000, 2001 chars) behave correctly | Planned |
+| UNIT-10 | BR-25 | Comment/Note factory ignores any client-supplied `authorId`/`createdAt` and uses server context | Output always uses session author and `Date.now()`-derived timestamp | Planned |
 
-| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
-|---|---|---|---|---|---|
-| API-16 | API | AC-04 | `GET /api/tickets` as Requester B | List contains none of Requester A's Tickets | Pass |
-| API-17 | API | AC-15 | `GET /api/tickets?search=<partial ticket #>` | Only Tickets whose number contains the text returned | Pass |
-| API-18 | API | AC-16 | `GET /api/tickets?category=&requestedPriorityId=` combined | Only Tickets matching both filters returned (BR-13) | Pass |
-| API-19 | API | AC-17 | Toggle `sortDir` on `sortBy=createdAt` | List order reverses accordingly | Pass |
-| API-20 | API | AC-18 | Page forward beyond page size | Next set of Tickets loads; `page`/`totalPages` metadata correct | Pass |
-| API-21 | API | BR-15 | `page`/`pageSize` with invalid values (e.g. negative, non-numeric) | Falls back to defaults (page 1, size 10) instead of erroring | Pass |
-| API-22 | API | AC-25 | `GET /api/dev-requesters` with one inactive Requester seeded | Inactive Requester absent from response (BR-06) | Pass |
+File: `server/tests/lab-03/unit/user-ownership.unit.test.ts`
 
-```bash
- RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/server
+| ID | Requirement | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| UNIT-11 | BR-14 | Ticket-owner eligibility check: active `IT_STAFF`/`ADMINISTRATOR` eligible; inactive or `REQUESTER` not eligible | Boolean result matches each role/active combination | Planned |
+| UNIT-12 | BR-28 | Last-active-Administrator check against a mocked user list | Returns `true` (blocks) only when exactly one active Administrator would remain zero after the change | Planned |
 
- ✓ tests/lab-02/my-tickets.api.test.ts (7)
-   ✓ GET /api/tickets (6)
-     ✓ API-16: should return only tickets owned by requester
-     ✓ API-17: should return only tickets matching the search text
-     ✓ API-18: should return only tickets matching all filters
-     ✓ API-19: should reverse ticket order when sortDir is toggled
-     ✓ API-20: should return the next set of tickets on the next page
-     ✓ API-21: should fall back to default pagination for invalid values
-   ✓ GET /api/dev-requesters (1)
-     ✓ API-22: should exclude inactive requester from the response
+## 2. API / Integration Tests
 
- Test Files  1 passed (1)
-      Tests  7 passed (7)
-   Start at  23:14:16
-   Duration  766ms (transform 84ms, setup 0ms, collect 242ms, tests 151ms, environment 0ms, prepare 103ms)
-```
+File: `server/tests/lab-03/auth.api.test.ts`
 
+| ID | AC | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| API-01 | AC-01 | Valid login | Authenticated response; safe user data | Planned |
+| API-02 | AC-02 | `POST /api/auth/change-password` with correct temp password + valid new password | `200`, `mustChangePassword:false`; subsequent request no longer redirected to change-password | Planned |
+| API-03 | AC-05 | Invalid credentials | `401 INVALID_CREDENTIALS`, generic message, no hint whether email exists | Planned |
+| API-04 | AC-06 | Correct password, inactive account | `403 ACCOUNT_INACTIVE`, no session cookie set | Planned |
+| API-05 | AC-07 | `GET /api/auth/me` with no cookie | `401`, no identity data in body | Planned |
+| API-06 | AC-08 | Logout, then reuse the old cookie value on a protected call | `401` on the reused cookie | Planned |
+| API-07 | AC-02 | `change-password` with a new password failing policy, or equal to current | `400`, no state change, `mustChangePassword` still `true` | Planned |
 
-### `server/tests/lab-02/ticket-detail.api.test.ts`
+File: `server/tests/lab-03/authorization.api.test.ts`
 
-| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
-|---|---|---|---|---|---|
-| API-23 | API | AC-03 | `GET /api/tickets/:ticketCode` for Requester A's Ticket while B is current | 404; no Ticket data returned (BR-11) | Pass |
+| ID | AC | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| SEC-01 | AC-03 | Requester calls `GET /api/tickets?requesterId=<other>` | Only the caller's own tickets are returned; the query param is ignored | Planned |
+| SEC-02 | AC-04 | Requester calls `POST /api/staff/tickets/:id/notes` | `403`, response contains no note content | Planned |
+| SEC-03 | AC-07 | Every protected route group (`/api/tickets`, `/api/staff/*`, `/api/admin/*`) called with no session, parameterized | Each returns `401`, never a default identity | Planned |
+| SEC-04 | AC-09 | Requester calls `/api/staff/tickets`; IT Staff calls `/api/admin/users` | Both return `403` | Planned |
+| SEC-05 | AC-11 | Requester A requests Requester B's ticket by ID | `403`, no ticket data in body | Planned |
+| SEC-06 | AC-22 | Requester's `GET /api/tickets/:id` response shape | Contains no `internalNotes`/note fields, even if notes exist server-side | Planned |
+| SEC-07 | AC-30 | Requester and IT Staff each call every `/api/admin/*` endpoint | All return `403` | Planned |
+| SEC-08 | BR-31 | Request carries a legacy `X-Dev-Requester-Id` header but no session cookie | Still `401` — header has no authorization effect | Planned |
+| SEC-09 | AC-10 | Requester calls `POST /api/tickets` with a spoofed `requesterId` in the body | Created ticket's `requesterId` equals the session user, not the spoofed value | Planned |
 
-```bash
- RUN  v2.1.9 C:/KMUTT/3.1/Software/Pai/server
+File: `server/tests/lab-03/staff-queue.api.test.ts`
 
- ✓ tests/lab-02/ticket-detail.api.test.ts (2) 312ms
-   ✓ GET /api/tickets/:ticketNumber (2) 310ms
-     ✓ returns the current requester's owned ticket detail
-     ✓ API-23: should return 404 when requester B tries to access requester A's ticket
+| ID | AC | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| API-13 | AC-15 | `q`, `status`, `category`, `requestedPriority`, `itPriority`, `owner` filters, individually and combined | Result set matches expected fixture subset for each combination | Planned |
+| API-14 | AC-15 | `sort`/`sortDir` on each sortable field | Result order matches expected ascending/descending order | Planned |
+| API-15 | AC-15 | Pagination: `page`/`pageSize` boundaries, including a page past the last page | Correct `items`, `totalItems`, `totalPages`; past-last-page returns empty `items` with `200`, not an error | Planned |
+| API-16 | — (§api-spec 4) | Invalid query parameter value (bad enum, `page=0`, `pageSize=51`) | `400`, message names the offending parameter | Planned |
+| API-17 | FR-11 | Empty queue (no tickets) vs. no-results (filters match nothing) | Both return `200` with `items: []`; distinguished at the UI layer, not by status code | Planned |
 
- Test Files  1 passed (1)
-      Tests  2 passed (2)
-   Start at  10:27:30
-   Duration  3.47s (transform 340ms, setup 0ms, collect 1.11s, tests 312ms, environment 1ms, prepare 818ms)
-```
+File: `server/tests/lab-03/staff-ticket-detail.api.test.ts`
 
-### `client/tests/lab-02/CreateTicket.test.tsx`
+| ID | AC | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| API-18 | AC-16 | Claim an unassigned ticket | `ticketOwnerId` becomes the caller | Planned |
+| API-19 | AC-17 | Reassign a ticket already owned by IT Staff member X to IT Staff member Y | `ticketOwnerId` updates to Y | Planned |
+| API-20 | AC-18 | Assign an inactive IT Staff user as owner | `409`, ownership unchanged | Planned |
+| API-21 | BR-14 | Assign a `REQUESTER`-role user as owner | `409`, ownership unchanged | Planned |
+| API-22 | AC-19 | `PATCH .../priority` | `itPriority` updates; `requestedPriority` unchanged | Planned |
+| API-23 | AC-20 | Status `NEW` → `RESOLVED` directly | `409`, response lists legal next statuses from `NEW` | Planned |
+| API-24 | AC-21 | Status `IN_PROGRESS` → `RESOLVED` | `200`, status updated and persisted | Planned |
+| API-25 | BR-19 | Any transition attempted from `CANCELLED` | `409` for every target status | Planned |
+| API-26 | FR-12 | `GET /api/staff/tickets/:id` for a ticket owned by a different staff member; and for a nonexistent ID | `200` with full detail (staff can view any ticket); `404` for nonexistent | Planned |
 
-| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
-|---|---|---|---|---|---|
-| UI-01 | UI | AC-02 | Navigate to Create Ticket with no Requester selected | Redirected to Requester Selection screen (BR-08) | Pass |
-| UI-02 | UI | AC-05 | Click Submit with Summary empty | Inline field message shown; no API call made | Pass |
-| UI-03 | UI | AC-06 | Type a 19-character Description and submit | Boundary message names the 20-char minimum | Pass |
-| UI-04 | UI | AC-12 | Click Submit on a valid form | Submit disabled + busy indicator until request resolves (BR-19) | Pass |
-| UI-05 | UI | AC-13 | Submit valid form while backend is unreachable | Safe error banner shown; all field values remain in the form | Pass |
-| UI-06 | UI | AC-28 | Tab through the Create Ticket form using keyboard only | Every control reachable in logical order with visible focus indicator | Pass |
-| UI-07 | UI | BR-01, BR-03 | Render Create Ticket system-generated fields (Ticket #, Date, Requester) | Read-only fields use distinct shading, no focus ring, not tab-stoppable | Pass |
+File: `server/tests/lab-03/comments-notes.api.test.ts`
 
-```bash
- RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/client
+| ID | AC | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| API-08 | AC-04 | Requester requests Internal Notes creation | Forbidden; no note data returned | Planned |
+| API-27 | AC-12 | Requester posts a Public Comment on their own ticket | `201`, comment stored with author/timestamp, visible on subsequent GET | Planned |
+| API-28 | BR-23 | Post empty/whitespace-only comment or note | `400`, nothing stored | Planned |
+| API-29 | BR-23 | Post content over 2000 characters | `400`, nothing stored | Planned |
+| API-30 | AC-13 | Mark appears-resolved while status is `OPEN`/`IN_PROGRESS`/`WAITING_FOR_REQUESTER` | `200`, flag set, status unchanged | Planned |
+| API-31 | AC-14 | Mark appears-resolved while status is `RESOLVED`/`CLOSED` | `409`, flag unchanged | Planned |
+| API-32 | AC-22 | IT Staff posts an Internal Note; Requester and IT Staff each `GET` the same ticket | Staff view includes the note; Requester's ticket response contains no note content | Planned |
+| API-33 | AC-23 | Requester calls `GET /api/staff/tickets/:id/notes` directly | `403` | Planned |
+| API-34 | BR-25 | Comment/Note create request body includes a spoofed `authorId`/`createdAt` | Stored record uses the session author and server timestamp instead | Planned |
 
- ✓ tests/lab-02/CreateTicket.test.tsx (9) 3908ms
-   ✓ Create Ticket screen (9) 3907ms
-     ✓ UI-01: redirects to requester selection without a selected requester
-     ✓ shows the create ticket form when a requester is selected
-     ✓ navigates to create ticket from the top bar
-     ✓ UI-02: shows an inline summary error without calling the create API
-     ✓ UI-03: reports the 20-character description minimum 984ms
-     ✓ UI-04: disables submit while a valid request is pending 1153ms
-     ✓ UI-05: shows a safe error and preserves values when the backend is unreachable 1175ms
-     ✓ UI-06: reaches every create-ticket form control with the keyboard 343ms
-     ✓ UI-07: renders generated fields as shaded, non-focusable read-only fields
+File: `server/tests/lab-03/users-admin.api.test.ts`
 
- Test Files  1 passed (1)
-      Tests  9 passed (9)
-   Start at  21:21:14
-   Duration  5.21s (transform 129ms, setup 69ms, collect 265ms, tests 3.91s, environment 425ms, prepare 123ms)
-```
+| ID | AC | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| API-35 | AC-24 | `GET /api/admin/users?q=&role=` combinations | Result set matches expected fixture subset | Planned |
+| API-36 | AC-25 | Create a user with an initial password | `201`, `mustChangePassword:true`; a subsequent login with that password succeeds and redirects to change-password | Planned |
+| API-37 | AC-26 | Create a user with an email already in use | `409 DUPLICATE_EMAIL`, no user created | Planned |
+| API-38 | BR-11 | Edit a user's email to one already used by another user | `409 DUPLICATE_EMAIL`, no change persisted | Planned |
+| API-39 | AC-27 | Administrator edits their own account with `isActive:false` | `409 SELF_DEACTIVATION`, account remains active | Planned |
+| API-40 | AC-28 | With exactly one active Administrator, deactivate them or change their role away from Administrator | `409 LAST_ADMIN` in both cases, no change persisted | Planned |
+| API-41 | AC-29 | `PATCH .../password` sets a new initial password | `200`, `mustChangePassword:true`; old password no longer authenticates, new one does (until changed) | Planned |
+| API-42 | BR-26 | Edit a user's role from `IT_STAFF` to `REQUESTER` | Stored role is exactly `REQUESTER`; no residual multi-role state | Planned |
+| API-43 | BR-11 | Create/edit with an invalid role enum value or malformed email | `400`, no change persisted | Planned |
 
-### `client/tests/lab-02/MyTickets.test.tsx`
+## 3. UI Component Tests
 
-| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
-|---|---|---|---|---|---|
-| UI-11 | UI | AC-19 | Open My Tickets for a Requester with zero Tickets | Empty state (not No-Results) shown with Create Ticket CTA | Pass |
-| UI-12 | UI | AC-20 | Apply filters that match no owned Tickets | No-Results state shown with a Clear Filters action | Pass |
-| UI-13 | UI | AC-26 | Use Change Requester to pick a different active Requester | My Tickets reloads showing only the new Requester's Tickets (BR-07) | Pass |
+File: `client/tests/lab-03/Login.test.tsx`
 
-```bash 
- RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/client
+| ID | AC | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| UI-01 | AC-05 | Renders invalid-credentials banner on `401 INVALID_CREDENTIALS` | Banner text matches the generic copy; password field re-masked | Planned |
+| UI-02 | — | Submit button shows busy state and is disabled while the request is in flight | Button label changes to "Signing In…"; disabled attribute set | Planned |
+| UI-03 | AC-06 | Renders inactive-account banner on `403 ACCOUNT_INACTIVE` | Banner shows the distinct inactive-account copy | Planned |
+| UI-04 | — | Empty email/password on submit | No network call made; inline field errors shown | Planned |
+| UI-26 | AC-32 | Unexpected (`500`) failure on submit | Generic safe-failure banner shown, no error code/stack rendered | Planned |
 
- ✓ tests/lab-02/MyTickets.test.tsx (3) 683ms
-   ✓ My Tickets screen (3) 682ms
-     ✓ UI-11: shows the empty state and Create Ticket CTA for a requester with no tickets
-     ✓ UI-12: shows no-results state and clears active filters
-     ✓ UI-13: changes requester and reloads My Tickets with the new requester
+File: `client/tests/lab-03/ChangePassword.test.tsx`
 
- Test Files  1 passed (1)
-      Tests  3 passed (3)
-   Start at  21:31:44
-   Duration  3.54s (transform 260ms, setup 115ms, collect 556ms, tests 683ms, environment 839ms, prepare 431ms)
-```
+| ID | AC | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| UI-05 | AC-02 | Password-rules checklist updates live as the user types | Each rule's check/cross state matches input in real time | Planned |
+| UI-06 | AC-02 | Confirm field does not match New Password | Continue button disabled; inline mismatch message shown | Planned |
+| UI-07 | AC-02 | Successful submit | Redirects straight into the role's home screen, no extra modal | Planned |
+| UI-08 | — | Voluntary change from Profile menu (not mandatory) succeeds | Inline success toast shown; screen does not redirect | Planned |
 
+File: `client/tests/lab-03/StaffTicketQueue.test.tsx`
 
-### `client/tests/lab-02/AttachmentSection.test.tsx`
+| ID | AC | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| UI-09 | AC-15 | Renders the table from a mock queue response | Rows/columns match fixture data | Planned |
+| UI-10 | FR-11 | Renders with zero total tickets | "No tickets in the queue yet." empty state shown | Planned |
+| UI-11 | FR-11 | Renders with filters applied and zero matches | "No tickets match your search or filters." + Clear filters action shown | Planned |
+| UI-12 | AC-15 | Typing in search / changing a filter | Triggers the queue API call with the correct query parameters (mocked network layer) | Planned |
+| UI-27 | AC-32 | Queue fetch fails | Safe-failure banner + Retry shown; current filter/search/page state preserved | Planned |
 
-| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
-|---|---|---|---|---|---|
-| UI-08 | UI | AC-09, AC-10 | Select a `.gif` or an oversized PDF in the Attachment control | Rejected client-side before any upload call, with a clear message | Pass |
-| UI-09 | UI | AC-11 | Attachment control on a Ticket with 5 active Attachments | Remaining-slots indicator shows 0; a 6th file is blocked with a limit message | Pass |
-| UI-10 | UI | AC-23 | Click Remove on an Attachment without entering a reason | Removal blocked until a non-empty reason is entered | Pass |
+File: `client/tests/lab-03/StaffTicketDetail.test.tsx`
 
-```bash
- RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/client
+| ID | AC | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| UI-13 | AC-20/AC-21 | Status dropdown given a mocked current status | Only the legal next statuses (per §6.1 matrix) appear as options | Planned |
+| UI-14 | BR-04 | Internal Notes tab rendering | Visually distinct container/label from Public Comments tab (asserts a distinct style token/class, not just text) | Planned |
+| UI-15 | — | Selecting `RESOLVED` without a Resolution Summary | Inline validation blocks submit until Resolution Summary is provided | Planned |
+| UI-16 | — | Selecting `RESOLVED` or `CANCELLED` | Confirmation dialog appears before the request is sent | Planned |
+| UI-28 | AC-32 | Owner update succeeds but the subsequent status update fails | Owner change remains reflected in the UI; only the status field shows a failure state (no full-page rollback) | Planned |
 
- ✓ tests/lab-02/AttachmentSection.test.tsx (3)
-   ✓ Attachment controls (3)
-     ✓ UI-08: rejects gif or oversized PDF files before upload
-     ✓ UI-09: shows remaining slots and blocks the 6th file
-     ✓ UI-10: blocks removal without a non-empty reason
+File: `client/tests/lab-03/UserManagement.test.tsx`
 
- Test Files  1 passed (1)
-      Tests  3 passed (3)
-   Start at  22:55:28
-   Duration  1.45s (transform 80ms, setup 92ms, collect 188ms, tests 277ms, environment 418ms, prepare 132ms)
-```
+| ID | AC | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| UI-17 | — | Create form with missing/invalid required fields | Inline field errors; Save disabled or request blocked client-side | Planned |
+| UI-18 | AC-26 | Submit with a `409 DUPLICATE_EMAIL` response | Inline error appears under the Email field specifically | Planned |
+| UI-19 | AC-27 | Row for the currently-logged-in Administrator | Active toggle rendered disabled with an explanatory tooltip | Planned |
+| UI-20 | — | Open Edit on an existing user | Panel fields prefill with that user's current name/email/role/active state | Planned |
+| UI-29 | AC-32/AC-28 | Submit triggers a `409 LAST_ADMIN` response | Message shown inline above Save; panel stays open with entered values intact | Planned |
 
-### `client/tests/lab-02/RequesterTicketDetail.test.tsx`
+File: `client/tests/lab-03/RequesterTicketDetail.test.tsx` 
+| ID | AC | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| UI-21 | AC-12 | Public Comments tab renders and posts a new comment | New comment appears in the list, compose box clears | Planned |
+| UI-22 | AC-13 | "Problem Appears Resolved" button visibility by status | Visible for Open/In Progress/Waiting for Requester; absent otherwise | Planned |
+| UI-23 | AC-13 | Clicking the button and confirming | Button is replaced by the "You marked this as appearing resolved" note | Planned |
+| UI-30 | AC-32 | Comment post fails | Safe-failure banner shown; typed comment text is preserved in the box | Planned |
 
-| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
-|---|---|---|---|---|---|
-| UI-15 | UI | AC-21 | Add a valid Attachment from Ticket Detail | New Attachment appears in list as Active without a page reload | Pass |
-| UI-16 | UI | AC-24 | View Ticket Detail after an Attachment was soft-removed | Attachment shown greyed-out with metadata/reason; download control disabled | Pass |
+File: `client/tests/lab-03/AppShell.test.tsx` *(addition — role-conditional nav has no home in the required minimum list)*
 
-```bash
- RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/client
+| ID | AC | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| UI-24 | AC-09 | Shell rendered with a Requester / IT Staff / Administrator session, respectively | Only that role's nav destinations render; the other roles' destinations are absent from the DOM (not just visually hidden) | Planned |
+| UI-25 | — | Direct navigation to a route the current role can't reach | Forbidden state rendered, with a link back to the role's home screen | Planned |
 
- ✓ tests/lab-02/RequesterTicketDetail.test.tsx (2)
-   ✓ Requester ticket detail attachments (2)
-     ✓ UI-15: adds a valid attachment from ticket detail without reload
-     ✓ UI-16: renders a removed attachment as greyed-out with reason and disabled download
+## 4. UI Style Tests
 
- Test Files  1 passed (1)
-      Tests  2 passed (2)
-   Start at  22:45:53
-   Duration  1.30s (transform 136ms, setup 60ms, collect 273ms, tests 203ms, environment 365ms, prepare 146ms)
-```
+File: `client/tests/lab-03/ZenGreenStyle.test.tsx`
 
+| ID | Requirement | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| STYLE-01 | §9 ui-spec | Role, status, and priority badges use visually distinct component variants | Each badge family renders with a different variant/class, never the same styling | Planned |
+| STYLE-02 | §7 ui-spec | Internal Notes panel vs. Public Comments panel | Different background tint and a pinned "Internal — not visible to Requester" label on the Notes panel only | Planned |
 
-### `e2e/lab-02/requester-ticket-flow.spec.ts`
+| ID | Requirement | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| STYLE-03 | §9 handout / Part 9 | Manual visual checklist (design consistency, role nav, badges, editable/read-only field styling, validation placement, focus rings, no clipping/overlap/overflow) against `artifacts/lab-03/screenshots/**` for every required screen | Checklist fully checked off before submission; deviations fixed, not waived | Planned |
 
-| Test ID | Type | Requirement | What It Tests | Expected Result | Final |
-|---|---|---|---|---|---|
-| E2E-01  | E2E  | AC-01                      | Complete Requester selection → Create Ticket submission flow with valid data                                 | Ticket is created successfully, the backend-generated Ticket Number is displayed, and Ticket Details opens                          | Pass  |
-| E2E-02  | E2E  | AC-03, AC-04               | Requester A creates a Ticket; switch to Requester B and search My Tickets / open A's Ticket by number        | Requester B never sees A's Ticket in the My Tickets list or Ticket Detail                                                           | Pass  |
-| E2E-03  | E2E  | AC-21, AC-22, AC-23, AC-24 | Full Attachment lifecycle: add, download, soft-remove with reason                                            | Attachment appears as Active, can be downloaded, then shows as Removed with metadata and reason; download is disabled after removal | Pass  |
-| E2E-04  | E2E  | AC-25, AC-26               | Open Requester selector with an inactive Requester seeded, select an active Requester, then Change Requester | Inactive Requester is absent; switching Requester reloads My Tickets with only the newly selected Requester's Tickets               | Pass  |
-| E2E-05  | E2E  | —                          | Opens an invalid Ticket and verifies the application's validation/error handling                             | Invalid Ticket is rejected and an appropriate error state is shown without exposing Ticket data                                     | Pass  |
-| E2E-06  | E2E  | AC-15, AC-16               | Search My Tickets by partial Ticket Number and apply Category + Requested Priority filters                   | Only Tickets matching the search text and/or all selected filters are displayed                                                     | Pass  |
-| E2E-07  | E2E  | AC-11                      | Adds Attachments up to the active limit, removes one, then attempts to fill the available slot again         | Attachment limit is enforced; after one Attachment is removed, the available slot can be used again                                 | Pass  |
-| E2E-08  | E2E  | AC-16                      | Applies a Category and Requested Priority filter without entering a search term                              | My Tickets displays only Tickets matching the applied filters; unrelated Tickets are excluded                                       | Pass  |
-| E2E-09  | E2E  | AC-11                      | Attempts to exceed the maximum number of Attachments on Create Ticket                                        | Upload beyond the configured Attachment limit is rejected and the limit message is shown                                            | Pass  |
+## 5. Responsive Tests
 
+File: `e2e/lab-03/responsive.spec.ts` *(addition — Playwright viewport control gives the most reliable coverage of layout collapse behavior)*
 
+| ID | Requirement | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| RESP-01 | §6 ui-spec | Ticket Queue rendered at a <1024px viewport | Table collapses to the stacked card layout; search/filters/pagination remain visible in order | Planned |
+| RESP-02 | §8 ui-spec | Admin Create/Edit panel rendered at a mobile viewport | Panel becomes a full-screen sheet rather than a side-over | Planned |
+| RESP-03 | §10 ui-spec | Login, Change Password, and Staff Ticket Detail at 375px width | No horizontal scrollbar/overflow on any of the three screens | Planned |
 
-```bash 
-npm notice run software-engineer@1.0.0 test:e2e
-npm notice run playwright test e2e/lab-02/requester-ticket-flow.spec.ts
-[WebServer] npm notice run toktickit-client@1.0.0 dev
-[WebServer] npm notice run vite --host 127.0.0.1
+## 6. Security / Authorization Tests
 
-Running 9 tests using 1 worker
+Covered in full in `server/tests/lab-03/authorization.api.test.ts` (§2 above, `SEC-01`–`SEC-09`).
 
-  ✓  1 …ket-flow.spec.ts:48:6 › Requester ticket flow › E2E-01: creates a ticket and shows the backend-generated number (4.1s)
-  ✓  2 …er-ticket-flow.spec.ts:54:6 › Requester ticket flow › E2E-02: prevents another requester from seeing the ticket (1.3s)
-  ✓  3 …\lab-02\requester-ticket-flow.spec.ts:71:6 › Requester ticket flow › E2E-03: completes the attachment lifecycle (1.6s)
-  ✓  4 …uester-ticket-flow.spec.ts:95:6 › Requester ticket flow › E2E-05: shows validation errors for an invalid ticket (1.2s)
-  ✓  5 …2e\lab-02\requester-ticket-flow.spec.ts:111:6 › Requester ticket flow › E2E-06: searches and filters My Tickets (1.4s)
-  ✓  6 …icket-flow.spec.ts:130:6 › Requester ticket flow › E2E-07: refills the sixth attachment slot after deleting one (1.4s)
-  ✓  7 …ter-ticket-flow.spec.ts:158:6 › Requester ticket flow › E2E-08: captures My Tickets with a filter and no search (1.4s)
-  ✓  8 …r-ticket-flow.spec.ts:175:6 › Requester ticket flow › E2E-09: captures the seventh file limit on Create Ticket (851ms)
-  ✓  9 …-flow.spec.ts:191:6 › Requester ticket flow › E2E-04: switches requester data and excludes inactive requesters (794ms)
+This category is listed separately here per the course requirement, but the rows are not duplicated — see §2 for the table.
 
-  9 passed (15.9s)
-  ```
+## 7. Migration / Regression Tests
 
-## 3. Traceability Summary
+File: `server/tests/lab-03/migration.api.test.ts` 
 
-- The full Attachment lifecycle is tested at API, UI, and E2E levels.
-- Responsive behavior is tested for both Create Ticket and My Tickets.
-- Server tests use 4 files; client tests use 4 files; all E2E and responsive tests use `requester-ticket-flow.spec.ts`.
-- All tests start as `Pending` and are updated to `Pass` or `Fail` after implementation and execution.
+| ID | AC | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| MIG-01 | AC-31 | Full Lab 2 regression suite (ticket creation, categories, related systems, attachments) re-run using an authenticated Requester session instead of `X-Dev-Requester-Id` | Every previously-passing Lab 2 case still passes unmodified in behavior | Planned |
+| MIG-02 | §7.1 spec | Ticket row count before and after the `User` migration | Counts match exactly; no ticket is dropped or duplicated | Planned |
+| MIG-03 | §7.1 spec | Every migrated `Ticket.requesterId` resolves to an active `User` with role `REQUESTER` corresponding to the original Development Requester identity | 100% of migrated tickets resolve correctly | Planned |
+| MIG-04 | §7.1 spec | `itPriority` on every pre-existing ticket after migration | Equals that ticket's `requestedPriority` (initial backfill rule) | Planned |
+| MIG-05 | §5.3 handout | Seed script run twice in sequence against a fresh database | Second run produces identical row counts to the first (idempotent) | Planned |
+
+## 8. End-to-End Tests
+
+File: `e2e/lab-03/authentication.spec.ts`
+
+| ID | AC | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| E2E-01 | AC-01, AC-08 | Full flow: log in as an active user with no pending password change → land on role home → log out → attempt to revisit a protected page | Home screen loads after login; protected page redirects to Login after logout | Planned |
+| E2E-02 | AC-02 | Initial password login and change | Normal app opens only after a valid change | Planned |
+| E2E-03 | AC-06 | Attempt login on an inactive account with the correct password | Inactive-account message shown; no access granted | Planned |
+
+File: `e2e/lab-03/staff-ticket-flow.spec.ts`
+
+| ID | AC | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| E2E-04 | AC-16, AC-19, AC-21, AC-22 | Log in as IT Staff → open Queue → claim an unassigned ticket → set IT Priority → post an Internal Note → transition status to Resolved → log in as the ticket's Requester and confirm the note is not visible | Each step's UI state matches the API result; Requester never sees the Internal Note | Planned |
+| E2E-05 | AC-15 | Search and filter the Queue end-to-end | Visible rows narrow to match the search/filter combination | Planned |
+
+File: `e2e/lab-03/user-administration.spec.ts`
+
+| ID | AC | What It Tests | Expected Result | Final |
+| - | - | - | - | - |
+| E2E-06 | AC-25, AC-29 | Administrator creates a user with an initial password; that user logs in and is forced through Change Password | New user reaches their role home screen only after changing the password | Planned |
+| E2E-07 | AC-27, AC-28 | Administrator attempts to deactivate their own account, then (as the sole Administrator) attempts to deactivate/role-change themselves via a second seeded admin-adjacent scenario | Both attempts are blocked with the specific inline messages from `api-spec.md` §5 | Planned |
+| E2E-08 | AC-09, AC-30 | Log in as IT Staff, attempt to visit `/admin/users` directly by URL | Forbidden state shown; no user data loads | Planned |
+

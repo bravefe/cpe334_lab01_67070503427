@@ -1,840 +1,302 @@
-# TokTickIT — UI Specification (Lab 2)
+# TokTickIT — Lab 3 UI Specification
 
-## 1. Design Tokens
+All screens extend the Zen Green design language and component set established in Lab 2 (primary
+green action buttons, card surfaces, pill-shaped status/priority/role badges, consistent field
+and validation-message placement, focus rings, and spacing scale). No new visual system is
+introduced in Lab 3 — new screens reuse existing tokens and components wherever the design
+matches, and only add new components where Lab 2 has no equivalent (e.g. tabbed Comments/Notes
+panel, role-aware nav).
 
-### 1.1 Color
-| Token | Hex | Usage |
-|---|---|---|
-| Primary green | #006B3C | Primary buttons, links, active nav, focus ring |
-| Secondary green | #0B7A46 | Hover states, secondary accents |
-| Pale green | #EAF6EF | Selected rows, info banners, badge backgrounds |
-| Page background | #F5F7F6 | App shell background |
-| Surface | #FFFFFF | Cards, panels, form containers, restrained shadow/border |
-| Text (primary) | #173B2D | Body copy, headings |
-| Error | #B42318 | Validation messages, failure states |
-| Warning (amber) | #B54708 | Non-decorative use only (e.g. "5 MB limit" hint), never alone to convey status |
-| Success | #16803C | Confirmation banners — always paired with a text label, never color alone |
+## 1. Application Shell
 
-Read-only fields get a visually distinct shading from editable fields (pale grey/green fill,
-no focus ring, not tab-stoppable as an input).
+**Applies to:** all authenticated screens.
 
-### 1.2 Layout / Breakpoints
-| Breakpoint | Range | Behavior |
-|---|---|---|
-| Desktop | ≥ 992px | Multi-column, centered content, max-width container |
-| Tablet | 768–991px | Two columns where practical |
-| Mobile | < 768px | All fields stack vertically, touch-friendly (≥44px) targets, no horizontal scroll |
+- Top bar: product mark ("TikTockIT"), primary nav, and a right-aligned **Profile** menu.
+- Primary nav is role-conditional and rendered from the authenticated user's role, never from a
+  client-side guess:
+  - Requester: **My Tickets**, **Create Ticket**.
+  - IT Staff: **My Queue** (default view = full queue, "My Queue" label kept for continuity with
+    the reference mockup), no Create Ticket entry.
+  - Administrator: **Admin** (User Management). No ticket-facing nav item (Assumption A-1).
+- Profile menu: current user's name and role badge, **Change Password**, **Logout**.
+- Logout immediately clears local UI state and redirects to Login; any in-flight request that
+  returns `401` also forces this redirect (session-expiry handling), showing a one-line "Your
+  session has ended. Please sign in again." banner on the Login screen.
+- A user who manually navigates (URL bar) to a route their role doesn't permit sees the same
+  **Forbidden** empty state described in §7.4, not a silent redirect that hides the fact they were
+  blocked — the UI does not pretend the destination doesn't exist, it says access is not
+  permitted, consistent with server behavior (401 vs 403 are visually distinct: 401 → back to
+  Login; 403 → Forbidden state with a link back to the user's own home screen).
 
-No clipped labels, overlapping messages, or hidden buttons at any breakpoint (AC-27).
+## 2. Login
 
-### 1.3 Shared Component Rules
-- One consistent field height across all inputs/selects.
-- Multiline Description textarea resizes vertically without breaking layout.
-- Every icon-only control has an accessible label (`aria-label`).
-- Visible focus indicator (outline in Primary green) on every interactive control for keyboard
-  navigation (AC-28).
-- Status/Priority badges: color + text together, never color alone.
+**Route:** `/login` · **Mode:** single form, no create/edit distinction.
 
----
+Controls:
+- Email field (text input, required, inline validation on blur for format).
+- Password field (masked, with a show/hide toggle icon).
+- **Sign In** primary button — full width, disabled while a request is in flight and shows a
+  busy state on the button label ("Signing In…") rather than a separate spinner overlay.
+- "Forgot your password?" link — **rendered but disabled/inert with a tooltip** ("Contact an
+  administrator") in Lab 3, since password-reset email is explicitly out of scope; the control
+  exists in the Zen Green shell so the layout matches the approved mockup without implying a
+  feature that doesn't exist.
 
-## 2. Application Shell
+Feedback states:
+- **Validation:** empty email/password blocks submission with inline field messages; no request
+  is sent.
+- **Invalid credentials:** red inline banner above the form — "Invalid email or password. Please
+  try again." Fields are not cleared; password field is re-masked.
+- **Inactive account:** same banner position, distinct copy — "This account is inactive. Contact
+  an administrator." (AC-06).
+- **Success:** on `200`, redirect immediately — to `/change-password` if `mustChangePassword` is
+  true, otherwise to the role's home screen (My Tickets / My Queue / Admin).
+- **Unexpected failure:** generic banner — "Something went wrong. Please try again." — no error
+  code or stack detail shown.
 
-- TokTickIT logo/identity, top-level nav: **My Tickets**, **Create Ticket**.
-- Current Requester's name displayed with a **Change Requester** action (routes back to
-  Selection, per BR-07).
-- Active nav item visually indicated (underline or filled background in Primary green).
-- Mobile: nav collapses into a menu; touch targets remain ≥44px.
+## 3. Change Password (Mandatory)
 
----
+**Route:** `/change-password` · Reachable only when `mustChangePassword` is true; a direct visit
+by a user who does *not* need it redirects to their home screen.
 
-## 3. Screen: Development Requester Selection `/choose-requester`
-![My Tickets](photo/ui/example/profile.png)
-**Purpose:** testing-only identity switcher (BR-05) — must never be presented as login.
+Controls:
+- Current (temporary) password (masked, show/hide).
+- New password (masked, show/hide).
+- Confirm new password (masked, show/hide).
+- Live password-rules checklist below the fields (≥8 characters, upper + lower case, a number, a
+  special character) — each rule shows a check/cross as the user types, matching the reference
+  mockup.
+- **Continue** primary button, disabled until all rules pass and confirm matches new password.
 
-| State | Behavior |
+Feedback states:
+- **Validation:** confirm-mismatch and unmet rules block submission inline; no request sent for a
+  client-detectable failure.
+- **Current password incorrect:** inline banner — "Current password is incorrect."
+- **Success:** on `200`, proceed straight into the application shell at the role's home screen; no
+  extra confirmation modal (matches "successful continuation into the application" requirement).
+- **Unexpected failure:** generic safe-failure banner, form remains editable, values are not lost
+  from the New/Confirm fields (avoid making the user retype the parts they already validated).
+
+This same field set (minus the checklist framing) is reused as a smaller **Change Password**
+panel from the Profile menu for voluntary changes; it calls the same endpoint and behaves the
+same on error, but on success shows an inline toast ("Password updated.") and stays on the
+current screen rather than redirecting.
+
+## 4. Requester — My Tickets / Create Ticket
+
+Carried over from Lab 2 with two changes only:
+
+1. The Development Requester selector and "Change Requester" action are removed entirely — the
+   header now shows the authenticated user's name and role badge instead.
+2. All list/detail data is implicitly scoped to the authenticated Requester; there is no
+   requester-picker anywhere in this flow.
+
+No other layout, control, or feedback-state changes from Lab 2 are introduced here; see Lab 2
+`ui-spec.md` for the full My Tickets list and Create Ticket form definitions.
+
+## 5. Requester Ticket Detail
+
+**Route:** `/tickets/:id` (Requester) · **Mode:** view, with two additive interactive regions.
+
+Layout (top to bottom): the existing Lab 2 read-only ticket header/detail fields (Ticket No.,
+Category, Related System, Requested Priority, Current Status, Summary, Description), unchanged;
+then a tab bar: **Public Comments / Attachments / Service Actions / Event Log** (Service Actions
+and Event Log remain placeholder tabs, unchanged from Lab 2).
+
+New in Lab 3:
+- **Public Comments tab** (now functional, was a placeholder in Lab 2):
+  - Chronological list, oldest first, each entry showing author name, a role badge ("Requester" /
+    "IT Support"), timestamp, and content.
+  - "Add Public Comment" text area + **Post Comment** button at the top of the tab (matches the
+    reference layout), disabled while empty or while submitting.
+  - Empty state: "No comments yet." when the list is empty.
+- **"Problem Appears Resolved" action:** a secondary button near the status/priority summary,
+  visible only while status is Open, In Progress, or Waiting for Requester (BR-22), and only to
+  the ticket's own Requester. Clicking opens a small confirmation ("Let IT Support know this looks
+  fixed? They'll still need to formally close the ticket.") before submitting, since it's a
+  one-way flag per ticket state (can't be un-set by the Requester). Once set, the button is
+  replaced by a small "You marked this as appearing resolved" inline note with a checkmark icon.
+
+Feedback states: loading skeleton on first load; forbidden state (see §7.4) if the ticket is not
+the user's own and somehow reached directly; safe-failure banner on comment-post or
+resolution-flag failure, with the entered comment text preserved so nothing is lost.
+
+## 6. IT Staff Ticket Queue
+
+**Route:** `/queue` · **Mode:** list only (no create/edit here).
+
+Desktop layout (≥1024px): a data table matching the reference mockup —
+
+| Column | Notes |
 |---|---|
-| Default | Dropdown of active Requesters only (BR-06); explanatory copy: "Development testing tool — not a login." |
-| Loading | Skeleton/spinner while `GET /api/dev-requesters` resolves |
-| Empty | No active Requesters — message + guidance, no dropdown interaction possible (AC-25) |
-| API failure | Safe error state with retry action |
+| Ticket No. | Sortable; links to Ticket Detail. |
+| Created Date | Sortable. |
+| Summary | Truncates with ellipsis at one line; full text on hover/focus title. |
+| Category | Badge/plain text, not sortable. |
+| Req. Priority | Colored priority badge (Low/Medium/High). |
+| IT Priority | Colored priority badge, editable inline is **not** offered in the queue — priority
+  editing happens in Ticket Detail only, to keep the queue read-focused. |
+| Status | Colored status badge; sortable. |
+| Owner | Avatar-style initials + name, or "Unassigned" in muted text; sortable. |
 
-- Selecting a Requester and confirming routes to My Tickets, replacing the requester context
-  for every subsequent call (BR-07).
-- All controls keyboard-reachable in logical order with visible focus (AC-28).
-- Create Ticket / My Tickets / Ticket Detail redirect here until a Requester is selected
-  (BR-08, AC-02).
+Above the table: search input ("Search by ticket number or summary…") and a **Filters** control
+that opens status / category / priority / owner filter fields (dropdowns/checkboxes) — collapsed
+by default to avoid the "unreadable mega-grid" the handout warns against. A result-count line
+("Showing 1 to 10 of 87 tickets") sits between search and table. Pagination controls at the
+bottom (Previous / page numbers / Next), matching the mockup.
 
----
+Smaller-screen representation (<1024px): the table collapses into a stacked card list, one card
+per ticket — Ticket No. + Status badge on the first line, Summary as the card title, then a
+compact row of Category / Req. Priority / IT Priority / Owner as small labeled chips, tapping the
+card opens Ticket Detail. Search, Filters, and pagination remain visible above/below the card
+list in the same order as desktop.
 
-## 4. Screen: Create Ticket /create-ticket
+Feedback states:
+- **Loading:** skeleton rows/cards on first load and on filter/sort/page change.
+- **Empty (zero tickets exist at all):** centered illustration-free message — "No tickets in the
+  queue yet."
+- **No results (filters/search matched nothing):** distinct copy — "No tickets match your search
+  or filters." with a **Clear filters** action.
+- **Forbidden:** a Requester reaching this route directly sees the shell's Forbidden state
+  (§7.4), not a queue with no data.
+- **Failure:** safe-failure banner with a **Retry** button; current filter/search/page state is
+  preserved so retry doesn't reset the user's work.
 
-**Layout**
-- **System-generated fields** (Ticket Number, Ticket Date, Requester) shown read-only, visually
-  distinct field styling — never editable, never sent by the client.
-- **Category / Related System / Requested Priority** grouped together as a related field set.
-- **Summary** and **Description** given generous width (full-width on all breakpoints).
-- **Attachments** section below the main fields, reusing the shared upload control.
-- **Actions:** Submit (primary) and Cancel (secondary) at the bottom of the form.
+## 7. IT Staff Ticket Detail
 
-**States**
-| State | Behavior |
+**Route:** `/queue/:id` · **Mode:** view, with permitted fields editable inline.
+
+Layout (matches reference mockup): a "My Queue > Ticket Detail" breadcrumb with a **Back to
+Queue** link; then a field grid —
+
+- Read-only: Ticket No., Category, Related System, Requester, Requested Priority, Summary,
+  Description.
+- Editable: **Ticket Owner** (dropdown of active IT Staff/Administrator users, plus
+  "Unassigned"/"Claim for me" shortcut when unassigned), **IT Priority** (dropdown), **Current
+  Status** (dropdown constrained to the transitions legal from the current status per
+  `specification.md` §6.1 — illegal targets are not shown as options rather than shown-then-
+  rejected, though the server remains the authority per BR-19).
+- **Resolution Summary** field: editable text area, visible/required contextually when moving
+  status to Resolved; shown read-only ("visible to requester") once set.
+
+Below the fields, a tab bar: **Public Comments / Internal Notes / Attachments / Service Actions**
+(Service Actions remains a placeholder in Lab 3, per exclusion list) with counts in each tab
+label, matching the mockup (e.g. "Public Comments (3)").
+
+- **Public Comments tab:** same list/compose UI as §5, available to IT Staff/Administrator, posts
+  attributed to the staff member with an "IT Support" role badge.
+- **Internal Notes tab:** visually distinct from Public Comments — a different background tint
+  and a small "Internal — not visible to Requester" label pinned above the compose box, so staff
+  cannot mistake which box they're typing into (handout requirement: notes and comments must be
+  visually distinct so private information isn't accidentally posted publicly). Same list/compose
+  interaction pattern otherwise (chronological, author, timestamp, empty state, append-only).
+- **Attachments tab:** unchanged from Lab 2/Requester view, read access for staff (upload
+  permissions for staff are out of scope beyond what Lab 2 already allows for the ticket).
+
+Status-change confirmation: selecting **Resolved** or **Cancelled** opens a confirmation dialog
+before submitting (destructive/finalizing actions, per `specification.md` §6.1); other transitions
+apply immediately with an inline success toast ("Status updated to In Progress.").
+
+Feedback states: loading skeleton on first load; inline validation for Resolution Summary when
+required; safe-failure banner per field group (owner/priority/status changes fail independently —
+a failed status change does not roll back an already-saved owner change); `409` transition
+conflicts show the specific message returned by the API (e.g. "That status change isn't allowed
+from In Progress.") rather than a generic error, since the message itself is safe to display.
+
+## 8. Administrator — User Management
+
+**Route:** `/admin/users` · **Modes:** list (default), create (side panel), edit (side panel).
+
+Layout (matches reference mockup): left region is the **Users** list —
+
+- Header row: "Users" title + **Create User** primary button (top right).
+- Search input ("Search users…") + **Filters** control (role filter only, per exclusion of
+  multiple simultaneous filters and multi-column sort).
+- Table: Name, Role (badge), Status (Active/Inactive badge), Edit action (icon/button per row).
+  No pagination is required (handout exclusion), but if the list grows long in seeded data the
+  table simply scrolls within the panel rather than paginating.
+
+Right region (opens as a slide-over panel, matching the mockup) — **Create New User** / **Edit
+User**, same form shape for both modes:
+
+- Full Name (required text).
+- Email Address (required, validated format; server is authoritative for uniqueness — see
+  Feedback below).
+- Role (required select: Requester / IT Staff / Administrator).
+- Active (toggle, default **on** for new users).
+- **Initial Password** (create mode only): a password field with the same live rules checklist
+  as §3; the mockup's "Send password reset email" checkbox is **not implemented** in Lab 3 (email
+  delivery is explicitly excluded) — the panel instead always displays a static note, "The user
+  will sign in with this password and must change it immediately," replacing that checkbox.
+- **Save User** primary button.
+- In edit mode only, below Save: a **Reset Password** secondary action (opens a small inline
+  field to set a new initial password without leaving the panel) and a **Deactivate
+  User**/**Activate User** toggle-style secondary button reflecting the account's current state,
+  styled as destructive (red outline) only when it would deactivate the account.
+- **Cancel** closes the panel without saving; unsaved edits are discarded without a confirmation
+  prompt in Lab 3 (kept minimalist per the handout's "intentionally simple" instruction).
+
+Feedback states:
+- **Validation:** required-field and format errors inline, matching Lab 2 field-error styling.
+- **Duplicate email:** inline error directly under the Email field — "A user with this email
+  already exists." (surfaced from the `409 DUPLICATE_EMAIL` response, not a generic banner, since
+  it's actionable at the field level).
+- **Self-deactivation blocked:** the Active toggle for the currently-logged-in Administrator's own
+  row is disabled with a tooltip ("You can't deactivate your own account") as a UI convenience;
+  the server rejection (`409 SELF_DEACTIVATION`) is still the enforced control if bypassed.
+- **Last-Administrator rule:** if a save would remove the last active Administrator, the panel
+  shows the server's `409 LAST_ADMIN` message inline above the Save button rather than closing the
+  panel, so the Administrator can adjust and retry.
+- **Success:** panel closes, list refreshes, and a toast confirms ("User created." / "User
+  updated." / "Password reset — user must change it at next login.").
+- **Forbidden:** a non-Administrator reaching `/admin/users` directly sees the shell's Forbidden
+  state (§7.4).
+- **Empty/no-results:** "No users match your search." with a **Clear search** action when a
+  search/filter yields nothing; the unfiltered list is never empty because seed data guarantees at
+  least one Administrator.
+
+## 9. Shared Component Notes
+
+- **Badges:** role, status, and priority each use a fixed color mapping consistent with Lab 2's
+  badge component — Requester/IT Staff/Administrator role badges are visually distinct from
+  status and priority badges (different shape/weight) so the three badge families are never
+  confused at a glance, per the reference screenshots.
+- **Editable vs. read-only styling:** unchanged from Lab 2 — read-only fields keep the muted
+  background/border treatment; editable controls keep the standard input/select styling. Lab 3
+  introduces no new visual state for this, only new fields that must be correctly categorized
+  (see §7).
+- **Buttons:** primary (solid green) for the single main action per screen/panel; secondary
+  (outline) for supporting actions; destructive styling (red outline/text) reserved for
+  deactivation and cancel/void-style actions, matching Lab 2 convention.
+
+## 10. Responsive & Accessibility Requirements
+
+Same baseline as Lab 2:
+
+- Breakpoints: mobile (<768px), tablet (768–1023px), desktop (≥1024px).
+- All interactive controls reachable by keyboard in a logical tab order; visible focus rings on
+  every control (buttons, links, form fields, table row actions).
+- Sufficient color contrast on all badges and status colors at both light backgrounds used in
+  this theme.
+- No horizontal scrolling introduced by any new screen at any breakpoint; the Queue table's
+  collapse to cards (§6) and the Admin panel's slide-over becoming a full-screen sheet on mobile
+  are the two required adaptations beyond Lab 2's existing patterns.
+- Form errors are associated with their field (not only color) so they're announced by assistive
+  technology, consistent with Lab 2's validation pattern.
+
+## 11. Cross-Screen Feedback Vocabulary
+
+To keep behavior predictable, every screen in this document reuses this fixed vocabulary rather
+than inventing per-screen wording styles:
+
+| State | Presentation |
 |---|---|
-| Inline validation | Field-level messages on blur/submit (empty Summary, short Description, etc. — AC-05, AC-06) |
-| Boundary validation | 150-char Summary passes, 151 fails, with the limit named in the message (AC-07, AC-08) |
-| Busy/submitting | Submit disabled + busy indicator for the duration of the in-flight request (BR-19, AC-12) |
-| Success | Displays the backend-generated Ticket Number (AC-01) |
-| Server/network failure | Safe error banner; all entered field values remain in the form (BR-20, AC-13) |
-| Partial failure | Ticket exists and its number is shown; failed Attachment(s) reported separately with a retry path (BR-21, AC-14) |
-
-**Attachment control (shared with Ticket Detail)**
-- Client-side pre-check: rejects disallowed types (`.jpg/.jpeg/.png/.webp/.pdf` only) and files
-  over 5 MB before any upload call (AC-09, AC-10).
-- Shows remaining slots toward the 5 active-Attachment limit; blocks a 6th with a limit-reached
-  message (AC-11).
-
----
-
-## 5. Screen: My Tickets `/my-tickets`
-![My Tickets](photo/ui/example/Mytickets.png)
-
-The **My Tickets** screen allows the requester to view, search, filter, sort, and navigate through their submitted support tickets.
-
-The layout should closely follow the provided My Tickets reference image, using a full-width green navigation bar at the top, followed by the page heading, action buttons, filter/search area, ticket table, and pagination.
-
-### 5.1 Overall Page Layout 
-
-The page is arranged vertically in the following order:
-
-1. Top navigation bar
-2. Page title and description
-3. Top-right page actions
-4. Search and filter panel
-5. Ticket table
-6. Pagination and ticket count
-
-The main page content is centered horizontally with consistent left and right margins. The background is a very light gray/white, while the individual search/filter panel and ticket table use white backgrounds with subtle borders and shadows.
-
----
-
-### 5.2 Page Header
-
-Directly below the navigation bar is the main page content.
-
-The page header is positioned toward the upper-left of the content area.
-
-#### Page title
-
-Large bold text:
-
-**My Tickets**
-
-This is the main heading of the page.
-
-It should be positioned near the left margin, with a small amount of spacing below the navigation bar.
-
-#### Description
-
-Immediately below the title is the description:
-
-**View and track all of your support requests.**
-
-The description uses a smaller, lighter gray font than the page title.
-
-The title and description should be vertically aligned with the content below.
-
----
-
-### 5.3 Page Actions
-
-Two action buttons are positioned on the same horizontal level as the page header, aligned to the upper-right of the content area.
-
-#### Clear Filters button
-
-Text:
-
-**Clear Filters**
-
-The button is positioned first, on the left.
-
-It contains:
-
-* A small reset/refresh-style icon
-* Text: **Clear Filters**
-
-The button uses a light/white background with a subtle border.
-
-Clicking this button resets:
-
-* Search text
-* Category filter
-* Requested Priority filter
-* Current Status filter
-
-#### Create Ticket button
-
-Text:
-
-**Create Ticket**
-
-The button is positioned immediately to the right of the Clear Filters button.
-
-It contains:
-
-* A plus icon
-* Text: **Create Ticket**
-
-The button uses the application's green primary color.
-
-Clicking this button opens the Create Ticket screen.
-
----
-
-### 5.4 Search and Filter Panel
-
-Below the page header/actions is a large rectangular filter panel.
-
-The panel spans almost the full width of the main content area.
-
-It has:
-
-* White background
-* Light gray border
-* Slight rounded corners
-* Subtle shadow
-* Internal padding
-
-All search and filter controls are arranged in a single horizontal row on the desktop layout.
-
----
-
-#### 5.4.1 Search Box
-
-The search box is positioned on the far left of the filter panel.
-
-It is wider than each individual dropdown filter.
-
-##### Search icon
-
-A small magnifying-glass icon is positioned inside the left side of the search field.
-
-##### Placeholder text
-
-The search field displays:
-
-**Search by ticket number or summary...**
-
-The placeholder text is gray and appears inside the input field.
-
-##### Search behavior
-
-The search supports:
-
-* Ticket Number
-* Summary
-
-Matching is:
-
-* Case-insensitive
-* Partial matching
-
-For example, searching for `vpn` should find a ticket whose summary contains `VPN`.
-
----
-
-### 5.4.2 Category Filter
-
-The Category filter is positioned immediately to the right of the search box.
-
-A small label appears above the dropdown:
-
-**Category**
-
-The dropdown initially displays:
-
-**All Categories**
-
-The dropdown includes an arrow indicating that it can be opened.
-
-The filter should allow the user to select a specific ticket category or all categories.
-
----
-
-#### 5.4.3 Requested Priority Filter
-
-The Requested Priority filter is positioned immediately to the right of the Category filter.
-
-Label:
-
-**Requested Priority**
-
-The dropdown initially displays:
-
-**All Priorities**
-
-The dropdown includes a downward arrow.
-
-The available priority values are:
-
-* All Priorities
-* Low
-* Medium
-* High
-
----
-
-#### 5.4.4 Current Status Filter
-
-The Current Status filter is positioned to the right of the Requested Priority filter.
-
-Label:
-
-**Current Status**
-
-The dropdown initially displays:
-
-**All Statuses**
-
-The dropdown includes a downward arrow.
-
-The available status values should correspond to the supported ticket statuses.
-
-Multiple filters can be used at the same time.
-
-For example:
-
-* Category = Hardware
-* Requested Priority = High
-* Current Status = Open
-
-The table should then display only tickets matching all selected filters.
-
----
-
-### 5.5 Ticket Table
-
-The ticket table is positioned directly below the search/filter panel.
-
-There should be a small vertical gap between the filter panel and the table.
-
-The table occupies almost the entire width of the content area.
-
-The table has:
-
-* White background
-* Thin light-gray border
-* Slight rounded corners
-* Subtle shadow
-* A light green-tinted header row
-
----
-
-#### 5.6.1 Table Columns
-
-The table contains the following columns from left to right:
-
-1. **Ticket No.**
-2. **Created Date**
-3. **Summary**
-4. **Category**
-5. **Requested Priority**
-6. **Current Status**
-7. **Ticket Owner(requesterId)**
-8. **Last Updated**
-
-There is **no IT Priority column** in this screen.
-
----
-
-#### 5.5.2 Ticket No. Column
-
-Header:
-
-**Ticket No.**
-
-The Ticket Number is displayed in green text.
-
-Example:
-
-**TKT-2025-001234**
-
-The Ticket Number column is sortable.
-
-A small sort indicator appears beside the column heading.
-
-Clicking the column header toggles the sorting direction.
-
----
-
-#### 5.5.3 Created Date Column
-
-Header:
-
-**Created Date**
-
-The date and time that the ticket was created are displayed.
-
-Example:
-
-**May 12, 2025 09:14 AM**
-
-The Created Date column is sortable.
-
-Clicking the column header toggles between ascending and descending order.
-
----
-
-#### 5.5.4 Summary Column
-
-Header:
-
-**Summary**
-
-The ticket summary is displayed as plain text.
-
-Example:
-
-**Laptop battery drains quickly**
-
-The Summary column is **not sortable**.
-
-There should be no sorting behavior associated with this column.
-
-If the summary is too long for the available column width, it should be visually constrained rather than causing the entire table to become excessively wide.
-
----
-
-#### 5.5.5 Category Column
-
-Header:
-
-**Category**
-
-The ticket category is displayed as text.
-
-Example values include:
-
-* Hardware
-* Network
-* Software
-* Access
-
----
-
-#### 5.5.6 Requested Priority Column
-
-Header:
-
-**Requested Priority**
-
-The requested priority is displayed as a small rounded badge.
-
-Example:
-
-**Low**
-
-**Medium**
-
-**High**
-
-The badge appearance should visually distinguish the priority levels.
-
-The Requested Priority column is sortable if sorting is supported for this field.
-
----
-
-#### 5.5.7 Current Status Column
-
-Header:
-
-**Current Status**
-
-The current ticket status is displayed as a small rounded status badge.
-
-Example values shown in the reference include:
-
-* Open
-* In Progress
-* Pending
-* Resolved
-
-The badge should use the application's status styling to make different statuses easy to recognize.
-
----
-
-#### 5.5.8 Ticket Owner(requesterId) Column
-
-Header:
-
-**Ticket Owner(requesterId)**
-
-The name of the person currently assigned as the Ticket Owner(requesterId) is displayed.
-
-Example:
-
-**Michael Brown**
-
-The name is displayed as normal text.
-
----
-
-#### 5.5.9 Last Updated Column
-
-Header:
-
-**Last Updated**
-
-The date and time when the ticket was most recently updated are displayed.
-
-Example:
-
-**May 13, 2025 10:30 AM**
-
-The Last Updated column is sortable.
-
-Clicking the column header toggles between ascending and descending order.
-
----
-
-### 5.6 Sorting
-
-Sortable columns should provide a visual sorting indicator beside the column name.
-
-Clicking a sortable column header changes the sorting direction.
-
-For example:
-
-**Created Date ↑**
-
-means ascending order.
-
-Clicking it again changes it to:
-
-**Created Date ↓**
-
-means descending order.
-
-The sort order should be reversed each time the same sortable column is clicked.
-
-The **Summary** column must not be sortable.
-
-Sorting should not remove or reset the user's currently selected search or filters.
-
----
-
-### 5.7 Ticket Rows
-
-Each ticket is displayed as one row underneath the table header.
-
-Rows should have consistent height and spacing.
-
-The following information should appear in each row:
-
-**Ticket Number → Created Date → Summary → Category → Requested Priority → Current Status → Ticket Owner(requesterId) → Last Updated**
-
-The reference image shows eight ticket rows on the first page.
-
-Example ticket:
-
-* Ticket No.: **TKT-2025-001234**
-* Created Date: **May 12, 2025 09:14 AM**
-* Summary: **Laptop battery drains quickly**
-* Category: **Hardware**
-* Requested Priority: **Medium**
-* Current Status: **In Progress**
-* Ticket Owner(requesterId): **Michael Brown**
-* Last Updated: **May 13, 2025 10:30 AM**
-
-The actual rows should be populated dynamically from the user's tickets rather than hard-coded.
-
----
-
-### 5.8 Pagination Area
-
-The pagination area is positioned at the bottom of the table.
-
-It contains two separate pieces of information:
-
-1. Ticket count information on the left
-2. Pagination controls on the right
-
----
-
-#### 5.8.1 Ticket Count
-
-At the bottom-left of the table is text showing the number of displayed tickets and total tickets.
-
-Example:
-
-**Showing 1 to 8 of 42 tickets**
-
-This should update dynamically based on:
-
-* Current page
-* Page size
-* Total number of tickets
-
-For example, if the user is on page 2 with 8 tickets per page:
-
-**Showing 9 to 16 of 42 tickets**
-
----
-
-#### 5.8.2 Pagination Controls
-
-Pagination controls are positioned at the bottom-right.
-
-The controls contain:
-
-**Previous**
-
-followed by page numbers:
-
-**1  2  3  4  5  ...  6**
-
-followed by:
-
-**Next**
-
-The current page is visually highlighted.
-
-In the reference image, page **1** is selected.
-
-The Previous button should be disabled when the user is already on the first page.
-
-The Next button should be disabled when the user is already on the final page.
-
----
-
-### 5.9 Pagination Information
-
-The pagination system should support:
-
-* Current page
-* Page size
-* Total items
-* Total pages
-* Previous page
-* Next page
-
-The page should recalculate the displayed ticket range whenever search or filters change.
-
-For example:
-
-If there are 42 total tickets and the page size is 8:
-
-* Page 1 → Showing 1 to 8 of 42 tickets
-* Page 2 → Showing 9 to 16 of 42 tickets
-* Page 3 → Showing 17 to 24 of 42 tickets
-* Page 6 → Showing 41 to 42 of 42 tickets
-
-When a search or filter produces fewer results, pagination should update accordingly.
-
----
-
-### 5.10 Complete Screen Text
-
-The visible interface text should contain the following labels and actions:
-
-#### Navigation
-
-* **TikTockIT**
-* **My Tickets**
-* **Create Ticket**
-* **Profile**
-
-#### Page Header
-
-* **My Tickets**
-* **View and track all of your support requests.**
-
-#### Actions
-
-* **Clear Filters**
-* **Create Ticket**
-
-#### Search
-
-* **Search by ticket number or summary...**
-
-#### Filters
-
-* **Category**
-* **All Categories**
-* **Requested Priority**
-* **All Priorities**
-* **Current Status**
-* **All Statuses**
-
-#### Table Headers
-
-* **Ticket No.**
-* **Created Date**
-* **Summary**
-* **Category**
-* **Requested Priority**
-* **Current Status**
-* **Ticket Owner(requesterId)**
-* **Last Updated**
-
-#### Pagination
-
-* **Showing X to Y of Z tickets**
-* **Previous**
-* Page numbers
-* **Next**
-
----
-
-### 5.11 Visual Position Summary
-
-From top to bottom, the screen should appear in this order:
-
-```text
-┌─────────────────────────────────────────────────────────────────────┐
-│  ◷ TikTockIT    ▣ My Tickets    ⊕ Create Ticket        ◉ Profile ˅ │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  My Tickets                                      Clear Filters      │
-│  View and track all of your support requests.     + Create Ticket  │
-│                                                                     │
-│  ┌───────────────────────────────────────────────────────────────┐  │
-│  │ 🔍 Search...  │ Category │ Priority │ Status                 │  │
-│  └───────────────────────────────────────────────────────────────┘  │
-│                                                                     │
-│  ┌───────────────────────────────────────────────────────────────┐  │
-│  │ Ticket No. │ Created │ Summary │ Category │ Priority │ ...   │  │
-│  ├───────────────────────────────────────────────────────────────┤  │
-│  │ TKT-...    │ May ... │ Laptop...│ Hardware│ Medium   │ ...   │  │
-│  │ TKT-...    │ May ... │ Cannot...│ Network │ High     │ ...   │  │
-│  │ TKT-...    │ May ... │ Email... │ Software│ Medium   │ ...   │  │
-│  │ ...                                                           │  │
-│  ├───────────────────────────────────────────────────────────────┤  │
-│  │ Showing 1 to 8 of 42 tickets          ‹ Previous 1 2 3 ... Next ›│ │
-│  └───────────────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
-The exact implementation should preserve the **relative positioning shown in the reference image**: navigation at the top, page title/actions beneath it, filters below the heading, the full-width ticket table underneath the filters, and pagination at the bottom of the table.
-
-
-**States**
-| State | Trigger | Behavior |
-|---|---|---|
-| Loading | list request in flight | Skeleton/spinner rows |
-| Empty | Requester has never created a Ticket | Distinct Empty state (not No-Results) with a Create Ticket call-to-action (AC-19) |
-| No-Results | Requester has Tickets but filters match none | No-Results state with a **Clear Filters** action (AC-20) |
-| Failure | list request fails | Safe error state with retry |
-| Populated | normal | Table (desktop/tablet) → card list (mobile) |
-
-- Responsive: table collapses to stacked cards under 768px; no horizontal scroll.
-- Paging forward loads the next set and updates page metadata correctly (AC-18).
-- Combined Category + Requested Priority filters return only matching Tickets (AC-16).
-- Changing Requester via the shell action reloads this screen to the new Requester's Tickets
-  only (AC-26); no other Requester's Tickets are ever visible (AC-03, AC-04).
-
----
-
-## 6. Screen: Requester Ticket Detail `/ticket/:id`
-![My Tickets](photo/ui/example/Ticket.png)
-**Layout**
-- Top Area (Ticket Details): Displays core information fields. All top fields are Read-Only (Ticket No., Ticket Date, Category, Related System, Requester, Priorities, Current Status, Ticket Owner(requesterId)(), Summary, Description, Resolution Summary).
-- Bottom Area (Tabbed Content): Features dynamic tabs: Public Comments, Attachments, Service Actions, and Event Log.
-- Fully read-only in Lab 2 — no status change, comment, internal note, or Actions Taken entry
-  (BR-30).
-
-**Attachments panel**
-| Item state | Presentation |
-|---|---|
-| Active | Shown normally with **Download** and **Remove** actions |
-| Removed | Greyed out, metadata-only (original file name, uploaded date, removed date, removal reason), visible "Removed" indicator, download control disabled (BR-27, AC-24) |
-
-- **Add Attachment** reuses Create Ticket's upload control and validation rules; a newly added
-  Attachment appears in the list as Active without a page reload (AC-21).
-- **Download** returns the original file content for an active Attachment (AC-22).
-- **Remove** requires a non-empty reason; the action is blocked until one is entered (BR-26,
-  AC-23).
-
----
-## 7. Top Navigation Bar
-
-A full-width navigation bar is positioned at the very top of the screen.
-
-The navigation bar has a dark green background and spans from the left edge to the right edge of the browser window.
-
-### Left side
-
-The application logo/name is positioned at the top-left.
-
-It contains:
-
-* A circular clock-style icon
-* Application name: **TikTockIT**
-
-The logo and application name are displayed horizontally and vertically centered inside the navigation bar.
-
-The logo area should have some padding from the left edge.
-
-### Navigation links
-
-Immediately to the right of the application name are the main navigation links.
-
-The links are arranged horizontally:
-
-**My Tickets**
-
-**Create Ticket**
-
-Each navigation item contains a small icon followed by its text.
-
-#### My Tickets
-
-Text:
-
-**My Tickets**
-
-Icon:
-
-A document/list-style icon.
-
-This is the currently selected page, so the **My Tickets** navigation item has a lighter/white active area underneath it.
-
-The active area visually connects to the page below and makes it clear that the user is currently viewing My Tickets.
-
-#### Create Ticket
-
-Text:
-
-**Create Ticket**
-
-Icon:
-
-A plus/add icon.
-
-This item is not selected.
-
-Clicking it should navigate to the Create Ticket screen.
-
-### Right side
-
-The user profile control is positioned at the far right of the navigation bar.
-
-It contains:
-
-* Circular user/profile icon
-* Text: **Profile**
-* Downward chevron/dropdown icon
-
-The elements are arranged horizontally and vertically centered.
-
-The profile control should have right-side padding from the edge of the browser.
-
----
-
-## 8. Accessibility Checklist (applies to all screens)
-
-- Logical, keyboard-only tab order through every interactive control.
-- Visible focus indicator at every point in that order (AC-28).
-- Every icon-only button has an `aria-label`.
-- Status/Priority conveyed with text + color together, never color alone.
-- Error and success messages announced in a way assistive tech can pick up (e.g. `aria-live`
-  region for the submit result banner).
+| Loading | Skeleton placeholders in the shape of the content being loaded (never a blank screen). |
+| Validation | Inline, field-adjacent message; blocks submission client-side when detectable before a request. |
+| Success | Inline toast or in-place state change; no full-page reload. |
+| Empty | Centered short message, no icon required, matching Lab 2's empty-state copy tone. |
+| No results | Distinct from Empty; always paired with a way to clear the search/filter that caused it. |
+| Forbidden (§7.4) | Full-panel message: "You don't have access to this page." + link back to the user's home screen. Used only for role-based access denial, never for ownership-based denial (which instead reads "not found" per §7.3 of `api-spec.md` to avoid confirming existence). |
+| Not found | "This ticket/user could not be found." |
+| Conflict | The server's specific, safe message (e.g. duplicate email, illegal transition) shown inline near the relevant control. |
+| Unexpected failure | Generic "Something went wrong. Please try again." + Retry where applicable; never exposes error codes/stack traces. |
