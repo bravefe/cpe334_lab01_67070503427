@@ -64,7 +64,6 @@ export default function App() {
     return (
       <MyTickets
         requester={requester}
-        requesterId={user.id}
         onChange={logout}
         onMyTickets={onMyTickets}
         onCreateTicket={onCreateTicket}
@@ -77,7 +76,6 @@ export default function App() {
     return (
       <CreateTicket
         requester={requester}
-        requesterId={user.id}
         onBack={onMyTickets}
         onLogout={logout}
         onCreateTicket={onCreateTicket}
@@ -93,7 +91,6 @@ export default function App() {
     return (
       <TicketDetail
         requester={requester}
-        requesterId={user.id}
         ticketNumber={ticketMatch[1]}
         onBack={onMyTickets}
         onLogout={logout}
@@ -104,7 +101,6 @@ export default function App() {
   return (
     <MyTickets
       requester={requester}
-      requesterId={user.id}
       onChange={() => undefined}
       onMyTickets={onMyTickets}
       onCreateTicket={onCreateTicket}

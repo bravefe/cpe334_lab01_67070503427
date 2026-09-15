@@ -23,13 +23,30 @@ app.use(cookieParser());
 
 app.use("/api", healthRouter);
 app.use("/api", authRouter);
-app.use(requireCsrf);
 app.use(authenticate);
+app.use(requireCsrf);
 app.use(requireCompletedPasswordChange);
 app.use("/api", referencesRouter);
 app.use("/api", ticketsRouter);
 app.use("/api", attachmentRouter);
 app.use("/api", staffRouter);
 app.use("/api", adminRouter);
+
+app.use(
+  (
+    error: unknown,
+    _req: express.Request,
+    res: express.Response,
+    _next: express.NextFunction,
+  ) => {
+    if (res.headersSent) return;
+    res.status(500).json({
+      error: {
+        code: "INTERNAL_ERROR",
+        message: "An unexpected server error occurred.",
+      },
+    });
+  },
+);
 
 export default app;

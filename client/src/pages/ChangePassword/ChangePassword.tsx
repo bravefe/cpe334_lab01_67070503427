@@ -13,6 +13,8 @@ export default function ChangePassword({
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const rules = passwordRules(newPassword);
+  const validPassword = Object.values(rules).every(Boolean);
+  const passwordsMatch = newPassword.length > 0 && newPassword === confirm;
   async function submit(event: FormEvent) {
     event.preventDefault();
     setError("");
@@ -92,7 +94,15 @@ export default function ChangePassword({
             onChange={(event) => setConfirm(event.target.value)}
           />
         </label>
-        <button className="primary wide" disabled={busy}>
+        {confirm && !passwordsMatch && (
+          <small role="alert">Passwords do not match.</small>
+        )}
+        <button
+          className="primary wide"
+          disabled={
+            busy || !validPassword || !passwordsMatch || !currentPassword
+          }
+        >
           {busy ? "Saving..." : "Save password"}
         </button>
       </form>

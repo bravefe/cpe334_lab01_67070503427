@@ -20,12 +20,29 @@ export default function Login({
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [busy, setBusy] = useState(false);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    setBusy(true);
     setError("");
+    setEmailError("");
+    setPasswordError("");
+    let valid = true;
+    if (!email.trim()) {
+      setEmailError("Email is required.");
+      valid = false;
+    } else if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setEmailError("Enter a valid email address.");
+      valid = false;
+    }
+    if (!password) {
+      setPasswordError("Password is required.");
+      valid = false;
+    }
+    if (!valid) return;
+    setBusy(true);
 
     try {
       const response = await fetch(`${API_URL}/api/auth/login`, {
@@ -37,11 +54,20 @@ export default function Login({
 
       const payload = await response.json().catch(() => undefined);
 
-      if (!response.ok)
-        throw new Error(payload?.error?.message ?? "Unable to sign in.");
+      if (!response.ok) {
+        const code = payload?.error?.code;
+        if (code === "INVALID_CREDENTIALS")
+          throw new Error("Invalid email or password.");
+        if (code === "ACCOUNT_INACTIVE")
+          throw new Error(
+            "This account is inactive. Contact an administrator.",
+          );
+        throw new Error("Unable to sign in. Please try again.");
+      }
 
       onLogin(payload.user);
     } catch (requestError) {
+      setShowPassword(false);
       setError(
         requestError instanceof Error
           ? requestError.message
@@ -71,9 +97,9 @@ export default function Login({
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            required
             autoComplete="username"
           />
+          {emailError && <small role="alert">{emailError}</small>}
         </label>
 
         <label htmlFor="password">
@@ -84,7 +110,6 @@ export default function Login({
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              required
               autoComplete="current-password"
             />
 
@@ -97,10 +122,11 @@ export default function Login({
               {showPassword ? "Hide" : "Show"}
             </button>
           </div>
+          {passwordError && <small role="alert">{passwordError}</small>}
         </label>
 
         <button className="primary wide" disabled={busy}>
-          {busy ? "Signing in..." : "Sign in"}
+          {busy ? "Signing In…" : "Sign in"}
         </button>
       </form>
     </main>

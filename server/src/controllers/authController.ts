@@ -98,7 +98,8 @@ export async function login(req: Request, res: Response) {
 export function logout(req: Request, res: Response) {
   const token = req.cookies?.[SESSION_COOKIE] as string | undefined;
   if (token) revokeSession(token);
-  res.clearCookie(SESSION_COOKIE, sessionCookieOptions());
+  const { maxAge: _maxAge, ...clearOptions } = sessionCookieOptions();
+  res.clearCookie(SESSION_COOKIE, clearOptions);
   res.status(204).end();
 }
 export function me(req: Request, res: Response) {
@@ -154,5 +155,5 @@ export async function changePassword(req: Request, res: Response) {
     createSession(publicUser(updatedUser)),
     sessionCookieOptions(),
   );
-  res.status(200).json({ user: publicUser(updatedUser) });
+  res.status(200).json({ mustChangePassword: false });
 }
