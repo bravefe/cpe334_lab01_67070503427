@@ -31,7 +31,7 @@ CREATE INDEX IF NOT EXISTS "User_email_idx" ON "User"("email");
 
 -- Data Backfill step 1: Populate User from existing DevRequester records
 INSERT INTO "User" ("id", "name", "email", "passwordHash", "role", "isActive", "mustChangePassword", "createdAt", "updatedAt")
-SELECT "id", "name", "email", '$2b$10$EpRnTzVlqHNP0.fUbXUwSOyuiXe/QLSUG6x8ekEY588AydR4.D8eK', 'REQUESTER'::"Role", "isActive", true, "createdAt", "updatedAt"
+SELECT "id", "name", "email", '$2b$12$1TtvDmSubNdB6a6rJ7A7COpXVk26a55cs6QoiQlymdg2yV.1pmnSC', 'REQUESTER'::"Role", "isActive", true, "createdAt", "updatedAt"
 FROM "DevRequester"
 ON CONFLICT ("id") DO NOTHING;
 
