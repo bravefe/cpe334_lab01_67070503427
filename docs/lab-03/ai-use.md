@@ -1,4 +1,4 @@
-# Lab 2 — AI Use
+# Lab 2 — AI Use 
 
 ### **LLM/Agent Used: ChatGPT**
 
