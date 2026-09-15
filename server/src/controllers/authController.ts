@@ -36,39 +36,55 @@ export async function login(req: Request, res: Response) {
   const password =
     typeof req.body?.password === "string" ? req.body.password : "";
   if (!email || !password || !/^\S+@\S+\.\S+$/.test(email)) {
-    res
-      .status(400)
-      .json({
-        error: {
-          code: "VALIDATION_ERROR",
-          message: "Email and password are required.",
-        },
-      });
+    res.status(400).json({
+      error: {
+        code: "VALIDATION_ERROR",
+        message: "Email and password are required.",
+      },
+    });
     return;
   }
   const user = await getPrisma().user.findFirst({
     where: { email: { equals: email, mode: "insensitive" } },
   });
   if (!user || !(await comparePassword(password, user.passwordHash))) {
-    res
-      .status(401)
-      .json({
-        error: {
-          code: "INVALID_CREDENTIALS",
-          message: "Invalid email or password.",
-        },
-      });
+    res.status(401).json({
+      error: {
+        code: "INVALID_CREDENTIALS",
+        message: "Invalid email or password.",
+      },
+    });
     return;
   }
+  // if (!user) {
+  //   res.status(401).json({
+  //     error: {
+  //       code: "INVALID_EMAIL",
+  //       message: "Email not found.",
+  //     },
+  //   });
+  //   return;
+  // }
+
+  // const isPasswordValid = await comparePassword(password, user.passwordHash);
+
+  // if (!isPasswordValid) {
+  //   res.status(401).json({
+  //     error: {
+  //       code: "INVALID_PASSWORD",
+  //       message: "Incorrect password.",
+  //     },
+  //   });
+  //   return;
+  // }
+
   if (!user.isActive) {
-    res
-      .status(403)
-      .json({
-        error: {
-          code: "ACCOUNT_INACTIVE",
-          message: "This account is inactive. Contact an administrator.",
-        },
-      });
+    res.status(403).json({
+      error: {
+        code: "ACCOUNT_INACTIVE",
+        message: "This account is inactive. Contact an administrator.",
+      },
+    });
     return;
   }
   res.cookie(
@@ -107,25 +123,21 @@ export async function changePassword(req: Request, res: Response) {
     where: { id: req.user!.id },
   });
   if (!user || !(await comparePassword(currentPassword, user.passwordHash))) {
-    res
-      .status(401)
-      .json({
-        error: {
-          code: "INVALID_PASSWORD",
-          message: "Current password is incorrect.",
-        },
-      });
+    res.status(401).json({
+      error: {
+        code: "INVALID_PASSWORD",
+        message: "Current password is incorrect.",
+      },
+    });
     return;
   }
   if (currentPassword === newPassword) {
-    res
-      .status(400)
-      .json({
-        error: {
-          code: "VALIDATION_ERROR",
-          message: "New password must differ from current password.",
-        },
-      });
+    res.status(400).json({
+      error: {
+        code: "VALIDATION_ERROR",
+        message: "New password must differ from current password.",
+      },
+    });
     return;
   }
   await getPrisma().user.update({
