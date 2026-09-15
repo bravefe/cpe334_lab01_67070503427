@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from "react";
 import { Requester } from "../lib/requester";
 import "./TopBar.css";
 import logo from "../icon/logo.png";
@@ -16,21 +15,9 @@ export default function TopBar({
   onMyTickets,
   onCreateTicket,
 }: TopBarProps) {
-  const [profileOpen, setProfileOpen] = useState(false);
-  const profileMenuRef = useRef<HTMLDivElement>(null);
   const currentPage = window.location.pathname;
   const isMyTicketsPage = currentPage === "/my-tickets";
   const isCreateTicketPage = currentPage === "/create-ticket";
-
-  useEffect(() => {
-    const closeProfileMenu = (event: MouseEvent) => {
-      if (!profileMenuRef.current?.contains(event.target as Node)) {
-        setProfileOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", closeProfileMenu);
-    return () => document.removeEventListener("mousedown", closeProfileMenu);
-  }, []);
 
   return (
     <nav className="topbar">
@@ -61,38 +48,16 @@ export default function TopBar({
         </span>
         <span className="nav-label">Create Ticket</span>
       </a>
-      <div className="profile-menu" ref={profileMenuRef}>
-        <button
-          type="button"
-          className="profile"
-          aria-expanded={profileOpen}
-          aria-haspopup="menu"
-          onClick={() => setProfileOpen((open) => !open)}
-        >
-          <span className="profile-name">
-            {(requester?.name ?? "Profile").split(/\s+/).map((part) => (
-              <span key={part}>{part}</span>
-            ))}
-          </span>
-          <span className="profile-chevron" aria-hidden="true">
-            ⌄
-          </span>
-        </button>
-        {profileOpen && (
-          <div className="profile-dropdown" role="menu">
-            <button
-              type="button"
-              role="menuitem"
-              onClick={() => {
-                setProfileOpen(false);
-                onChange();
-              }}
-            >
-              Log out
-            </button>
-          </div>
-        )}
-      </div>
+      <a className="profile" onClick={onChange}>
+        <span className="profile-name">
+          {(requester?.name ?? "Profile").split(/\s+/).map((part) => (
+            <span key={part}>{part}</span>
+          ))}
+        </span>
+      </a>
+      <button type="button" onClick={onChange} aria-label="Log out">
+        Log out
+      </button>
     </nav>
   );
 }
