@@ -7,7 +7,11 @@ import referencesRouter from "./routes/referenceRoute.js";
 import ticketsRouter from "./routes/ticketRoute.js";
 import attachmentRouter from "./routes/attachmentRoute.js";
 import authRouter from "./routes/authRoute.js";
-import { authenticate, requireCompletedPasswordChange, requireCsrf } from "./middleware/authentication.js";
+import {
+  authenticate,
+  requireCompletedPasswordChange,
+  requireCsrf,
+} from "./middleware/authentication.js";
 import staffRouter from "./routes/staffRoute.js";
 import adminRouter from "./routes/adminRoute.js";
 
@@ -22,10 +26,10 @@ app.use("/api", authRouter);
 app.use(requireCsrf);
 app.use(authenticate);
 app.use(requireCompletedPasswordChange);
-app.use("/api", staffRouter);
-app.use("/api", adminRouter);
 app.use("/api", referencesRouter);
 app.use("/api", ticketsRouter);
 app.use("/api", attachmentRouter);
+app.use("/api", staffRouter);
+app.use("/api", adminRouter);
 
 export default app;
