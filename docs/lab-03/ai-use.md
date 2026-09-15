@@ -29,6 +29,12 @@ Also, use ChatGPT For smaller syntax or ui change
 | 5 | Pasted the complete specification and instructed it to implement only specific pages. | Checked that the changes stayed within the requested scope. |
 | 6 | Pasted `test.md` and asked it to implement the tests file by file. After each implementation, and run test only after the code is complete. | Made small fixes based on failed tests and repeated the process until all tests passed. |
 
+### **LLM/Agent Used: Antigravity**
+
+| # | Prompt (Summarised) | What I Did with the Result |
+| - | - | - |
+| 1 | Implemented Issue 11: Lab 3 data model, database migration from Lab 2, idempotent seed data, and unit/migration tests. | Reviewed implementation plan, validated migration and seed idempotence, and confirmed all automated tests passed. |
+
 ## Reflection
 
 This lab mainly revolved around **pasting an already-prepared specification into AI and using it to guide the implementation**. I found that AI was useful for quickly generating code, tests, database changes, and documentation.
