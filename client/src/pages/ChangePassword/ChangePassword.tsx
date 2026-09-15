@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { passwordRules } from "../lib/passwordRules";
+import { passwordRules } from "../../lib/passwordRules";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 export default function ChangePassword({

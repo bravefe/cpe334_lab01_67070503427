@@ -140,12 +140,19 @@ export async function changePassword(req: Request, res: Response) {
     });
     return;
   }
-  await getPrisma().user.update({
+  const updatedUser = await getPrisma().user.update({
     where: { id: user.id },
     data: {
       passwordHash: await hashPassword(newPassword),
       mustChangePassword: false,
     },
   });
-  res.status(200).json({ mustChangePassword: false });
+  const currentToken = req.cookies?.[SESSION_COOKIE] as string | undefined;
+  if (currentToken) revokeSession(currentToken);
+  res.cookie(
+    SESSION_COOKIE,
+    createSession(publicUser(updatedUser)),
+    sessionCookieOptions(),
+  );
+  res.status(200).json({ user: publicUser(updatedUser) });
 }

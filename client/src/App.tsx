@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { get } from "./api/client";
-import ChangePassword from "./pages/ChangePassword";
+import ChangePassword from "./pages/ChangePassword/ChangePassword";
 import CreateTicket from "./pages/CreateTicket/CreateTicket";
-import Login, { AuthUser } from "./pages/Login";
+import Login, { AuthUser } from "./pages/Login/Login";
 import MyTickets from "./pages/MyTickets/MyTickets";
 import TicketDetail from "./pages/TicketDetail/TicketDetail";
 
