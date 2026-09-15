@@ -19,8 +19,7 @@ export default function TopBar({
   const [profileOpen, setProfileOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const currentPage = window.location.pathname;
-  const isMyTicketsPage =
-    currentPage === "/my-tickets" || currentPage.startsWith("/ticket/");
+  const isMyTicketsPage = currentPage === "/my-tickets";
   const isCreateTicketPage = currentPage === "/create-ticket";
 
   useEffect(() => {
