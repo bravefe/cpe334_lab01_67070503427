@@ -12,7 +12,10 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    get<AuthUser>("/api/auth/me").then(setUser).catch(() => setUser(null)).finally(() => setLoading(false));
+    get<AuthUser>("/api/auth/me")
+      .then(setUser)
+      .catch(() => setUser(null))
+      .finally(() => setLoading(false));
     const handlePopState = () => setPath(window.location.pathname);
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
@@ -23,12 +26,37 @@ export default function App() {
     setPath(new URL(nextPath, window.location.origin).pathname);
   };
 
-  if (loading) return <main className="selection"><div className="loading">Loading...</div></main>;
+  if (loading)
+    return (
+      <main className="selection">
+        <div className="loading">Loading...</div>
+      </main>
+    );
   if (!user) return <Login onLogin={setUser} />;
-  if (user.mustChangePassword) return <ChangePassword onComplete={() => setUser({ ...user, mustChangePassword: false })} />;
+  if (user.mustChangePassword)
+    return (
+      <ChangePassword
+        onComplete={() => setUser({ ...user, mustChangePassword: false })}
+      />
+    );
 
-  const requester = { id: user.id, name: user.name, email: user.email, isActive: user.isActive };
-  const logout = async () => { await fetch(`${import.meta.env.VITE_API_URL ?? "http://localhost:3000"}/api/auth/logout`, { method: "POST", credentials: "include", headers: { "X-Requested-With": "TokTickIT" } }); setUser(null); };
+  const requester = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    isActive: user.isActive,
+  };
+  const logout = async () => {
+    await fetch(
+      `${import.meta.env.VITE_API_URL ?? "http://localhost:3000"}/api/auth/logout`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: { "X-Requested-With": "TokTickIT" },
+      },
+    );
+    setUser(null);
+  };
   const onMyTickets = () => goTo("/my-tickets");
   const onCreateTicket = () => goTo("/create-ticket");
 
@@ -53,7 +81,9 @@ export default function App() {
         onBack={onMyTickets}
         onLogout={logout}
         onCreateTicket={onCreateTicket}
-        onOpenTicket={(ticketNumber) => goTo(`/ticket/${ticketNumber}?created=1`)}
+        onOpenTicket={(ticketNumber) =>
+          goTo(`/ticket/${ticketNumber}?created=1`)
+        }
       />
     );
   }
@@ -71,5 +101,14 @@ export default function App() {
     );
   }
 
-  return <MyTickets requester={requester} requesterId={user.id} onChange={() => undefined} onMyTickets={onMyTickets} onCreateTicket={onCreateTicket} onOpenTicket={(ticketNumber) => goTo(`/ticket/${ticketNumber}`)} />;
+  return (
+    <MyTickets
+      requester={requester}
+      requesterId={user.id}
+      onChange={() => undefined}
+      onMyTickets={onMyTickets}
+      onCreateTicket={onCreateTicket}
+      onOpenTicket={(ticketNumber) => goTo(`/ticket/${ticketNumber}`)}
+    />
+  );
 }
