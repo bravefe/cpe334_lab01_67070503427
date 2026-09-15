@@ -50,8 +50,8 @@ File: `server/tests/lab-03/unit/email.unit.test.ts`
 
 | ID | Requirement | What It Tests | Expected Result | Final |
 | - | - | - | - | - |
-| UNIT-07 | BR-11 | Email equality comparator is case-insensitive (`A@x.com` == `a@x.com`) | Comparator returns equal | Planned |
-| UNIT-08 | BR-11 | Email format validator rejects malformed addresses | Invalid formats rejected, valid formats accepted | Planned |
+| UNIT-07 | BR-11 | Email equality comparator is case-insensitive (`A@x.com` == `a@x.com`) | Comparator returns equal | Pass |
+| UNIT-08 | BR-11 | Email format validator rejects malformed addresses | Invalid formats rejected, valid formats accepted | Pass |
 
 File: `server/tests/lab-03/unit/content.unit.test.ts`
 
@@ -249,10 +249,10 @@ File: `server/tests/lab-03/migration.api.test.ts`
 | ID | AC | What It Tests | Expected Result | Final |
 | - | - | - | - | - |
 | MIG-01 | AC-31 | Full Lab 2 regression suite (ticket creation, categories, related systems, attachments) re-run using an authenticated Requester session instead of `X-Dev-Requester-Id` | Every previously-passing Lab 2 case still passes unmodified in behavior | Planned |
-| MIG-02 | §7.1 spec | Ticket row count before and after the `User` migration | Counts match exactly; no ticket is dropped or duplicated | Planned |
-| MIG-03 | §7.1 spec | Every migrated `Ticket.requesterId` resolves to an active `User` with role `REQUESTER` corresponding to the original Development Requester identity | 100% of migrated tickets resolve correctly | Planned |
-| MIG-04 | §7.1 spec | `itPriority` on every pre-existing ticket after migration | Equals that ticket's `requestedPriority` (initial backfill rule) | Planned |
-| MIG-05 | §5.3 handout | Seed script run twice in sequence against a fresh database | Second run produces identical row counts to the first (idempotent) | Planned |
+| MIG-02 | §7.1 spec | Ticket row count before and after the `User` migration | Counts match exactly; no ticket is dropped or duplicated | Pass |
+| MIG-03 | §7.1 spec | Every migrated `Ticket.requesterId` resolves to an active `User` with role `REQUESTER` corresponding to the original Development Requester identity | 100% of migrated tickets resolve correctly | Pass |
+| MIG-04 | §7.1 spec | `itPriority` on every pre-existing ticket after migration | Equals that ticket's `requestedPriority` (initial backfill rule) | Pass |
+| MIG-05 | §5.3 handout | Seed script run twice in sequence against a fresh database | Second run produces identical row counts to the first (idempotent) | Pass |
 
 ## 8. End-to-End Tests
 

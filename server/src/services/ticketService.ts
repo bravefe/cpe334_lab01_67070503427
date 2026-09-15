@@ -169,7 +169,9 @@ export async function createTicketService({
           summary,
           description,
           requestedPriorityId,
+          itPriorityId: requestedPriorityId,
           currentStatusId: defaultStatus.id,
+          problemAppearsResolved: false,
         },
       });
 
