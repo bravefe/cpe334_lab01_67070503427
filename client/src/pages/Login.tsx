@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+
 export interface AuthUser {
   id: number;
   name: string;
@@ -17,12 +18,15 @@ export default function Login({
 }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+
   async function submit(event: FormEvent) {
     event.preventDefault();
     setBusy(true);
     setError("");
+
     try {
       const response = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
@@ -30,9 +34,12 @@ export default function Login({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
+
       const payload = await response.json().catch(() => undefined);
+
       if (!response.ok)
         throw new Error(payload?.error?.message ?? "Unable to sign in.");
+
       onLogin(payload.user);
     } catch (requestError) {
       setError(
@@ -44,16 +51,19 @@ export default function Login({
       setBusy(false);
     }
   }
+
   return (
     <main className="selection">
       <form className="selection-card" onSubmit={submit}>
         <p className="eyebrow">TOKTockIT</p>
         <h1>Sign in</h1>
+
         {error && (
           <div className="error-banner" role="alert">
             {error}
           </div>
         )}
+
         <label htmlFor="email">
           Email
           <input
@@ -65,17 +75,30 @@ export default function Login({
             autoComplete="username"
           />
         </label>
+
         <label htmlFor="password">
           Password
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-            autoComplete="current-password"
-          />
+          <div className="password-input">
+            <input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+              autoComplete="current-password"
+            />
+
+            <button
+              type="button"
+              className="show-password"
+              onClick={() => setShowPassword((visible) => !visible)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </div>
         </label>
+
         <button className="primary wide" disabled={busy}>
           {busy ? "Signing in..." : "Sign in"}
         </button>
