@@ -56,9 +56,9 @@
 }
 
 .login-card input:focus {
-  border-color: var(--primary-green);
+  /* border-color: var(--primary-green); */
   outline: 3px solid var(--focus-ring);
-  outline-offset: 1px;
+  outline-offset: 2px;
 }
 
 .login-card label small {
@@ -84,9 +84,9 @@
 }
 
 .login-card .password-input:focus-within {
-  border-color: var(--primary-green);
+  /* border-color: var(--primary-green); */
   outline: 3px solid var(--focus-ring);
-  outline-offset: 1px;
+  outline-offset: 2px;
 }
 
 .login-card .password-input input {
