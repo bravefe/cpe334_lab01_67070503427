@@ -13,7 +13,6 @@ export default function TopBar({ requester, onChange, onMyTickets, onCreateTicke
   const currentPage = window.location.pathname;
   const isMyTicketsPage = currentPage === "/my-tickets" || currentPage.startsWith("/ticket/");
   const isCreateTicketPage = currentPage === "/create-ticket";
-  const isChooseRequesterPage = currentPage === "/choose-requester";
 
   return (
     <nav className="topbar">
@@ -41,7 +40,7 @@ export default function TopBar({ requester, onChange, onMyTickets, onCreateTicke
         <span className="nav-label">Create Ticket</span>
       </a>
       <a
-        className={`profile${isChooseRequesterPage ? " active" : ""}`}
+        className="profile"
         onClick={onChange}
       >
         <span className="profile-name">
@@ -50,6 +49,7 @@ export default function TopBar({ requester, onChange, onMyTickets, onCreateTicke
           ))}
         </span>
       </a>
+      <button type="button" onClick={onChange} aria-label="Log out">Log out</button>
     </nav>
   );
 }

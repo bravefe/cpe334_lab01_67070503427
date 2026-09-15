@@ -13,6 +13,7 @@ interface CreateTicketProps {
   requester?: Requester;
   requesterId: number | null;
   onBack: () => void;
+  onLogout?: () => void;
   onCreateTicket?: () => void;
   onOpenTicket?: (ticketNumber: string) => void;
 }
@@ -25,7 +26,7 @@ const emptyForm = {
   requestedPriorityId: "",
 };
 
-export default function CreateTicket({ requester, requesterId, onBack, onCreateTicket, onOpenTicket }: CreateTicketProps) {
+export default function CreateTicket({ requester, requesterId, onBack, onLogout, onCreateTicket, onOpenTicket }: CreateTicketProps) {
   const [form, setForm] = useState(emptyForm);
   const [categories, setCategories] = useState<Category[]>([]);
   const [relatedSystems, setRelatedSystems] = useState<RelatedSystem[]>([]);
@@ -118,7 +119,7 @@ export default function CreateTicket({ requester, requesterId, onBack, onCreateT
 
   return (
     <>
-      <TopBar requester={requester} onChange={() => window.location.assign("/choose-requester")} onMyTickets={onBack} onCreateTicket={onCreateTicket ?? onBack} />
+      <TopBar requester={requester} onChange={onLogout ?? (() => undefined)} onMyTickets={onBack} onCreateTicket={onCreateTicket ?? onBack} />
       <main className="page create-ticket-page">
         <div className="detail-header">
           <div>

@@ -10,23 +10,11 @@ import {
   TicketValidationError,
 } from "../services/ticketService.js";
 
-function getRequesterId(req: Request): number | null {
-  const requesterId = Number(req.header("X-Dev-Requester-Id"));
-  return Number.isInteger(requesterId) && requesterId > 0 ? requesterId : null;
-}
-
 export async function getTickets(
   req: Request,
   res: Response,
 ): Promise<void> {
-  const requesterId = getRequesterId(req);
-
-  if (!requesterId) {
-    res.status(400).json({
-      error: { code: "VALIDATION_ERROR", message: "A valid requester context is required." },
-    });
-    return;
-  }
+  const requesterId = req.user!.id;
 
   const query: TicketQuery = parseTicketQuery(req);
 
@@ -48,14 +36,7 @@ export async function createTicket(
   req: Request,
   res: Response,
 ): Promise<void> {
-  const requesterId = getRequesterId(req);
-
-  if (!requesterId) {
-    res.status(400).json({
-      error: { code: "VALIDATION_ERROR", message: "A valid requester context is required." },
-    });
-    return;
-  }
+  const requesterId = req.user!.id;
 
   const body = req.body ?? {};
   const summary = typeof body.summary === "string" ? body.summary.trim() : "";
@@ -145,14 +126,7 @@ export async function getTicketDetail(
   req: Request,
   res: Response,
 ): Promise<void> {
-  const requesterId = getRequesterId(req);
-
-  if (!requesterId) {
-    res.status(400).json({
-      error: { code: "VALIDATION_ERROR", message: "ERROR 400: A valid requester context is required." },
-    });
-    return;
-  }
+  const requesterId = req.user!.id;
 
   const ticketNumber = String(req.params.ticketNumber ?? "").trim();
 
