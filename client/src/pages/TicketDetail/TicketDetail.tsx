@@ -10,30 +10,30 @@ import { formatDate } from "../../lib/formatDate";
 
 interface TicketDetailProps {
   requester?: Requester;
-  requesterId: number;
   ticketNumber: string;
   onBack: () => void;
+  onLogout?: () => void;
   onCreateTicket?: () => void;
 }
 
-
 export default function TicketDetail({
   requester,
-  requesterId,
   ticketNumber,
   onBack,
+  onLogout,
   onCreateTicket,
 }: TicketDetailProps) {
   const [ticket, setTicket] = useState<TicketDetailType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("attachments");
-  const createdFromForm = new URLSearchParams(window.location.search).get("created") === "1";
+  const createdFromForm =
+    new URLSearchParams(window.location.search).get("created") === "1";
 
   useEffect(() => {
     setLoading(true);
 
-    fetchTicketDetail(requesterId, ticketNumber)
+    fetchTicketDetail(ticketNumber)
       .then((result) => {
         setTicket(result);
         setError("");
@@ -44,13 +44,13 @@ export default function TicketDetail({
       .finally(() => {
         setLoading(false);
       });
-  }, [requesterId, ticketNumber]);
-  
+  }, [ticketNumber]);
+
   return (
     <>
       <TopBar
         requester={requester}
-        onChange={() => window.location.assign("/choose-requester")}
+        onChange={onLogout ?? (() => undefined)}
         onMyTickets={onBack}
         onCreateTicket={() => window.location.assign("/create-ticket")}
       />
@@ -67,7 +67,9 @@ export default function TicketDetail({
           </button>
         </div>
 
-        {createdFromForm && <div className="success-banner">Ticket created: {ticketNumber}</div>}
+        {createdFromForm && (
+          <div className="success-banner">Ticket created: {ticketNumber}</div>
+        )}
 
         {loading && <div className="empty">Loading ticket...</div>}
 
@@ -152,17 +154,12 @@ export default function TicketDetail({
                   {ticket.currentStatus?.name ?? ""}
                 </div>
               </div> */}
-
             </div>
 
             {/* Summary */}
             <div className="field full-width">
               <span>Summary</span>
-              <input
-                value={ticket.summary}
-                readOnly
-                aria-readonly="true"
-              />
+              <input value={ticket.summary} readOnly aria-readonly="true" />
             </div>
 
             {/* Description */}
@@ -176,17 +173,41 @@ export default function TicketDetail({
               />
             </div>
 
-            <div className="ticket-tabs" role="tablist" aria-label="Ticket sections">
-              {["Public Comments", "Attachments", "Service Actions", "Event Log"].map((tab) => {
+            <div
+              className="ticket-tabs"
+              role="tablist"
+              aria-label="Ticket sections"
+            >
+              {[
+                "Public Comments",
+                "Attachments",
+                "Service Actions",
+                "Event Log",
+              ].map((tab) => {
                 const key = tab.toLowerCase().replace(" ", "-");
-                return <button key={tab} type="button" role="tab" className={`attachment-tab${activeTab === key ? " active" : ""}`} onClick={() => setActiveTab(key)}>{tab}</button>;
+                return (
+                  <button
+                    key={tab}
+                    type="button"
+                    role="tab"
+                    className={`attachment-tab${activeTab === key ? " active" : ""}`}
+                    onClick={() => setActiveTab(key)}
+                  >
+                    {tab}
+                  </button>
+                );
               })}
             </div>
-            {activeTab === "attachments" ? <AttachmentTicketDetail requesterId={requesterId} ticketNumber={ticketNumber} /> : <div className="attachment-empty">This section will be implemented later.</div>}
+            {activeTab === "attachments" ? (
+              <AttachmentTicketDetail ticketNumber={ticketNumber} />
+            ) : (
+              <div className="attachment-empty">
+                This section will be implemented later.
+              </div>
+            )}
           </section>
         )}
       </main>
     </>
   );
 }
-

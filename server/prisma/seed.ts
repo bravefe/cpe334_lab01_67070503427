@@ -2,7 +2,7 @@ import { getPrisma } from "../src/prisma.js";
 import { Role } from "@prisma/client";
 
 // Standard development bcrypt hash for password "Password123!"
-const DEV_PASSWORD_HASH = "$2b$10$EpRnTzVlqHNP0.fUbXUwSOyuiXe/QLSUG6x8ekEY588AydR4.D8eK";
+const DEV_PASSWORD_HASH = "$2b$12$1TtvDmSubNdB6a6rJ7A7COpXVk26a55cs6QoiQlymdg2yV.1pmnSC";
 
 export async function seed() {
   const prisma = getPrisma();

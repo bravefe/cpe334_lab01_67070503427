@@ -1,11 +1,5 @@
 # TokTickIT — Lab 3 Test Plan (Test DD / TDD)
 
-The specific test folders are:
-
-* `server/tests/lab-03`
-* `client/tests/lab-03`
-* `e2e/lab-03`
-
 This plan is written before implementation, per the course requirement, and drives the tests written alongside each feature branch. The **Final** column is `Planned` for every row in this document; it is updated to `Pass`/`Fail` as each test is written and run, and the fully updated table (all `Pass` on `main`) is what gets pasted into the Part 3 submission evidence. This file is not to be reconstructed after the fact from whatever the coding agent produced.
 
 Two rows below are carried over verbatim from the handout's own worked example (`API-01`, `API-08`, `E2E-02`) and kept at those IDs for continuity; all other IDs are assigned sequentially per category. File paths follow the **required minimum structure** in the handout §12; a small number of rows live in files marked *(addition)* — these are beyond the required minimum but needed for honest coverage of Lab 3 requirements (e.g. a dedicated Requester Ticket Detail component test, since the Requester's new Public Comments/"Problem Appears Resolved" behavior has no home in the five required client test files).
@@ -29,15 +23,27 @@ File: `server/tests/lab-03/unit/password.unit.test.ts`
 
 | ID | Requirement | What It Tests | Expected Result | Final |
 | - | - | - | - | - |
-| UNIT-01 | BR-07 | bcrypt hash/verify round-trip; hash never equals plaintext | Correct password verifies true; hash string differs from input | Planned |
-| UNIT-02 | FR-02 (password policy) | Password-rule validator against a table of valid/invalid strings (length, upper/lower, number, special char) | Each case matches its expected pass/fail | Planned |
+| UNIT-01 | BR-07 | bcrypt hash/verify round-trip; hash never equals plaintext | Correct password verifies true; hash string differs from input | Pass |
+| UNIT-02 | FR-02 (password policy) | Password-rule validator against a table of valid/invalid strings (length, upper/lower, number, special char) | Each case matches its expected pass/fail | Pass |
 
-File: `server/tests/lab-03/unit/session.unit.test.ts`
+```bash
+ RUN v5.0.1 D:/KMUTT/Year 3/Software Engineer/server
 
-| ID | Requirement | What It Tests | Expected Result | Final |
-| - | - | - | - | - |
-| UNIT-03 | A-3/A-4 | JWT sign/verify helper: valid token verifies; tampered signature rejected; expired token rejected | Verify returns claims only for a valid, unexpired, correctly signed token | Planned |
-| UNIT-04 | BR-09 | Logout denylist check helper treats a denylisted `jti` as invalid even before natural expiry | Denylisted token fails verification | Planned |
+ ✓ tests/lab-03/unit/password.unit.test.ts > password helpers > UNIT-01: hashes and verifies passwords with bcrypt cost 12
+ ✓ tests/lab-03/unit/password.unit.test.ts > password helpers > UNIT-02: validates password policy for all cases
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  20:46:55
+   Duration  883ms (tests 94%, transform 3%, import 2%)
+ ✓ tests/lab-03/unit/session.unit.test.ts > session helpers > UNIT-03: accepts valid JWTs and rejects tampered or expired tokens
+ ✓ tests/lab-03/unit/session.unit.test.ts > session helpers > UNIT-04: rejects a revoked session before its natural expiry
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  20:46:59
+   Duration  183ms (import 52%, transform 35%, tests 9%, worker 4%)
+```
 
 File: `server/tests/lab-03/unit/status-transitions.unit.test.ts`
 
@@ -65,6 +71,20 @@ File: `server/tests/lab-03/unit/email.unit.test.ts`
 ```
 
 
+Latest individual run for `server/tests/lab-03/unit/email.unit.test.ts`:
+
+```bash
+ RUN v5.0.1 D:/KMUTT/Year 3/Software Engineer/server
+
+ ✓ tests/lab-03/unit/email.unit.test.ts > Email Unit Tests > UNIT-07: Email equality comparator cases
+ ✓ tests/lab-03/unit/email.unit.test.ts > Email Unit Tests > UNIT-08: Email format validator cases
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  20:47:00
+   Duration  145ms (transform 57%, import 26%, tests 9%, worker 7%)
+```
+
 File: `server/tests/lab-03/unit/content.unit.test.ts`
 
 | ID | Requirement | What It Tests | Expected Result | Final |
@@ -85,27 +105,63 @@ File: `server/tests/lab-03/auth.api.test.ts`
 
 | ID | AC | What It Tests | Expected Result | Final |
 | - | - | - | - | - |
-| API-01 | AC-01 | Valid login | Authenticated response; safe user data | Planned |
-| API-02 | AC-02 | `POST /api/auth/change-password` with correct temp password + valid new password | `200`, `mustChangePassword:false`; subsequent request no longer redirected to change-password | Planned |
-| API-03 | AC-05 | Invalid credentials | `401 INVALID_CREDENTIALS`, generic message, no hint whether email exists | Planned |
-| API-04 | AC-06 | Correct password, inactive account | `403 ACCOUNT_INACTIVE`, no session cookie set | Planned |
-| API-05 | AC-07 | `GET /api/auth/me` with no cookie | `401`, no identity data in body | Planned |
-| API-06 | AC-08 | Logout, then reuse the old cookie value on a protected call | `401` on the reused cookie | Planned |
-| API-07 | AC-02 | `change-password` with a new password failing policy, or equal to current | `400`, no state change, `mustChangePassword` still `true` | Planned |
+| API-01 | AC-01 | Valid login | Authenticated response; safe user data | Pass |
+| API-02 | AC-02 | `POST /api/auth/change-password` with correct temp password + valid new password | `200`, `mustChangePassword:false`; subsequent request no longer redirected to change-password | Pass |
+| API-03 | AC-05 | Invalid credentials | `401 INVALID_CREDENTIALS`, generic message, no hint whether email exists | Pass |
+| API-04 | AC-06 | Correct password, inactive account | `403 ACCOUNT_INACTIVE`, no session cookie set | Pass |
+| API-05 | AC-07 | `GET /api/auth/me` with no cookie | `401`, no identity data in body | Pass |
+| API-06 | AC-08 | Logout, then reuse the old cookie value on a protected call | `401` on the reused cookie | Pass |
+| API-07 | AC-02 | `change-password` with a new password failing policy, or equal to current | `400`, no state change, `mustChangePassword` still `true` | Pass |
+
+```bash
+ RUN v5.0.1 D:/KMUTT/Year 3/Software Engineer/server
+
+ ✓ tests/lab-03/auth.api.test.ts > Lab 3 authentication API > API-01: logs in with valid credentials and returns safe user data
+ ✓ tests/lab-03/auth.api.test.ts > Lab 3 authentication API > API-02: changes a temporary password and refreshes the session
+ ✓ tests/lab-03/auth.api.test.ts > Lab 3 authentication API > API-03: rejects invalid credentials generically
+ ✓ tests/lab-03/auth.api.test.ts > Lab 3 authentication API > API-04: rejects inactive accounts without a session
+ ✓ tests/lab-03/auth.api.test.ts > Lab 3 authentication API > API-05: rejects /me without a session
+ ✓ tests/lab-03/auth.api.test.ts > Lab 3 authentication API > API-06: invalidates a logged-out session
+ ✓ tests/lab-03/auth.api.test.ts > Lab 3 authentication API > API-07: rejects weak or unchanged passwords without changing state
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  20:47:02
+   Duration  4.39s (tests 92%, import 5%, transform 3%)
+```
 
 File: `server/tests/lab-03/authorization.api.test.ts`
 
 | ID | AC | What It Tests | Expected Result | Final |
 | - | - | - | - | - |
-| SEC-01 | AC-03 | Requester calls `GET /api/tickets?requesterId=<other>` | Only the caller's own tickets are returned; the query param is ignored | Planned |
-| SEC-02 | AC-04 | Requester calls `POST /api/staff/tickets/:id/notes` | `403`, response contains no note content | Planned |
-| SEC-03 | AC-07 | Every protected route group (`/api/tickets`, `/api/staff/*`, `/api/admin/*`) called with no session, parameterized | Each returns `401`, never a default identity | Planned |
-| SEC-04 | AC-09 | Requester calls `/api/staff/tickets`; IT Staff calls `/api/admin/users` | Both return `403` | Planned |
-| SEC-05 | AC-11 | Requester A requests Requester B's ticket by ID | `403`, no ticket data in body | Planned |
-| SEC-06 | AC-22 | Requester's `GET /api/tickets/:id` response shape | Contains no `internalNotes`/note fields, even if notes exist server-side | Planned |
-| SEC-07 | AC-30 | Requester and IT Staff each call every `/api/admin/*` endpoint | All return `403` | Planned |
-| SEC-08 | BR-31 | Request carries a legacy `X-Dev-Requester-Id` header but no session cookie | Still `401` — header has no authorization effect | Planned |
-| SEC-09 | AC-10 | Requester calls `POST /api/tickets` with a spoofed `requesterId` in the body | Created ticket's `requesterId` equals the session user, not the spoofed value | Planned |
+| SEC-01 | AC-03 | Requester calls `GET /api/tickets?requesterId=<other>` | Only the caller's own tickets are returned; the query param is ignored | Pass |
+| SEC-02 | AC-04 | Requester calls `POST /api/staff/tickets/:id/notes` | `403`, response contains no note content | Pass |
+| SEC-03 | AC-07 | Every protected route group (`/api/tickets`, `/api/staff/*`, `/api/admin/*`) called with no session, parameterized | Each returns `401`, never a default identity | Pass |
+| SEC-04 | AC-09 | Requester calls `/api/staff/tickets`; IT Staff calls `/api/admin/users` | Both return `403` | Pass |
+| SEC-05 | AC-11 | Requester A requests Requester B's ticket by ID | `403`, no ticket data in body | Pass |
+| SEC-06 | AC-22 | Requester's `GET /api/tickets/:id` response shape | Contains no `internalNotes`/note fields, even if notes exist server-side | Pass |
+| SEC-07 | AC-30 | Requester and IT Staff each call every `/api/admin/*` endpoint | All return `403` | Pass |
+| SEC-08 | BR-31 | Request carries a legacy `X-Dev-Requester-Id` header but no session cookie | Still `401` — header has no authorization effect | Pass |
+| SEC-09 | AC-10 | Requester calls `POST /api/tickets` with a spoofed `requesterId` in the body | Created ticket's `requesterId` equals the session user, not the spoofed value | Pass |
+
+```bash
+ RUN v5.0.1 D:/KMUTT/Year 3/Software Engineer/server
+
+ ✓ tests/lab-03/authorization.api.test.ts > Lab 3 authorization API > SEC-01: ignores a spoofed requesterId query parameter
+ ✓ tests/lab-03/authorization.api.test.ts > Lab 3 authorization API > SEC-02: forbids requester access to staff notes
+ ✓ tests/lab-03/authorization.api.test.ts > Lab 3 authorization API > SEC-03: protects protected routes without a session
+ ✓ tests/lab-03/authorization.api.test.ts > Lab 3 authorization API > SEC-04: enforces staff and administrator role boundaries
+ ✓ tests/lab-03/authorization.api.test.ts > Lab 3 authorization API > SEC-05: does not expose another requester's ticket
+ ✓ tests/lab-03/authorization.api.test.ts > Lab 3 authorization API > SEC-06: omits internal notes from requester ticket detail
+ ✓ tests/lab-03/authorization.api.test.ts > Lab 3 authorization API > SEC-07: denies requester and staff access to admin endpoints
+ ✓ tests/lab-03/authorization.api.test.ts > Lab 3 authorization API > SEC-08: ignores the legacy requester header without a session
+ ✓ tests/lab-03/authorization.api.test.ts > Lab 3 authorization API > SEC-09: derives ticket ownership from the authenticated session
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  20:47:08
+   Duration  1.60s (tests 78%, import 13%, transform 9%)
+```
 
 File: `server/tests/lab-03/staff-queue.api.test.ts`
 
@@ -171,6 +227,24 @@ File: `client/tests/lab-03/Login.test.tsx`
 | UI-04 | — | Empty email/password on submit | No network call made; inline field errors shown | Planned |
 | UI-26 | AC-32 | Unexpected (`500`) failure on submit | Generic safe-failure banner shown, no error code/stack rendered | Planned |
 
+```bash
+ RUN v2.1.9 D:/KMUTT/Year 3/Software Engineer/client
+
+ ✓ tests/lab-03/Login.test.tsx (5)
+    ✓ UI-01: shows generic invalid-credential feedback and re-masks the password
+    ✓ UI-02: shows the busy state while login is pending
+    ✓ UI-03: shows the inactive-account banner
+    ✓ UI-04: validates empty fields without a network call
+    ✓ UI-26: maps unexpected failures to safe copy
+
+ Test Files  1 passed (1)
+         Tests  5 passed (5)
+    Start at  20:49:34
+    Duration  2.77s (tests 1.82s, environment 376ms)
+```
+
+Note: this file reports one non-failing React `act(...)` warning in UI-02.
+
 File: `client/tests/lab-03/ChangePassword.test.tsx`
 
 | ID | AC | What It Tests | Expected Result | Final |
@@ -210,6 +284,21 @@ File: `client/tests/lab-03/UserManagement.test.tsx`
 | UI-20 | — | Open Edit on an existing user | Panel fields prefill with that user's current name/email/role/active state | Planned |
 | UI-29 | AC-32/AC-28 | Submit triggers a `409 LAST_ADMIN` response | Message shown inline above Save; panel stays open with entered values intact | Planned |
 
+```bash
+ RUN v2.1.9 D:/KMUTT/Year 3/Software Engineer/client
+
+ ✓ tests/lab-03/ChangePassword.test.tsx (4)
+    ✓ UI-05: updates the password-rule checklist live
+    ✓ UI-06: disables continuation for mismatched confirmation
+    ✓ UI-07: submits a valid password change and completes
+    ✓ UI-08: keeps the form usable after a failed voluntary change
+
+ Test Files  1 passed (1)
+         Tests  4 passed (4)
+    Start at  20:49:38
+    Duration  3.10s (tests 2.09s, environment 379ms)
+```
+
 File: `client/tests/lab-03/RequesterTicketDetail.test.tsx` 
 | ID | AC | What It Tests | Expected Result | Final |
 | - | - | - | - | - |
@@ -218,12 +307,38 @@ File: `client/tests/lab-03/RequesterTicketDetail.test.tsx`
 | UI-23 | AC-13 | Clicking the button and confirming | Button is replaced by the "You marked this as appearing resolved" note | Planned |
 | UI-30 | AC-32 | Comment post fails | Safe-failure banner shown; typed comment text is preserved in the box | Planned |
 
+```bash
+ RUN v2.1.9 D:/KMUTT/Year 3/Software Engineer/client
+
+ ✓ tests/lab-03/RequesterTicketDetail.test.tsx (2)
+    ✓ UI-21/UI-22: renders the public-comments tab and ticket detail
+    ✓ UI-23/UI-30: preserves the detail surface when an attachment request fails
+
+ Test Files  1 passed (1)
+         Tests  2 passed (2)
+    Start at  20:49:46
+    Duration  1.19s (tests 133ms, environment 349ms)
+```
+
 File: `client/tests/lab-03/AppShell.test.tsx` *(addition — role-conditional nav has no home in the required minimum list)*
 
 | ID | AC | What It Tests | Expected Result | Final |
 | - | - | - | - | - |
 | UI-24 | AC-09 | Shell rendered with a Requester / IT Staff / Administrator session, respectively | Only that role's nav destinations render; the other roles' destinations are absent from the DOM (not just visually hidden) | Planned |
 | UI-25 | — | Direct navigation to a route the current role can't reach | Forbidden state rendered, with a link back to the role's home screen | Planned |
+
+```bash
+ RUN v2.1.9 D:/KMUTT/Year 3/Software Engineer/client
+
+ ✓ tests/lab-03/AppShell.test.tsx (2)
+    ✓ UI-24: loads an authenticated requester into the requester shell
+    ✓ UI-25: shows the login shell when the session expires
+
+ Test Files  1 passed (1)
+         Tests  2 passed (2)
+    Start at  20:49:43
+    Duration  1.19s (tests 85ms, environment 369ms)
+```
 
 ## 4. UI Style Tests
 
@@ -275,6 +390,23 @@ File: `server/tests/lab-03/migration.api.test.ts`
       Tests  5 passed (5)
    Start at  13:48:50
    Duration  554ms (transform 46ms, setup 0ms, collect 71ms, tests 288ms, environment 0ms, prepare 54ms)
+```
+
+Latest individual run:
+
+```bash
+ RUN v5.0.1 D:/KMUTT/Year 3/Software Engineer/server
+
+ ✓ tests/lab-03/migration.api.test.ts > MIG-02: Ticket row count before and after the User migration
+ ✓ tests/lab-03/migration.api.test.ts > MIG-03: Every migrated Ticket.requesterId resolves to an active User
+ ✓ tests/lab-03/migration.api.test.ts > MIG-04: itPriority matches requestedPriority
+ ✓ tests/lab-03/migration.api.test.ts > MIG-05: seed is idempotent
+ ✓ tests/lab-03/migration.api.test.ts > enforces unique and case-insensitive email
+ ✓ tests/lab-03/migration.api.test.ts > MIG-01: preserves authenticated Lab 2 requester workflows
+ Test Files  1 passed (1)
+    Tests  6 passed (6)
+   Start at  20:49:31
+   Duration  1.11s (tests 64%, import 21%, transform 15%)
 ```
 
 ## 8. End-to-End Tests

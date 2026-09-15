@@ -1,40 +1,21 @@
 import { useEffect, useState } from "react";
-import { fetchRequesters } from "./api/requesters";
-import { Requester } from "./lib/requester";
-import ChooseRequester from "./pages/ChooseRequester/ChooseRequester";
+import { get } from "./api/client";
+import ChangePassword from "./pages/ChangePassword/ChangePassword";
 import CreateTicket from "./pages/CreateTicket/CreateTicket";
+import Login, { AuthUser } from "./pages/Login/Login";
 import MyTickets from "./pages/MyTickets/MyTickets";
 import TicketDetail from "./pages/TicketDetail/TicketDetail";
 
 export default function App() {
-  const [requesters, setRequesters] = useState<Requester[]>([]);
-  const [requesterId, setRequesterId] = useState<number | null>(() =>
-    Number(localStorage.getItem("requesterId")) || null,
-  );
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [path, setPath] = useState(window.location.pathname);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
-  const loadRequesters = () => {
-    setLoading(true);
-    setError("");
-    fetchRequesters()
-      .then((result) => setRequesters(result.data))
-      .catch((requestError: Error) => setError(requestError.message))
+  useEffect(() => {
+    get<AuthUser>("/api/auth/me")
+      .then(setUser)
+      .catch(() => setUser(null))
       .finally(() => setLoading(false));
-  };
-
-  useEffect(() => {
-    loadRequesters();
-  }, []);
-
-  useEffect(() => {
-    if (window.location.pathname === "/") {
-      setPath("/choose-requester");
-    }
-  }, []);
-
-  useEffect(() => {
     const handlePopState = () => setPath(window.location.pathname);
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
@@ -45,53 +26,48 @@ export default function App() {
     setPath(new URL(nextPath, window.location.origin).pathname);
   };
 
-  const selectedRequester = requesters.find((item) => item.id === requesterId);
-
-  const handleSelect = (id: number) => {
-    localStorage.setItem("requesterId", String(id));
-    setRequesterId(id);
-    goTo("/my-tickets");
-  };
-
-  const handleChangeRequester = () => {
-    goTo("/choose-requester");
-  };
-
-  const handleMyTickets = () => goTo("/my-tickets");
-  const handleCreateTicket = () => goTo("/create-ticket");
-  const handleOpenTicket = (ticketNumber: string) => goTo(`/ticket/${ticketNumber}`);
-  const handleCreatedTicket = (ticketNumber: string) => goTo(`/ticket/${ticketNumber}?created=1`);
-
-  const sharedProps = {
-    requesters,
-    requester: selectedRequester,
-    loading,
-    error,
-    retry: loadRequesters,
-    onChange: handleChangeRequester,
-    onMyTickets: handleMyTickets,
-    onCreateTicket: handleCreateTicket,
-  };
-
-  if (path === "/choose-requester") {
+  if (loading)
     return (
-      <ChooseRequester
-        {...sharedProps}
-        onSelect={handleSelect}
-        onMyTickets={handleMyTickets}
+      <main className="selection">
+        <div className="loading">Loading...</div>
+      </main>
+    );
+  if (!user) return <Login onLogin={setUser} />;
+  if (user.mustChangePassword)
+    return (
+      <ChangePassword
+        onComplete={() => setUser({ ...user, mustChangePassword: false })}
       />
     );
-  }
+
+  const requester = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    isActive: user.isActive,
+  };
+  const logout = async () => {
+    await fetch(
+      `${import.meta.env.VITE_API_URL ?? "http://localhost:3000"}/api/auth/logout`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: { "X-Requested-With": "TokTickIT" },
+      },
+    );
+    setUser(null);
+  };
+  const onMyTickets = () => goTo("/my-tickets");
+  const onCreateTicket = () => goTo("/create-ticket");
 
   if (path === "/my-tickets") {
     return (
       <MyTickets
-        requester={selectedRequester}
-        requesterId={requesterId}
-        onChange={handleChangeRequester}
-        onMyTickets={handleMyTickets}
-        onCreateTicket={handleCreateTicket}
-        onOpenTicket={handleOpenTicket}
+        requester={requester}
+        onChange={logout}
+        onMyTickets={onMyTickets}
+        onCreateTicket={onCreateTicket}
+        onOpenTicket={(ticketNumber) => goTo(`/ticket/${ticketNumber}`)}
       />
     );
   }
@@ -99,30 +75,36 @@ export default function App() {
   if (path === "/create-ticket") {
     return (
       <CreateTicket
-        requester={selectedRequester}
-        requesterId={requesterId}
-        onBack={handleMyTickets}
-        onCreateTicket={handleCreateTicket}
-        onOpenTicket={handleCreatedTicket}
+        requester={requester}
+        onBack={onMyTickets}
+        onLogout={logout}
+        onCreateTicket={onCreateTicket}
+        onOpenTicket={(ticketNumber) =>
+          goTo(`/ticket/${ticketNumber}?created=1`)
+        }
       />
     );
   }
 
   const ticketMatch = path.match(/^\/ticket\/(.+)$/);
   if (ticketMatch) {
-    if (!requesterId) {
-      return <ChooseRequester {...sharedProps} onSelect={handleSelect} onMyTickets={handleMyTickets} />;
-    }
-
     return (
       <TicketDetail
-        requester={selectedRequester}
-        requesterId={requesterId}
+        requester={requester}
         ticketNumber={ticketMatch[1]}
-        onBack={handleMyTickets}
+        onBack={onMyTickets}
+        onLogout={logout}
       />
     );
   }
 
-  return <ChooseRequester {...sharedProps} onSelect={handleSelect} onMyTickets={handleMyTickets} />;
+  return (
+    <MyTickets
+      requester={requester}
+      onChange={() => undefined}
+      onMyTickets={onMyTickets}
+      onCreateTicket={onCreateTicket}
+      onOpenTicket={(ticketNumber) => goTo(`/ticket/${ticketNumber}`)}
+    />
+  );
 }

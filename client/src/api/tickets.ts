@@ -1,8 +1,14 @@
 import { get, list, post } from "./client";
-import { CreateTicketPayload, Ticket, TicketDetail, TicketPage, TicketQuery } from "../lib/ticket";
+import {
+  CreateTicketPayload,
+  Ticket,
+  TicketDetail,
+  TicketPage,
+  TicketQuery,
+} from "../lib/ticket";
 import { RelatedSystem } from "../lib/reference";
 
-export function fetchTickets(requesterId: number, query: TicketQuery) {
+export function fetchTickets(query: TicketQuery) {
   const params = new URLSearchParams({
     search: query.search,
     sortBy: query.sortBy,
@@ -21,13 +27,17 @@ export function fetchTickets(requesterId: number, query: TicketQuery) {
     params.set("currentStatusId", String(query.currentStatusId));
   }
 
-  return get<TicketPage>(`/api/tickets?${params}`, requesterId);
+  return get<TicketPage>(`/api/tickets?${params}`);
 }
 
-export function createTicket(requesterId: number, input: CreateTicketPayload) {
-  return post<{ data: Ticket }>("/api/create-ticket", requesterId, input).then((result) => result.data);
+export function createTicket(input: CreateTicketPayload) {
+  return post<{ data: Ticket }>("/api/create-ticket", input).then(
+    (result) => result.data,
+  );
 }
 
-export function fetchTicketDetail(requesterId: number, ticketNumber: string) {
-  return get<{ data: TicketDetail }>(`/api/tickets/${encodeURIComponent(ticketNumber)}`, requesterId).then((result) => result.data);
+export function fetchTicketDetail(ticketNumber: string) {
+  return get<{ data: TicketDetail }>(
+    `/api/tickets/${encodeURIComponent(ticketNumber)}`,
+  ).then((result) => result.data);
 }

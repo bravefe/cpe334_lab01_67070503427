@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { fetchCategories, fetchPriorities, fetchStatuses } from "../../api/referenceData";
+import {
+  fetchCategories,
+  fetchPriorities,
+  fetchStatuses,
+} from "../../api/referenceData";
 import { fetchTickets } from "../../api/tickets";
 import { Category, Priority, Status } from "../../lib/reference";
 import { Requester } from "../../lib/requester";
@@ -17,21 +21,30 @@ const initialQuery: TicketQuery = {
   pageSize: 10,
 };
 
-
 interface MyTicketsProps {
   requester?: Requester;
-  requesterId: number | null;
   onChange: () => void;
   onMyTickets: () => void;
   onCreateTicket: () => void;
   onOpenTicket: (ticketNumber: string) => void;
 }
 
-export default function MyTickets({ requester, requesterId, onChange, onMyTickets, onCreateTicket, onOpenTicket }: MyTicketsProps) {
+export default function MyTickets({
+  requester,
+  onChange,
+  onMyTickets,
+  onCreateTicket,
+  onOpenTicket,
+}: MyTicketsProps) {
   const [query, setQuery] = useState(initialQuery);
   const [draftSearch, setDraftSearch] = useState("");
   const [tickets, setTickets] = useState<Ticket[]>([]);
-  const [meta, setMeta] = useState({ page: 1, pageSize: 10, totalItems: 0, totalPages: 0 });
+  const [meta, setMeta] = useState({
+    page: 1,
+    pageSize: 10,
+    totalItems: 0,
+    totalPages: 0,
+  });
   const [state, setState] = useState("loading");
   const [error, setError] = useState("");
   const [options, setOptions] = useState<{
@@ -59,16 +72,9 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
   }, []);
 
   useEffect(() => {
-    if (!requesterId) {
-      setTickets([]);
-      setMeta({ page: 1, pageSize: 10, totalItems: 0, totalPages: 0 });
-      setState("ready");
-      return;
-    }
-
     setState("loading");
-  setError("");
-    fetchTickets(requesterId, query)
+    setError("");
+    fetchTickets(query)
       .then((result) => {
         setTickets(result.data);
         setMeta(result);
@@ -78,7 +84,7 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
         setError(requestError instanceof Error ? requestError.message : "");
         setState("error");
       });
-  }, [requesterId, query]);
+  }, [query]);
 
   const update = (change: Partial<TicketQuery>) =>
     setQuery((current) => ({ ...current, ...change, page: 1 }));
@@ -92,7 +98,8 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
     setQuery((current) => ({
       ...current,
       sortBy: field,
-      sortDir: current.sortBy === field && current.sortDir === "asc" ? "desc" : "asc",
+      sortDir:
+        current.sortBy === field && current.sortDir === "asc" ? "desc" : "asc",
       page: 1,
     }));
 
@@ -108,21 +115,33 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
   ];
 
   const hasFilters = Boolean(
-    query.search || query.category || query.requestedPriorityId || query.currentStatusId,
+    query.search ||
+    query.category ||
+    query.requestedPriorityId ||
+    query.currentStatusId,
   );
 
   return (
     <>
-      <TopBar requester={requester} onChange={onChange} onMyTickets={onMyTickets} onCreateTicket={onCreateTicket} />
+      <TopBar
+        requester={requester}
+        onChange={onChange}
+        onMyTickets={onMyTickets}
+        onCreateTicket={onCreateTicket}
+      />
       <main className="page">
         <header className="page-header">
           <div>
             <h1>My Tickets</h1>
-            <p className="muted">View and track all of your support requests.</p>
+            <p className="muted">
+              View and track all of your support requests.
+            </p>
           </div>
           <div className="actions">
             <button onClick={clear}>↻ Clear Filters</button>
-            <button className="primary" onClick={onCreateTicket}>＋ Create Ticket</button>
+            <button className="primary" onClick={onCreateTicket}>
+              ＋ Create Ticket
+            </button>
           </div>
         </header>
 
@@ -133,7 +152,9 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
               id="ticket-search"
               value={draftSearch}
               onChange={(event) => setDraftSearch(event.target.value)}
-              onKeyDown={(event) => event.key === "Enter" && update({ search: draftSearch })}
+              onKeyDown={(event) =>
+                event.key === "Enter" && update({ search: draftSearch })
+              }
               placeholder="Search by ticket number or summary..."
             />
           </label>
@@ -162,12 +183,16 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
         {referenceError && (
           <div className="error-banner">
             <span>Filter options could not be loaded. Please try again.</span>
-            <button type="button" onClick={loadReferenceData}>Retry</button>
+            <button type="button" onClick={loadReferenceData}>
+              Retry
+            </button>
           </div>
         )}
 
         <section className="ticket-panel">
-          {state === "loading" && <div className="loading rows">Loading tickets...</div>}
+          {state === "loading" && (
+            <div className="loading rows">Loading tickets...</div>
+          )}
           {state === "error" && (
             <div className="empty">
               <h2 className="error-message">{error}</h2>
@@ -177,27 +202,21 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
           {state === "ready" && meta.totalItems === 0 && (
             <div className="empty">
               <h2>
-                {!requesterId
-                  ? "No Requester Selected"
-                  : hasFilters
-                    ? "No tickets match these filters"
-                    : "No tickets yet"}
+                {hasFilters
+                  ? "No tickets match these filters"
+                  : "No tickets yet"}
               </h2>
               <p className="muted">
-                {!requesterId
-                  ? "Choose a requester to view their tickets."
-                  : meta.totalItems
-                    ? "Try clearing the filters."
-                    : "Create your first support request to get started."}
+                {meta.totalItems
+                  ? "Try clearing the filters."
+                  : "Create your first support request to get started."}
               </p>
-              {requesterId && (
-                <button className="primary" onClick={meta.totalItems ? clear : onCreateTicket}>
-                  {meta.totalItems ? "Clear Filters" : "＋ Create Ticket"}
-                </button>
-              )}
-              {!requesterId && (
-                <button className="primary" onClick={onChange}>Choose Requester</button>
-              )}
+              <button
+                className="primary"
+                onClick={meta.totalItems ? clear : onCreateTicket}
+              >
+                {meta.totalItems ? "Clear Filters" : "＋ Create Ticket"}
+              </button>
             </div>
           )}
           {state === "ready" && tickets.length > 0 && (
@@ -208,9 +227,13 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
                     <tr>
                       {sortable.map(([field, label, canSort]) => (
                         <th key={field}>
-                          <button disabled={!canSort} onClick={() => sort(field)}>
+                          <button
+                            disabled={!canSort}
+                            onClick={() => sort(field)}
+                          >
                             {label}
-                            {query.sortBy === field && (query.sortDir === "asc" ? " ↑" : " ↓")}
+                            {query.sortBy === field &&
+                              (query.sortDir === "asc" ? " ↑" : " ↓")}
                           </button>
                         </th>
                       ))}
@@ -218,17 +241,29 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
                   </thead>
                   <tbody>
                     {tickets.map((ticket) => (
-                      <tr key={ticket.ticketNumber} onClick={() => onOpenTicket(ticket.ticketNumber)} style={{ cursor: "pointer" }}>
+                      <tr
+                        key={ticket.ticketNumber}
+                        onClick={() => onOpenTicket(ticket.ticketNumber)}
+                        style={{ cursor: "pointer" }}
+                      >
                         <td className="ticket-number">{ticket.ticketNumber}</td>
-                        <td className="created-date">{formatDate(ticket.createdAt)}</td>
+                        <td className="created-date">
+                          {formatDate(ticket.createdAt)}
+                        </td>
                         <td className="summary">{ticket.summary}</td>
                         <td>{ticket.category.name}</td>
                         <td>
-                          <span className={`badge priority-${ticket.requestedPriority.name.toLowerCase()}`}>
+                          <span
+                            className={`badge priority-${ticket.requestedPriority.name.toLowerCase()}`}
+                          >
                             {ticket.requestedPriority.name}
                           </span>
                         </td>
-                        <td><span className="badge status">{ticket.currentStatus.name}</span></td>
+                        <td>
+                          <span className="badge status">
+                            {ticket.currentStatus.name}
+                          </span>
+                        </td>
                         <td>{ticket.requester.name}</td>
                         <td>{formatDate(ticket.updatedAt)}</td>
                       </tr>
@@ -238,16 +273,35 @@ export default function MyTickets({ requester, requesterId, onChange, onMyTicket
               </div>
               <footer>
                 <span>
-                  Showing {(meta.page - 1) * meta.pageSize + 1} to {Math.min(meta.page * meta.pageSize, meta.totalItems)} of {meta.totalItems} tickets
+                  Showing {(meta.page - 1) * meta.pageSize + 1} to{" "}
+                  {Math.min(meta.page * meta.pageSize, meta.totalItems)} of{" "}
+                  {meta.totalItems} tickets
                 </span>
                 <div>
-                  <button disabled={meta.page <= 1} onClick={() => setQuery({ ...query, page: meta.page - 1 })}>Previous</button>
-                  {Array.from({ length: meta.totalPages }, (_, index) => index + 1).map((page) => (
-                    <button className={page === meta.page ? "selected" : ""} key={page} onClick={() => setQuery({ ...query, page })}>
+                  <button
+                    disabled={meta.page <= 1}
+                    onClick={() => setQuery({ ...query, page: meta.page - 1 })}
+                  >
+                    Previous
+                  </button>
+                  {Array.from(
+                    { length: meta.totalPages },
+                    (_, index) => index + 1,
+                  ).map((page) => (
+                    <button
+                      className={page === meta.page ? "selected" : ""}
+                      key={page}
+                      onClick={() => setQuery({ ...query, page })}
+                    >
                       {page}
                     </button>
                   ))}
-                  <button disabled={meta.page >= meta.totalPages} onClick={() => setQuery({ ...query, page: meta.page + 1 })}>Next</button>
+                  <button
+                    disabled={meta.page >= meta.totalPages}
+                    onClick={() => setQuery({ ...query, page: meta.page + 1 })}
+                  >
+                    Next
+                  </button>
                 </div>
               </footer>
             </>
@@ -270,9 +324,18 @@ function Filter({ label, value, options, onChange, all }: FilterProps) {
   return (
     <label>
       {label}
-      <select value={value ?? ""} onChange={(event) => onChange(event.target.value ? Number(event.target.value) : undefined)}>
+      <select
+        value={value ?? ""}
+        onChange={(event) =>
+          onChange(event.target.value ? Number(event.target.value) : undefined)
+        }
+      >
         <option value="">{all}</option>
-        {options.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
+        {options.map((option) => (
+          <option key={option.id} value={option.id}>
+            {option.name}
+          </option>
+        ))}
       </select>
     </label>
   );
