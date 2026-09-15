@@ -53,6 +53,18 @@ File: `server/tests/lab-03/unit/email.unit.test.ts`
 | UNIT-07 | BR-11 | Email equality comparator is case-insensitive (`A@x.com` == `a@x.com`) | Comparator returns equal | Pass |
 | UNIT-08 | BR-11 | Email format validator rejects malformed addresses | Invalid formats rejected, valid formats accepted | Pass |
 
+```bash
+ RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/server
+
+ ✓ tests/lab-03/unit/email.unit.test.ts (6 tests) 3ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  13:47:51
+   Duration  225ms (transform 29ms, setup 0ms, collect 28ms, tests 3ms, environment 0ms, prepare 55ms)
+```
+
+
 File: `server/tests/lab-03/unit/content.unit.test.ts`
 
 | ID | Requirement | What It Tests | Expected Result | Final |
@@ -253,6 +265,17 @@ File: `server/tests/lab-03/migration.api.test.ts`
 | MIG-03 | §7.1 spec | Every migrated `Ticket.requesterId` resolves to an active `User` with role `REQUESTER` corresponding to the original Development Requester identity | 100% of migrated tickets resolve correctly | Pass |
 | MIG-04 | §7.1 spec | `itPriority` on every pre-existing ticket after migration | Equals that ticket's `requestedPriority` (initial backfill rule) | Pass |
 | MIG-05 | §5.3 handout | Seed script run twice in sequence against a fresh database | Second run produces identical row counts to the first (idempotent) | Pass |
+
+```bash
+ RUN  v2.1.9 D:/KMUTT/Year 3/Software Engineer/server
+
+ ✓ tests/lab-03/migration.api.test.ts (5 tests) 288ms
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  13:48:50
+   Duration  554ms (transform 46ms, setup 0ms, collect 71ms, tests 288ms, environment 0ms, prepare 54ms)
+```
 
 ## 8. End-to-End Tests
 
