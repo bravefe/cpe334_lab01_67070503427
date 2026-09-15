@@ -1,5 +1,6 @@
 import { FormEvent, useState } from "react";
 import { passwordRules } from "../../lib/passwordRules";
+import "./ChangePassword.css";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 export default function ChangePassword({
@@ -54,8 +55,8 @@ export default function ChangePassword({
     }
   }
   return (
-    <main className="selection">
-      <form className="selection-card" onSubmit={submit}>
+    <main className="selection change-password-screen">
+      <form className="selection-card change-password-card" onSubmit={submit}>
         <h1>Change password</h1>
         <p className="muted">Choose a new password before continuing.</p>
         {error && (

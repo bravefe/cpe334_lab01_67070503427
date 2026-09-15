@@ -1,3 +1,4 @@
+import "./Login.css";
 import { FormEvent, useState } from "react";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
@@ -79,8 +80,8 @@ export default function Login({
   }
 
   return (
-    <main className="selection">
-      <form className="selection-card" onSubmit={submit}>
+    <main className="selection login-screen">
+      <form className="selection-card login-card" onSubmit={submit}>
         <p className="eyebrow">TOKTockIT</p>
         <h1>Sign in</h1>
 
