@@ -1,8 +1,7 @@
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import { getPrisma } from "../prisma.js";
 import { validateContent } from "../lib/content.js";
 import { parseTicketQuery, type TicketQuery } from "../lib/tickets.js";
-import { isLegalStatusTransition } from "../lib/statusTransitions.js";
 import {
   createTicketService,
   getTicketDetailService,
@@ -10,9 +9,24 @@ import {
   TicketValidationError,
 } from "../services/ticketService.js";
 
+function sendError(
+  res: Response,
+  status: number,
+  code: string,
+  message: string,
+  extra?: Record<string, unknown>,
+) {
+  return res.status(status).json({
+    error: {
+      code,
+      message,
+      ...extra,
+    },
+  });
+}
+
 export async function getTickets(req: Request, res: Response): Promise<void> {
   const requesterId = req.user!.id;
-
   const query: TicketQuery = parseTicketQuery(req);
 
   try {
@@ -23,9 +37,7 @@ export async function getTickets(req: Request, res: Response): Promise<void> {
 
     res.status(200).json(result);
   } catch (_error) {
-    res.status(500).json({
-      error: { code: "INTERNAL_ERROR", message: "Failed to fetch tickets." },
-    });
+    sendError(res, 500, "INTERNAL_ERROR", "Failed to fetch tickets.");
   }
 }
 
@@ -78,12 +90,8 @@ export async function createTicket(req: Request, res: Response): Promise<void> {
   }
 
   if (fieldErrors.length > 0) {
-    res.status(400).json({
-      error: {
-        code: "VALIDATION_ERROR",
-        message: "Ticket validation failed.",
-        fieldErrors,
-      },
+    sendError(res, 400, "VALIDATION_ERROR", "Ticket validation failed.", {
+      fieldErrors,
     });
     return;
   }
@@ -101,22 +109,13 @@ export async function createTicket(req: Request, res: Response): Promise<void> {
     res.status(201).json({ data: ticket });
   } catch (error) {
     if (error instanceof TicketValidationError) {
-      res.status(400).json({
-        error: {
-          code: "VALIDATION_ERROR",
-          message: "Ticket validation failed.",
-          fieldErrors: [{ field: error.field, message: error.message }],
-        },
+      sendError(res, 400, "VALIDATION_ERROR", "Ticket validation failed.", {
+        fieldErrors: [{ field: error.field, message: error.message }],
       });
       return;
     }
 
-    res.status(500).json({
-      error: {
-        code: "INTERNAL_ERROR",
-        message: "ERROR 500: Unable to create ticket.",
-      },
-    });
+    sendError(res, 500, "INTERNAL_ERROR", "Unable to create ticket.");
   }
 }
 
@@ -125,45 +124,49 @@ export async function getTicketDetail(
   res: Response,
 ): Promise<void> {
   const requesterId = req.user!.id;
+  const ticketRef = String(
+    req.params.ticketNumber ?? req.params.id ?? "",
+  ).trim();
 
-  const ticketNumber = String(req.params.ticketNumber ?? "").trim();
-
-  if (!ticketNumber) {
-    res.status(404).json({
-      error: { code: "NOT_FOUND", message: "ERROR 404: Ticket not found." },
-    });
+  if (!ticketRef) {
+    sendError(res, 404, "NOT_FOUND", "Ticket not found.");
     return;
   }
 
   try {
-    const ticket = await getTicketDetailService({ requesterId, ticketNumber });
+    const result = await getTicketDetailService({ requesterId, ticketRef });
 
-    if (!ticket) {
-      res.status(404).json({
-        error: { code: "NOT_FOUND", message: "ERROR 404: Ticket not found." },
-      });
+    if (result.kind === "not_found") {
+      sendError(res, 404, "NOT_FOUND", "Ticket not found.");
       return;
     }
 
-    res.status(200).json({ data: ticket });
+    if (result.kind === "forbidden") {
+      sendError(res, 403, "FORBIDDEN", "You are not allowed to access this ticket.");
+      return;
+    }
+
+    res.status(200).json({ data: result.data });
   } catch (_error) {
-    res.status(500).json({
-      error: {
-        code: "INTERNAL_ERROR",
-        message: "ERROR 500: Failed to load ticket detail.",
-      },
-    });
+    sendError(res, 500, "INTERNAL_ERROR", "Failed to load ticket detail.");
   }
 }
 
 async function resolveTicketAccess(req: Request) {
-  const ticketNumber = String(req.params.ticketNumber ?? "").trim();
-  if (!ticketNumber) return null;
+  const ref = String(req.params.ticketNumber ?? req.params.id ?? "").trim();
+  if (!ref) return null;
 
-  const ticket = await getPrisma().ticket.findUnique({
-    where: { ticketNumber },
-    include: { requester: true, currentStatus: true },
-  });
+  const numericId = Number(ref);
+  const ticket =
+    Number.isInteger(numericId) && numericId > 0
+      ? await getPrisma().ticket.findUnique({
+          where: { id: numericId },
+          include: { requester: true, currentStatus: true },
+        })
+      : await getPrisma().ticket.findUnique({
+          where: { ticketNumber: ref },
+          include: { requester: true, currentStatus: true },
+        });
 
   if (!ticket) return null;
 
@@ -174,21 +177,20 @@ async function resolveTicketAccess(req: Request) {
   return ticket;
 }
 
-export async function getTicketComments(req: Request, res: Response) {
+export async function getTicketComments(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const ticket = await resolveTicketAccess(req);
 
   if (!ticket) {
-    return res.status(404).json({
-      error: { code: "NOT_FOUND", message: "Ticket not found." },
-    });
+    sendError(res, 404, "NOT_FOUND", "Ticket not found.");
+    return;
   }
+
   if (ticket === "forbidden") {
-    return res.status(403).json({
-      error: {
-        code: "FORBIDDEN",
-        message: "You are not allowed to access this ticket.",
-      },
-    });
+    sendError(res, 403, "FORBIDDEN", "You are not allowed to access this ticket.");
+    return;
   }
 
   const comments = await getPrisma().publicComment.findMany({
@@ -197,7 +199,7 @@ export async function getTicketComments(req: Request, res: Response) {
     orderBy: { createdAt: "asc" },
   });
 
-  return res.status(200).json({
+  res.status(200).json({
     items: comments.map((comment) => ({
       id: comment.id,
       ticketId: comment.ticketId,
@@ -210,31 +212,31 @@ export async function getTicketComments(req: Request, res: Response) {
   });
 }
 
-export async function createTicketComment(req: Request, res: Response) {
+export async function createTicketComment(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const ticket = await resolveTicketAccess(req);
 
   if (!ticket) {
-    return res.status(404).json({
-      error: { code: "NOT_FOUND", message: "Ticket not found." },
-    });
+    sendError(res, 404, "NOT_FOUND", "Ticket not found.");
+    return;
   }
+
   if (ticket === "forbidden") {
-    return res.status(403).json({
-      error: {
-        code: "FORBIDDEN",
-        message: "You are not allowed to access this ticket.",
-      },
-    });
+    sendError(res, 403, "FORBIDDEN", "You are not allowed to access this ticket.");
+    return;
   }
 
   const content = validateContent(req.body?.content);
   if (!content) {
-    return res.status(400).json({
-      error: {
-        code: "VALIDATION_ERROR",
-        message: "Content must be between 1 and 2000 characters.",
-      },
-    });
+    sendError(
+      res,
+      400,
+      "VALIDATION_ERROR",
+      "Content must be between 1 and 2000 characters.",
+    );
+    return;
   }
 
   const created = await getPrisma().publicComment.create({
@@ -246,7 +248,7 @@ export async function createTicketComment(req: Request, res: Response) {
     include: { author: true },
   });
 
-  return res.status(201).json({
+  res.status(201).json({
     id: created.id,
     ticketId: created.ticketId,
     authorId: created.authorId,
@@ -257,50 +259,42 @@ export async function createTicketComment(req: Request, res: Response) {
   });
 }
 
-export async function updateTicketResolution(req: Request, res: Response) {
-  const ticketNumber = String(req.params.ticketNumber ?? "").trim();
-  if (!ticketNumber) {
-    return res.status(404).json({
-      error: { code: "NOT_FOUND", message: "Ticket not found." },
-    });
+export async function updateTicketResolution(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const ticket = await resolveTicketAccess(req);
+
+  if (!ticket) {
+    sendError(res, 404, "NOT_FOUND", "Ticket not found.");
+    return;
   }
 
-  const ticket = await getPrisma().ticket.findUnique({
-    where: { ticketNumber },
-    include: { requester: true, currentStatus: true },
-  });
-  if (!ticket) {
-    return res.status(404).json({
-      error: { code: "NOT_FOUND", message: "Ticket not found." },
-    });
-  }
-  if (req.user!.role === "REQUESTER" && ticket.requesterId !== req.user!.id) {
-    return res.status(403).json({
-      error: {
-        code: "FORBIDDEN",
-        message: "You are not allowed to access this ticket.",
-      },
-    });
+  if (ticket === "forbidden") {
+    sendError(res, 403, "FORBIDDEN", "You are not allowed to access this ticket.");
+    return;
   }
 
   const value = req.body?.problemAppearsResolved;
   if (typeof value !== "boolean") {
-    return res.status(400).json({
-      error: {
-        code: "VALIDATION_ERROR",
-        message: "problemAppearsResolved must be a boolean.",
-      },
-    });
+    sendError(
+      res,
+      400,
+      "VALIDATION_ERROR",
+      "problemAppearsResolved must be a boolean.",
+    );
+    return;
   }
 
   const allowedStatuses = ["Open", "In Progress", "Waiting for Requester"];
   if (!allowedStatuses.includes(ticket.currentStatus.name)) {
-    return res.status(409).json({
-      error: {
-        code: "INVALID_STATUS",
-        message: `Ticket status must be one of: ${allowedStatuses.join(", ")}.`,
-      },
-    });
+    sendError(
+      res,
+      409,
+      "INVALID_STATUS",
+      `Ticket status must be one of: ${allowedStatuses.join(", ")}.`,
+    );
+    return;
   }
 
   const updated = await getPrisma().ticket.update({
@@ -309,7 +303,7 @@ export async function updateTicketResolution(req: Request, res: Response) {
     include: { currentStatus: true },
   });
 
-  return res.status(200).json({
+  res.status(200).json({
     ...updated,
     status: updated.currentStatus.name,
     currentStatus: undefined,

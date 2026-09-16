@@ -7,10 +7,19 @@ export const uploadDirectory = path.resolve(process.cwd(), "uploads");
 export const maxFileSize = 5 * 1024 * 1024;
 
 export async function ownedTicket(ticketNumber: string, requesterId: number) {
-  return getPrisma().ticket.findFirst({ where: { ticketNumber, requesterId } });
+  return getPrisma().ticket.findFirst({
+    where: { ticketNumber, requesterId },
+  });
 }
 
-export function formatAttachment(attachment: { id: number; originalFileName: string; status: "ACTIVE" | "REMOVED"; uploadedAt: Date; removedAt: Date | null; removalReason: string | null }) {
+export function formatAttachment(attachment: {
+  id: number;
+  originalFileName: string;
+  status: "ACTIVE" | "REMOVED";
+  uploadedAt: Date;
+  removedAt: Date | null;
+  removalReason: string | null;
+}) {
   return {
     attachmentId: attachment.id,
     originalFileName: attachment.originalFileName,
@@ -24,41 +33,108 @@ export function formatAttachment(attachment: { id: number; originalFileName: str
 export async function listAttachments(ticketNumber: string, requesterId: number) {
   const ticket = await ownedTicket(ticketNumber, requesterId);
   if (!ticket) return null;
-  const attachments = await getPrisma().attachment.findMany({ where: { ticketId: ticket.id }, orderBy: { uploadedAt: "desc" } });
+
+  const attachments = await getPrisma().attachment.findMany({
+    where: { ticketId: ticket.id },
+    orderBy: { uploadedAt: "desc" },
+  });
+
   return attachments.map(formatAttachment);
 }
 
-export async function saveAttachment(ticketNumber: string, requesterId: number, file: Express.Multer.File) {
+export async function saveAttachment(
+  ticketNumber: string,
+  requesterId: number,
+  file: Express.Multer.File,
+) {
   const ticket = await ownedTicket(ticketNumber, requesterId);
   if (!ticket) {
     await fs.unlink(file.path).catch(() => undefined);
     return { kind: "not-found" as const };
   }
-  const activeCount = await getPrisma().attachment.count({ where: { ticketId: ticket.id, status: "ACTIVE" } });
+
+  const activeCount = await getPrisma().attachment.count({
+    where: { ticketId: ticket.id, status: "ACTIVE" },
+  });
+
   if (activeCount >= 5) {
     await fs.unlink(file.path).catch(() => undefined);
     return { kind: "limit" as const };
   }
+
   try {
-    const attachment = await getPrisma().attachment.create({ data: { ticketId: ticket.id, originalFileName: file.originalname, storedFileName: path.basename(file.filename), mimeType: file.mimetype, fileSize: file.size } });
-    return { kind: "created" as const, attachment: formatAttachment(attachment) };
+    const attachment = await getPrisma().attachment.create({
+      data: {
+        ticketId: ticket.id,
+        originalFileName: file.originalname,
+        storedFileName: path.basename(file.filename),
+        mimeType: file.mimetype,
+        fileSize: file.size,
+      },
+    });
+
+    return {
+      kind: "created" as const,
+      attachment: formatAttachment(attachment),
+    };
   } catch (error) {
     await fs.unlink(file.path).catch(() => undefined);
     throw error;
   }
 }
 
-export async function downloadableAttachment(attachmentId: number, requesterId: number) {
-  return getPrisma().attachment.findFirst({ where: { id: attachmentId, status: "ACTIVE", ticket: { requesterId } } });
+export async function downloadableAttachment(
+  attachmentId: number,
+  requesterId: number,
+) {
+  return getPrisma().attachment.findFirst({
+    where: {
+      id: attachmentId,
+      status: "ACTIVE",
+      ticket: { requesterId },
+    },
+  });
 }
 
-export async function softRemoveAttachment(attachmentId: number, requesterId: number, reason: string) {
-  const existing = await getPrisma().attachment.findFirst({ where: { id: attachmentId, ticket: { requesterId } } });
-  if (!existing) return { kind: "not-found" as const };
-  if (existing.status === "REMOVED") return { kind: "removed" as const };
-  const attachment = await getPrisma().attachment.update({ where: { id: attachmentId }, data: { status: "REMOVED", removalReason: reason, removedAt: new Date() } });
-  return { kind: "updated" as const, attachment: formatAttachment(attachment) };
+export async function softRemoveAttachment(
+  attachmentId: number,
+  requesterId: number,
+  reason: string,
+) {
+  const existing = await getPrisma().attachment.findFirst({
+    where: {
+      id: attachmentId,
+      ticket: { requesterId },
+    },
+  });
+
+  if (!existing) {
+    return { kind: "not-found" as const };
+  }
+
+  if (existing.status === "REMOVED") {
+    return { kind: "removed" as const };
+  }
+
+  const attachment = await getPrisma().attachment.update({
+    where: { id: attachmentId },
+    data: {
+      status: "REMOVED",
+      removalReason: reason,
+      removedAt: new Date(),
+    },
+  });
+
+  return {
+    kind: "updated" as const,
+    attachment: formatAttachment(attachment),
+  };
 }
 
-export async function prepareUploadDirectory() { await fs.mkdir(uploadDirectory, { recursive: true }); }
-export function storedFileName(fileName: string) { return `${randomUUID()}${path.extname(fileName).toLowerCase()}`; }
+export async function prepareUploadDirectory() {
+  await fs.mkdir(uploadDirectory, { recursive: true });
+}
+
+export function storedFileName(fileName: string) {
+  return `${randomUUID()}${path.extname(fileName).toLowerCase()}`;
+}

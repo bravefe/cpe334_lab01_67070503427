@@ -19,6 +19,11 @@ async function login(email: string) {
 describe("Lab 3 staff ticket detail API", () => {
   let staff: Agent;
   let ticketId: number;
+  let staffUser1Id: number;
+  let staffUser2Id: number;
+  let inactiveStaffId: number;
+  let requesterUserId: number;
+  let originalTicket: any;
 
   beforeAll(async () => {
     staff = await login("arwen@rivendell.example.com");
@@ -27,9 +32,39 @@ describe("Lab 3 staff ticket detail API", () => {
       orderBy: { id: "asc" },
     });
     ticketId = ticket?.id ?? 1;
+    originalTicket = await prisma.ticket.findUnique({ where: { id: ticketId } });
+
+    const s1 = await prisma.user.findFirst({
+      where: { role: "IT_STAFF", isActive: true },
+    });
+    const s2 = await prisma.user.findFirst({
+      where: { role: "IT_STAFF", isActive: true, id: { not: s1!.id } },
+    });
+    const sInactive = await prisma.user.findFirst({
+      where: { role: "IT_STAFF", isActive: false },
+    });
+    const rUser = await prisma.user.findFirst({
+      where: { role: "REQUESTER" },
+    });
+
+    staffUser1Id = s1!.id;
+    staffUser2Id = s2!.id;
+    inactiveStaffId = sInactive!.id;
+    requesterUserId = rUser!.id;
   });
 
   afterAll(async () => {
+    if (originalTicket) {
+      await prisma.ticket.update({
+        where: { id: ticketId },
+        data: {
+          ticketOwnerId: originalTicket.ticketOwnerId,
+          itPriorityId: originalTicket.itPriorityId,
+          currentStatusId: originalTicket.currentStatusId,
+          resolutionSummary: originalTicket.resolutionSummary,
+        },
+      });
+    }
     await prisma.$disconnect();
   });
 
@@ -37,27 +72,31 @@ describe("Lab 3 staff ticket detail API", () => {
     const response = await staff
       .patch(`/api/staff/tickets/${ticketId}/owner`)
       .set(csrf)
-      .send({ ownerId: 1 });
+      .send({ ownerId: staffUser1Id });
 
     expect(response.status).toBe(200);
-    expect(response.body.owner).toEqual(expect.objectContaining({ id: 1 }));
+    expect(response.body.owner).toEqual(
+      expect.objectContaining({ id: staffUser1Id }),
+    );
   });
 
   it("API-19: can reassign an owned ticket to another staff member", async () => {
     const response = await staff
       .patch(`/api/staff/tickets/${ticketId}/owner`)
       .set(csrf)
-      .send({ ownerId: 2 });
+      .send({ ownerId: staffUser2Id });
 
     expect(response.status).toBe(200);
-    expect(response.body.owner).toEqual(expect.objectContaining({ id: 2 }));
+    expect(response.body.owner).toEqual(
+      expect.objectContaining({ id: staffUser2Id }),
+    );
   });
 
   it("API-20: rejects assigning an inactive IT staff user as owner", async () => {
     const response = await staff
       .patch(`/api/staff/tickets/${ticketId}/owner`)
       .set(csrf)
-      .send({ ownerId: 4 });
+      .send({ ownerId: inactiveStaffId });
 
     expect(response.status).toBe(409);
   });
@@ -66,7 +105,7 @@ describe("Lab 3 staff ticket detail API", () => {
     const response = await staff
       .patch(`/api/staff/tickets/${ticketId}/owner`)
       .set(csrf)
-      .send({ ownerId: 1 });
+      .send({ ownerId: requesterUserId });
 
     expect(response.status).toBe(409);
   });

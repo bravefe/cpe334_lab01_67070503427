@@ -82,6 +82,16 @@ describe("Lab 3 comments and notes API", () => {
   });
 
   it("API-30: allows a requester to mark a problem as appearing resolved while the ticket is open", async () => {
+    const openStatus = await prisma.status.findFirst({
+      where: { name: "Open" },
+    });
+    if (openStatus) {
+      await prisma.ticket.update({
+        where: { ticketNumber },
+        data: { currentStatusId: openStatus.id },
+      });
+    }
+
     const response = await requester
       .patch(`/api/tickets/${ticketNumber}/resolution`)
       .set(csrf)

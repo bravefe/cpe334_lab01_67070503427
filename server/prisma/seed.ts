@@ -74,29 +74,6 @@ export async function seed() {
     });
   }
 
-  // 5. DevRequester records (preserved for Lab 2 client & test compatibility)
-  const devRequesters: [string, string, boolean][] = [
-    ["Frodo Baggins", "frodo.b@shiremail.example.com", true],
-    ["Samwise Gamgee", "sam.gamgee@shiremail.example.com", true],
-    ["Aragorn, Son of Arathorn", "a.elessar@gondor.example.com", true],
-    ["Legolas Greenleaf", "legolasg@woodland.example.com", true],
-    ["Gimli, Son of Glóin", "gimli.o@erebor.example.com", true],
-    ["Boromir, Son of Denethor", "boromir@gondor.example.com", true],
-    ["Meriadoc Brandybuck", "merry.b@shiremail.example.com", true],
-    ["Peregrin Took", "pippin.t@shiremail.example.com", true],
-    ["Galadriel", "galadriel@lothlorien.example.com", true],
-    ["Éowyn", "eowyn.r@rohan.example.com", true],
-    ["Gandalf the Grey", "gandalf@istari.example.com", false],
-    ["Gollum", "smeagol@goblinmail.example.com", false],
-  ];
-
-  for (const [name, email, isActive] of devRequesters) {
-    await prisma.devRequester.upsert({
-      where: { email },
-      update: { name, isActive },
-      create: { name, email, isActive },
-    });
-  }
 
   // 6. Users (meets §5.3 handout requirements: >=4 active Requesters, >=1 inactive Requester,
   //    >=3 active IT Staff, >=1 inactive IT Staff, >=1 active Administrator).
