@@ -81,6 +81,7 @@
 }
 
 .role-badge {
+  margin-left: 0.5rem;
   display: inline-flex;
   align-items: center;
   min-height: 22px;

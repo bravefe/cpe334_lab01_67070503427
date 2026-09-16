@@ -43,6 +43,8 @@ describe("Lab 3 requester ticket detail", () => {
         const url = String(input);
         if (url.includes("/api/auth/me"))
           return Promise.resolve(response(requester));
+        if (url.endsWith("/comments"))
+          return Promise.resolve(response({ items: [] }));
         if (url.endsWith("/api/tickets/TKT-2026-000001"))
           return Promise.resolve(response({ data: ticket }));
         return Promise.resolve(response({ data: [] }));
@@ -65,6 +67,8 @@ describe("Lab 3 requester ticket detail", () => {
         const url = String(input);
         if (url.includes("/api/auth/me"))
           return Promise.resolve(response(requester));
+        if (url.endsWith("/comments"))
+          return Promise.resolve(response({ items: [] }));
         if (url.includes("/attachments"))
           return Promise.resolve(
             response(
@@ -123,8 +127,9 @@ describe("Lab 3 requester ticket detail", () => {
     render(<App />);
 
     await screen.findByRole("heading", { name: "Ticket Details" });
-    await user.click(screen.getByRole("tab", { name: "Public Comments" }));
-    const composer = await screen.findByLabelText("Add Public Comment");
+    const composer = await screen.findByPlaceholderText(
+      "Write a public comment...",
+    );
     await user.type(composer, "Still unable to sign in");
     await user.click(screen.getByRole("button", { name: "Post Comment" }));
 
@@ -143,6 +148,8 @@ describe("Lab 3 requester ticket detail", () => {
           const url = String(input);
           if (url.includes("/api/auth/me"))
             return Promise.resolve(response(requester));
+          if (url.endsWith("/comments"))
+            return Promise.resolve(response({ items: [] }));
           if (url.includes("/attachments"))
             return Promise.resolve(response({ data: [] }));
           if (url.endsWith("/api/tickets/TKT-2026-000001"))
@@ -175,6 +182,8 @@ describe("Lab 3 requester ticket detail", () => {
           const method = (init?.method ?? "GET").toUpperCase();
           if (url.includes("/api/auth/me"))
             return Promise.resolve(response(requester));
+          if (url.endsWith("/comments") && method === "GET")
+            return Promise.resolve(response({ items: [] }));
           if (url.includes("/attachments"))
             return Promise.resolve(response({ data: [] }));
           if (url.includes("/resolution") && method === "PATCH")
@@ -230,8 +239,9 @@ describe("Lab 3 requester ticket detail", () => {
     window.history.pushState({}, "", "/ticket/TKT-2026-000001");
     render(<App />);
     await screen.findByRole("heading", { name: "Ticket Details" });
-    await user.click(screen.getByRole("tab", { name: "Public Comments" }));
-    const composer = await screen.findByLabelText("Add Public Comment");
+    const composer = await screen.findByPlaceholderText(
+      "Write a public comment...",
+    );
     await user.type(composer, "Please help with this issue");
     await user.click(screen.getByRole("button", { name: "Post Comment" }));
     await waitFor(() =>

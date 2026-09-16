@@ -77,9 +77,9 @@ export default function TopBar({
         </span>
         <span className="role-badge">{role.replaceAll("_", " ")}</span>
       </a>
-      <button type="button" onClick={onChange} aria-label="Log out">
+      {/* <button type="button" onClick={onChange} aria-label="Log out">
         Log out
-      </button>
+      </button> */}
     </nav>
   );
 }
