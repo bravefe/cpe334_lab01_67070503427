@@ -1,8 +1,8 @@
 import { FormEvent, useState } from "react";
+import { changePassword } from "../../api/auth";
 import { passwordRules } from "../../lib/passwordRules";
 import "./ChangePassword.css";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 export default function ChangePassword({
   onComplete,
 }: {
@@ -29,20 +29,7 @@ export default function ChangePassword({
     }
     setBusy(true);
     try {
-      const response = await fetch(`${API_URL}/api/auth/change-password`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Requested-With": "TokTickIT",
-        },
-        body: JSON.stringify({ currentPassword, newPassword }),
-      });
-      const payload = await response.json().catch(() => undefined);
-      if (!response.ok)
-        throw new Error(
-          payload?.error?.message ?? "Unable to change password.",
-        );
+      await changePassword(currentPassword, newPassword);
       onComplete();
     } catch (requestError) {
       setError(

@@ -1,16 +1,9 @@
 import "./Login.css";
 import { FormEvent, useState } from "react";
+import { login } from "../../api/auth";
+import { AuthUser } from "../../lib/auth";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
-
-export interface AuthUser {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-  isActive: boolean;
-  mustChangePassword: boolean;
-}
+export type { AuthUser } from "../../lib/auth";
 
 export default function Login({
   onLogin,
@@ -46,27 +39,7 @@ export default function Login({
     setBusy(true);
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/login`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const payload = await response.json().catch(() => undefined);
-
-      if (!response.ok) {
-        const code = payload?.error?.code;
-        if (code === "INVALID_CREDENTIALS")
-          throw new Error("Invalid email or password.");
-        if (code === "ACCOUNT_INACTIVE")
-          throw new Error(
-            "This account is inactive. Contact an administrator.",
-          );
-        throw new Error("Unable to sign in. Please try again.");
-      }
-
-      onLogin(payload.user);
+      onLogin(await login(email, password));
     } catch (requestError) {
       setShowPassword(false);
       setError(

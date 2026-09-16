@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { get } from "./api/client";
+import { getCurrentUser, logout as logoutUser } from "./api/auth";
 import ChangePassword from "./pages/ChangePassword/ChangePassword";
 import CreateTicket from "./pages/CreateTicket/CreateTicket";
-import Login, { AuthUser } from "./pages/Login/Login";
+import Login from "./pages/Login/Login";
+import { AuthUser } from "./lib/auth";
 import MyTickets from "./pages/MyTickets/MyTickets";
 import TicketDetail from "./pages/TicketDetail/TicketDetail";
 
@@ -12,7 +13,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    get<AuthUser>("/api/auth/me")
+    getCurrentUser()
       .then(setUser)
       .catch(() => setUser(null))
       .finally(() => setLoading(false));
@@ -47,15 +48,11 @@ export default function App() {
     isActive: user.isActive,
   };
   const logout = async () => {
-    await fetch(
-      `${import.meta.env.VITE_API_URL ?? "http://localhost:3000"}/api/auth/logout`,
-      {
-        method: "POST",
-        credentials: "include",
-        headers: { "X-Requested-With": "TokTickIT" },
-      },
-    );
-    setUser(null);
+    try {
+      await logoutUser();
+    } finally {
+      setUser(null);
+    }
   };
   const onMyTickets = () => goTo("/my-tickets");
   const onCreateTicket = () => goTo("/create-ticket");
