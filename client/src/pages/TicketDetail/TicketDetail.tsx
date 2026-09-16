@@ -199,7 +199,7 @@ export default function TicketDetail({
             )}
             {ticket.problemAppearsResolved && (
               <p className="success-inline">
-                ✓ You marked this as appearing resolved.
+                You marked this as appearing resolved.
               </p>
             )}
             {resolutionError && (

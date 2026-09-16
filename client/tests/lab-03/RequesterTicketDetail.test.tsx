@@ -204,8 +204,11 @@ describe("Lab 3 requester ticket detail", () => {
     await user.click(
       await screen.findByRole("button", { name: "Problem Appears Resolved" }),
     );
+    // expect(
+    //   await screen.findByText("You marked this as appearing resolved."),
+    // ).toBeInTheDocument();
     expect(
-      await screen.findByText("You marked this as appearing resolved."),
+      await screen.findByText(/You marked this as appearing resolved\./),
     ).toBeInTheDocument();
   });
 
