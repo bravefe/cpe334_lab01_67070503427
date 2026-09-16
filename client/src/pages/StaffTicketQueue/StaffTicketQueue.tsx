@@ -194,13 +194,6 @@ export default function StaffTicketQueue({
             </label>
           </div>
         </section>
-        {state === "ready" && (
-          <p className="result-count">
-            Showing {meta.totalItems ? (meta.page - 1) * meta.pageSize + 1 : 0}{" "}
-            to {Math.min(meta.page * meta.pageSize, meta.totalItems)} of{" "}
-            {meta.totalItems} tickets
-          </p>
-        )}
         {state === "loading" && (
           <section className="ticket-panel queue-loading">
             Loading queue...
@@ -303,46 +296,43 @@ export default function StaffTicketQueue({
                   ))}
                 </tbody>
               </table>
+              <footer className="queue-pagination">
+                <span>
+                  Showing {(meta.page - 1) * meta.pageSize + 1} to{" "}
+                  {Math.min(meta.page * meta.pageSize, meta.totalItems)} of{" "}
+                  {meta.totalItems} tickets
+                </span>
+                <div>
+                  <button
+                    type="button"
+                    disabled={meta.page <= 1}
+                    onClick={() => setQuery({ ...query, page: meta.page - 1 })}
+                  >
+                    Previous
+                  </button>
+                  {Array.from(
+                    { length: meta.totalPages },
+                    (_, index) => index + 1,
+                  ).map((page) => (
+                    <button
+                      type="button"
+                      className={page === meta.page ? "selected" : ""}
+                      key={page}
+                      onClick={() => setQuery({ ...query, page })}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    disabled={meta.page >= meta.totalPages}
+                    onClick={() => setQuery({ ...query, page: meta.page + 1 })}
+                  >
+                    Next
+                  </button>
+                </div>
+              </footer>
             </section>
-            <section className="queue-cards">
-              {tickets.map((ticket) => (
-                <button
-                  type="button"
-                  className="queue-card"
-                  key={ticket.id}
-                  onClick={() => onOpenTicket(ticket.ticketNumber)}
-                >
-                  <span className="queue-card-top">
-                    <strong>{ticket.ticketNumber}</strong>
-                    <Badge value={ticket.status} status />
-                  </span>
-                  <strong>{ticket.summary}</strong>
-                  <span className="queue-card-meta">
-                    {ticket.category ?? "-"} · Req.{" "}
-                    {ticket.requestedPriority ?? "-"} · IT{" "}
-                    {ticket.itPriority ?? "-"} ·{" "}
-                    {ticket.owner?.name ?? "Unassigned"}
-                  </span>
-                </button>
-              ))}
-            </section>
-            <footer className="queue-pagination">
-              <button
-                disabled={meta.page <= 1}
-                onClick={() => setQuery({ ...query, page: meta.page - 1 })}
-              >
-                Previous
-              </button>
-              <span>
-                Page {meta.page} of {Math.max(meta.totalPages, 1)}
-              </span>
-              <button
-                disabled={meta.page >= meta.totalPages}
-                onClick={() => setQuery({ ...query, page: meta.page + 1 })}
-              >
-                Next
-              </button>
-            </footer>
           </>
         )}
       </main>

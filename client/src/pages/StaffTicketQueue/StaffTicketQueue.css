@@ -1,7 +1,7 @@
 .staff-queue-page {
   width: min(100% - 48px, 1800px);
   margin: 0 auto;
-  padding-top: 24px;
+  padding: 34px 0 42px;
 }
 .queue-filters {
   display: grid;
@@ -44,20 +44,23 @@
   font-size: 0.9rem;
 }
 .queue-table-wrap {
-  overflow-x: auto;
+  overflow: hidden;
 }
 .queue-table-wrap table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 13px;
 }
 .queue-table-wrap th,
 .queue-table-wrap td {
-  padding: 14px 12px;
+  padding: 16px 12px;
   border-bottom: 1px solid var(--border);
   text-align: left;
-  white-space: nowrap;
+  vertical-align: middle;
 }
 .queue-table-wrap th {
+  background: var(--pale-green);
   color: var(--muted);
   font-size: 0.82rem;
 }
@@ -79,15 +82,29 @@
   max-width: 280px;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .queue-pagination {
+  min-height: 72px;
+  padding: 14px 18px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 16px;
+  color: var(--muted);
+  font-size: 0.88rem;
 }
-.queue-cards {
-  display: none;
+.queue-pagination div {
+  display: flex;
+  gap: 5px;
+}
+.queue-pagination button {
+  padding: 7px 10px;
+  font-size: 12px;
+}
+.queue-pagination button.selected {
+  background: var(--primary-green);
+  color: var(--surface);
+  border-color: var(--primary-green);
 }
 .queue-loading {
   min-height: 180px;
@@ -97,43 +114,86 @@
 }
 @media (max-width: 1023px) {
   .queue-filter-fields {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .queue-table-wrap {
-    display: none;
-  }
-  .queue-cards {
-    display: grid;
-    gap: 10px;
-  }
-  .queue-card {
-    display: grid;
-    gap: 10px;
-    min-height: auto;
-    padding: 16px;
-    text-align: left;
-  }
-  .queue-card-top,
-  .queue-card-meta {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .queue-card-meta {
-    color: var(--muted);
-    font-size: 0.86rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 @media (max-width: 767px) {
   .staff-queue-page {
-    width: min(100% - 32px, 1200px);
-    padding-top: 18px;
+    width: min(100% - 24px, 720px);
+    padding: 22px 0 42px;
   }
   .queue-filters {
     padding: 14px;
   }
   .queue-filter-fields {
     grid-template-columns: 1fr;
+  }
+
+  .queue-table-wrap table,
+  .queue-table-wrap thead,
+  .queue-table-wrap tbody,
+  .queue-table-wrap tr,
+  .queue-table-wrap td {
+    display: block;
+  }
+
+  .queue-table-wrap thead {
+    display: none;
+  }
+
+  .queue-table-wrap tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 18px;
+    row-gap: 10px;
+    border-bottom: 1px solid var(--mobile-border);
+    padding: 16px;
+  }
+
+  .queue-table-wrap td {
+    width: auto;
+    padding: 5px 0;
+    border: 0;
+  }
+
+  .queue-table-wrap td::before {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .queue-table-wrap td:nth-child(1)::before {
+    content: "Ticket No.";
+  }
+  .queue-table-wrap td:nth-child(2)::before {
+    content: "Created Date";
+  }
+  .queue-table-wrap td:nth-child(3)::before {
+    content: "Summary";
+  }
+  .queue-table-wrap td:nth-child(4)::before {
+    content: "Category";
+  }
+  .queue-table-wrap td:nth-child(5)::before {
+    content: "Requested Priority";
+  }
+  .queue-table-wrap td:nth-child(6)::before {
+    content: "IT Priority";
+  }
+  .queue-table-wrap td:nth-child(7)::before {
+    content: "Status";
+  }
+  .queue-table-wrap td:nth-child(8)::before {
+    content: "Owner";
+  }
+
+  .queue-pagination {
+    display: block;
+  }
+
+  .queue-pagination div {
+    margin-top: 14px;
+    flex-wrap: wrap;
   }
 }
