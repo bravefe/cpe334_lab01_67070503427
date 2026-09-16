@@ -1,4 +1,6 @@
 import { describe, it, expect } from "vitest";
+import request from "supertest";
+import { app } from "../../src/app.js";
 import { getPrisma } from "../../src/prisma.js";
 import { seed } from "../../prisma/seed.js";
 
@@ -30,7 +32,10 @@ describe("Lab 3 Migration & Data Model Verification", () => {
 
     for (const ticket of tickets) {
       // 100% of migrated tickets must resolve to a valid User
-      expect(ticket.requester, `Ticket ${ticket.ticketNumber} must have a requester User`).toBeDefined();
+      expect(
+        ticket.requester,
+        `Ticket ${ticket.ticketNumber} must have a requester User`,
+      ).toBeDefined();
       expect(ticket.requester.id).toBe(ticket.requesterId);
       expect(ticket.requester.role).toBe("REQUESTER");
       expect(ticket.requester.isActive).toBe(true);
@@ -40,7 +45,9 @@ describe("Lab 3 Migration & Data Model Verification", () => {
         where: { email: ticket.requester.email },
       });
       if (devRequester) {
-        expect(ticket.requester.email.toLowerCase()).toBe(devRequester.email.toLowerCase());
+        expect(ticket.requester.email.toLowerCase()).toBe(
+          devRequester.email.toLowerCase(),
+        );
       }
     }
   });
@@ -57,10 +64,13 @@ describe("Lab 3 Migration & Data Model Verification", () => {
 
     for (const ticket of tickets) {
       // Every ticket must have itPriority populated matching requestedPriority
-      expect(ticket.itPriorityId, `Ticket ${ticket.ticketNumber} must have itPriorityId`).not.toBeNull();
       expect(
         ticket.itPriorityId,
-        `Ticket ${ticket.ticketNumber} itPriorityId must equal requestedPriorityId`
+        `Ticket ${ticket.ticketNumber} must have itPriorityId`,
+      ).not.toBeNull();
+      expect(
+        ticket.itPriorityId,
+        `Ticket ${ticket.ticketNumber} itPriorityId must equal requestedPriorityId`,
       ).toBe(ticket.requestedPriorityId);
 
       expect(ticket.itPriority).toBeDefined();
@@ -164,8 +174,41 @@ describe("Lab 3 Migration & Data Model Verification", () => {
           passwordHash: "dummyhash",
           role: "REQUESTER",
         },
-      })
+      }),
     ).rejects.toThrow();
   });
-});
 
+  it("MIG-01: preserves authenticated Lab 2 requester workflows", async () => {
+    const agent = request.agent(app);
+    const login = await agent
+      .post("/api/auth/login")
+      .send({
+        email: "frodo.b@shiremail.example.com",
+        password: "Password123!",
+      });
+    expect(login.status).toBe(200);
+
+    expect((await agent.get("/api/categories")).status).toBe(200);
+    expect((await agent.get("/api/related-systems")).status).toBe(200);
+    expect((await agent.get("/api/priorities")).status).toBe(200);
+    expect(
+      (await agent.get("/api/tickets").query({ page: 1, pageSize: 10 })).status,
+    ).toBe(200);
+
+    const created = await agent
+      .post("/api/tickets")
+      .set("X-Requested-With", "TokTickIT")
+      .send({
+        categoryId: 1,
+        relatedSystemId: 1,
+        requestedPriorityId: 1,
+        summary: "Authenticated regression ticket",
+        description:
+          "Lab 2 requester ticket creation still works with session auth.",
+      });
+    expect(created.status).toBe(201);
+    await prisma.ticket.delete({
+      where: { ticketNumber: created.body.data.ticketNumber },
+    });
+  });
+});

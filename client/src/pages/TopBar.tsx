@@ -9,11 +9,15 @@ interface TopBarProps {
   onCreateTicket?: () => void;
 }
 
-export default function TopBar({ requester, onChange, onMyTickets, onCreateTicket }: TopBarProps) {
+export default function TopBar({
+  requester,
+  onChange,
+  onMyTickets,
+  onCreateTicket,
+}: TopBarProps) {
   const currentPage = window.location.pathname;
-  const isMyTicketsPage = currentPage === "/my-tickets" || currentPage.startsWith("/ticket/");
+  const isMyTicketsPage = currentPage === "/my-tickets";
   const isCreateTicketPage = currentPage === "/create-ticket";
-  const isChooseRequesterPage = currentPage === "/choose-requester";
 
   return (
     <nav className="topbar">
@@ -28,7 +32,9 @@ export default function TopBar({ requester, onChange, onMyTickets, onCreateTicke
         aria-label="My Tickets"
         title="My Tickets"
       >
-        <span className="nav-icon" aria-hidden="true">▣</span>
+        <span className="nav-icon" aria-hidden="true">
+          ▣
+        </span>
         <span className="nav-label">My Tickets</span>
       </a>
       <a
@@ -37,19 +43,21 @@ export default function TopBar({ requester, onChange, onMyTickets, onCreateTicke
         aria-label="Create Ticket"
         title="Create Ticket"
       >
-        <span className="nav-icon" aria-hidden="true">＋</span>
+        <span className="nav-icon" aria-hidden="true">
+          ＋
+        </span>
         <span className="nav-label">Create Ticket</span>
       </a>
-      <a
-        className={`profile${isChooseRequesterPage ? " active" : ""}`}
-        onClick={onChange}
-      >
+      <a className="profile" onClick={onChange}>
         <span className="profile-name">
           {(requester?.name ?? "Profile").split(/\s+/).map((part) => (
             <span key={part}>{part}</span>
           ))}
         </span>
       </a>
+      <button type="button" onClick={onChange} aria-label="Log out">
+        Log out
+      </button>
     </nav>
   );
 }

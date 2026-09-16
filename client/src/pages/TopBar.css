@@ -56,7 +56,7 @@
   border-radius: 4px 4px 0 0;
 }
 
-.topbar a:hover { 
+.topbar a:hover {
   background: var(--hover-overlay);
   cursor: pointer;
 }
@@ -80,8 +80,12 @@
   gap: 0.25rem;
 }
 
-.profile a:hover { background: var(--hover-overlay); }
-.topbar button:hover { background: var(--hover-overlay); }
+.profile a:hover {
+  background: var(--hover-overlay);
+}
+.topbar button:hover {
+  background: var(--hover-overlay);
+}
 
 @media (max-width: 767px) {
   .topbar {
@@ -101,12 +105,21 @@
     display: flex;
   }
 
+  .nav-label {
+    display: none;
+  }
+  .nav-icon {
+    display: inline;
+    font-size: 20px;
+    line-height: 1;
+  }
 
-  .nav-label { display: none; }
-  .nav-icon { display: inline; font-size: 20px; line-height: 1; }
-
-  .topbar a:nth-of-type(1) { order: 1; }
-  .topbar a:nth-of-type(2) { order: 1; }
+  .topbar a:nth-of-type(1) {
+    order: 1;
+  }
+  .topbar a:nth-of-type(2) {
+    order: 1;
+  }
   .profile {
     order: 2;
     margin-left: auto;

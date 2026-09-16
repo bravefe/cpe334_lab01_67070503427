@@ -1,0 +1,124 @@
+.login-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 20px;
+  background: linear-gradient(
+    135deg,
+    #f7faf8 0%,
+    var(--page-bg) 58%,
+    #edf6f0 100%
+  );
+}
+
+.login-card {
+  width: min(100%, 440px);
+  padding: 40px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 20px 55px var(--shadow-selection);
+}
+
+.login-card .eyebrow {
+  margin-bottom: 10px;
+  color: var(--primary-green);
+  font-weight: 700;
+}
+
+.login-card h1 {
+  margin: 0 0 26px;
+  color: var(--text);
+  font:
+    700 2rem "Space Grotesk",
+    sans-serif;
+}
+
+.login-card label {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.login-card input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--control-border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font:
+    400 1rem "DM Sans",
+    sans-serif;
+}
+
+.login-card input:focus {
+  /* border-color: var(--primary-green); */
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.login-card label small {
+  color: var(--error);
+  font-weight: 500;
+}
+
+.login-card .error-banner {
+  margin: 0 0 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--error-banner-border);
+  border-radius: 8px;
+  background: var(--error-banner-surface);
+  color: var(--error);
+  line-height: 1.4;
+}
+
+.login-card .password-input {
+  display: flex;
+  overflow: hidden;
+  border: 1px solid var(--control-border);
+  border-radius: 8px;
+}
+
+.login-card .password-input:focus-within {
+  /* border-color: var(--primary-green); */
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.login-card .password-input input {
+  min-width: 0;
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+}
+
+.login-card .show-password {
+  min-height: 48px;
+  padding: 0 13px;
+  border: 0;
+  border-left: 1px solid var(--border);
+  border-radius: 0;
+  color: var(--primary-green);
+  font-size: 0.85rem;
+}
+
+.login-card .wide {
+  width: 100%;
+  min-height: 50px;
+  margin-top: 26px;
+}
+
+@media (max-width: 520px) {
+  .login-screen {
+    padding: 18px 12px;
+  }
+
+  .login-card {
+    padding: 28px 22px 30px;
+    border-radius: 12px;
+  }
+}
