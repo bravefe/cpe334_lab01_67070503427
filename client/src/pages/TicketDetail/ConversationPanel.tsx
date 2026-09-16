@@ -110,7 +110,9 @@ export default function ConversationPanel({
       {loading ? (
         <p className="muted">Loading conversation...</p>
       ) : entries.length === 0 ? (
-        <p className="conversation-empty">
+        <p
+          className={`conversation-empty${tab === "notes" ? " internal" : ""}`}
+        >
           {tab === "notes" ? "No internal notes yet." : "No comments yet."}
         </p>
       ) : (

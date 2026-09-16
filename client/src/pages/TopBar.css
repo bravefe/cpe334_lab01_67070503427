@@ -80,6 +80,18 @@
   gap: 0.25rem;
 }
 
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 2px 8px;
+  border: 1px solid var(--surface);
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
 .profile a:hover {
   background: var(--hover-overlay);
 }
