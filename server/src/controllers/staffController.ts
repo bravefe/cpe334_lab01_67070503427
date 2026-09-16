@@ -1,16 +1,18 @@
 import type { Request, Response } from "express";
 import { validateContent } from "../lib/content.js";
-
-const transitionMap: Record<string, string[]> = {
-  New: ["Open", "Cancelled"],
-  Open: ["In Progress", "Waiting for Requester", "Cancelled"],
-  "In Progress": ["Waiting for Requester", "Resolved", "Cancelled"],
-  "Waiting for Requester": ["In Progress", "Resolved", "Cancelled"],
-  Resolved: ["Closed", "Reopened"],
-  Closed: ["Reopened"],
-  Reopened: ["Open", "In Progress", "Cancelled"],
-  Cancelled: [],
-};
+import {
+  createStaffCommentOrNote,
+  findPriorityByName,
+  findStatusByName,
+  findUserById,
+  listStaffCommentsOrNotes,
+  listStaffTickets as listStaffTicketsService,
+  resolveStaffTicket,
+  transitionMap,
+  updateStaffTicketOwner,
+  updateStaffTicketPriority,
+  updateStaffTicketStatus,
+} from "../services/staffService.js";
 
 function sendError(
   res: Response,
@@ -26,27 +28,9 @@ function parsePositiveId(value: unknown): number | null {
   return Number.isInteger(numeric) && numeric > 0 ? numeric : null;
 }
 
-const ticketDetailInclude = {
-  requester: true,
-  ticketOwner: true,
-  category: true,
-import {
-  createStaffCommentOrNote,
-  findPriorityByName,
-  findStatusByName,
-  findUserById,
-  listStaffCommentsOrNotes,
-  listStaffTickets as listStaffTicketsService,
-  resolveStaffTicket,
-  ticketDetailInclude,
-  transitionMap,
-  updateStaffTicketOwner,
-  updateStaffTicketPriority,
-  updateStaffTicketStatus,
-} from "../services/staffService.js";
-  if (!normalized) return null;
-
-  return resolveStaffTicket(value);
+function formatTicket(ticket: any) {
+  return {
+    id: ticket.id,
     ticketNumber: ticket.ticketNumber,
     summary: ticket.summary,
     description: ticket.description,
@@ -64,6 +48,10 @@ import {
     updatedAt: ticket.updatedAt,
     attachments: ticket.attachments,
   };
+}
+
+async function resolveTicketRef(value: string | undefined) {
+  return resolveStaffTicket(value);
 }
 
 export async function listStaffTickets(
@@ -102,7 +90,9 @@ export async function listStaffTickets(
   const q = typeof req.query.q === "string" ? req.query.q.trim() : undefined;
   const statusName =
     typeof req.query.status === "string" ? req.query.status.trim() : undefined;
-  const categoryId = req.query.category ? Number(req.query.category) : undefined;
+  const categoryId = req.query.category
+    ? Number(req.query.category)
+    : undefined;
   const priorityName =
     typeof req.query.requestedPriority === "string"
       ? req.query.requestedPriority.trim()
@@ -124,9 +114,7 @@ export async function listStaffTickets(
   }
 
   if (statusName) {
-    const status = await getPrisma().status.findFirst({
-      where: { name: { equals: statusName, mode: "insensitive" } },
-    });
+    const status = await findStatusByName(statusName);
     if (!status) {
       sendError(res, 400, "VALIDATION_ERROR", "status is invalid.");
       return;
@@ -139,25 +127,16 @@ export async function listStaffTickets(
   }
 
   if (priorityName) {
-    const priority = await getPrisma().priority.findFirst({
-      where: { name: { equals: priorityName, mode: "insensitive" } },
-    });
+    const priority = await findPriorityByName(priorityName);
     if (!priority) {
-      sendError(
-        res,
-        400,
-        "VALIDATION_ERROR",
-        "requestedPriority is invalid.",
-      );
+      sendError(res, 400, "VALIDATION_ERROR", "requestedPriority is invalid.");
       return;
     }
     where.requestedPriorityId = priority.id;
   }
 
   if (itPriorityName) {
-    const priority = await getPrisma().priority.findFirst({
-      where: { name: { equals: itPriorityName, mode: "insensitive" } },
-    });
+    const priority = await findPriorityByName(itPriorityName);
     if (!priority) {
       sendError(res, 400, "VALIDATION_ERROR", "itPriority is invalid.");
       return;
@@ -176,16 +155,11 @@ export async function listStaffTickets(
     }
   }
 
-  const [totalItems, rows] = await Promise.all([
-    getPrisma().ticket.count({ where }),
-    getPrisma().ticket.findMany({
-      where,
-      include: ticketDetailInclude,
-      orderBy: { createdAt: "desc" },
-      skip: (page - 1) * pageSize,
-      take: pageSize,
-    }),
-  ]);
+  const { totalItems, rows } = await listStaffTicketsService(
+    where,
+    page,
+    pageSize,
+  );
 
   res.status(200).json({
     items: rows.map(formatTicket),
@@ -225,13 +199,16 @@ export async function updateOwner(req: Request, res: Response): Promise<void> {
   }
 
   if (ownerId) {
-    const owner = await getPrisma().user.findUnique({ where: { id: ownerId } });
+    const owner = await findUserById(ownerId);
     if (!owner) {
       sendError(res, 400, "VALIDATION_ERROR", "User not found.");
       return;
     }
 
-    if (!owner.isActive || !["IT_STAFF", "ADMINISTRATOR"].includes(owner.role)) {
+    if (
+      !owner.isActive ||
+      !["IT_STAFF", "ADMINISTRATOR"].includes(owner.role)
+    ) {
       sendError(
         res,
         409,
@@ -242,11 +219,7 @@ export async function updateOwner(req: Request, res: Response): Promise<void> {
     }
   }
 
-  const updated = await getPrisma().ticket.update({
-    where: { id: ticket.id },
-    data: { ticketOwnerId: ownerId },
-    include: ticketDetailInclude,
-  });
+  const updated = await updateStaffTicketOwner(ticket.id, ownerId);
 
   res.status(200).json(formatTicket(updated));
 }
@@ -263,20 +236,14 @@ export async function updatePriority(
 
   const name =
     typeof req.body?.itPriority === "string" ? req.body.itPriority.trim() : "";
-  const priority = await getPrisma().priority.findFirst({
-    where: { name: { equals: name.replace(/_/g, " "), mode: "insensitive" } },
-  });
+  const priority = await findPriorityByName(name.replace(/_/g, " "));
 
   if (!priority) {
     sendError(res, 400, "VALIDATION_ERROR", "Invalid IT priority.");
     return;
   }
 
-  const updated = await getPrisma().ticket.update({
-    where: { id: ticket.id },
-    data: { itPriorityId: priority.id },
-    include: ticketDetailInclude,
-  });
+  const updated = await updateStaffTicketPriority(ticket.id, priority.id);
 
   res.status(200).json(formatTicket(updated));
 }
@@ -293,9 +260,7 @@ export async function updateStatus(req: Request, res: Response): Promise<void> {
       ? req.body.status.trim().replace(/_/g, " ")
       : "";
 
-  const status = await getPrisma().status.findFirst({
-    where: { name: { equals: target, mode: "insensitive" } },
-  });
+  const status = await findStatusByName(target);
 
   if (!status) {
     sendError(res, 404, "NOT_FOUND", "Ticket or status not found.");
@@ -313,17 +278,13 @@ export async function updateStatus(req: Request, res: Response): Promise<void> {
     return;
   }
 
-  const updated = await getPrisma().ticket.update({
-    where: { id: ticket.id },
-    data: {
-      currentStatusId: status.id,
-      resolutionSummary:
-        typeof req.body.resolutionSummary === "string"
-          ? req.body.resolutionSummary.trim()
-          : undefined,
-    },
-    include: ticketDetailInclude,
-  });
+  const updated = await updateStaffTicketStatus(
+    ticket.id,
+    status.id,
+    typeof req.body.resolutionSummary === "string"
+      ? req.body.resolutionSummary.trim()
+      : undefined,
+  );
 
   res.status(200).json(formatTicket(updated));
 }
@@ -341,11 +302,10 @@ async function handleCommentsOrNotes(
 
   if (req.method === "GET") {
     if (isInternal) {
-      const notes = await getPrisma().internalNote.findMany({
-        where: { ticketId: ticket.id },
-        include: { author: true },
-        orderBy: { createdAt: "asc" },
-      });
+      const { items: notes } = await listStaffCommentsOrNotes(
+        ticket.id,
+        true,
+      );
 
       res.status(200).json({
         items: notes.map((note) => ({
@@ -360,11 +320,10 @@ async function handleCommentsOrNotes(
       return;
     }
 
-    const comments = await getPrisma().publicComment.findMany({
-      where: { ticketId: ticket.id },
-      include: { author: true },
-      orderBy: { createdAt: "asc" },
-    });
+    const { items: comments } = await listStaffCommentsOrNotes(
+      ticket.id,
+      false,
+    );
 
     res.status(200).json({
       items: comments.map((comment) => ({
@@ -392,14 +351,12 @@ async function handleCommentsOrNotes(
   }
 
   if (isInternal) {
-    const note = await getPrisma().internalNote.create({
-      data: {
-        ticketId: ticket.id,
-        authorId: req.user!.id,
-        content,
-      },
-      include: { author: true },
-    });
+    const note = await createStaffCommentOrNote(
+      ticket.id,
+      req.user!.id,
+      content,
+      true,
+    );
 
     res.status(201).json({
       id: note.id,
@@ -412,14 +369,12 @@ async function handleCommentsOrNotes(
     return;
   }
 
-  const comment = await getPrisma().publicComment.create({
-    data: {
-      ticketId: ticket.id,
-      authorId: req.user!.id,
-      content,
-    },
-    include: { author: true },
-  });
+  const comment = await createStaffCommentOrNote(
+    ticket.id,
+    req.user!.id,
+    content,
+    false,
+  );
 
   res.status(201).json({
     id: comment.id,
