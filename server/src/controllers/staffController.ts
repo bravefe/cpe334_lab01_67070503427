@@ -87,6 +87,21 @@ export async function listStaffTickets(
 
   const page = pageValue;
   const pageSize = pageSizeValue;
+  const requestedSort =
+    typeof req.query.sort === "string" ? req.query.sort : "createdAt";
+  const sort = [
+    "createdAt",
+    "ticketNumber",
+    "summary",
+    "updatedAt",
+    "requestedPriority",
+    "itPriority",
+    "status",
+    "owner",
+  ].includes(requestedSort)
+    ? requestedSort
+    : "createdAt";
+  const sortDir = req.query.sortDir === "asc" ? "asc" : "desc";
   const q = typeof req.query.q === "string" ? req.query.q.trim() : undefined;
   const statusName =
     typeof req.query.status === "string" ? req.query.status.trim() : undefined;
@@ -159,6 +174,8 @@ export async function listStaffTickets(
     where,
     page,
     pageSize,
+    sort as Parameters<typeof listStaffTicketsService>[3],
+    sortDir,
   );
 
   res.status(200).json({

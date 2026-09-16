@@ -22,6 +22,17 @@ export const transitionMap: Record<string, string[]> = {
   Cancelled: [],
 };
 
+export type StaffSortField =
+  | "createdAt"
+  | "ticketNumber"
+  | "summary"
+  | "updatedAt"
+  | "requestedPriority"
+  | "itPriority"
+  | "status"
+  | "owner";
+export type StaffSortDirection = "asc" | "desc";
+
 export async function resolveStaffTicket(value: string | undefined) {
   if (!value) return null;
   const normalized = value.trim();
@@ -61,13 +72,26 @@ export async function listStaffTickets(
   where: any,
   page: number,
   pageSize: number,
+  sort: StaffSortField = "createdAt",
+  sortDir: StaffSortDirection = "desc",
 ) {
+  const orderBy: any =
+    sort === "requestedPriority"
+      ? { requestedPriority: { sortOrder: sortDir } }
+      : sort === "itPriority"
+        ? { itPriority: { sortOrder: sortDir } }
+        : sort === "status"
+          ? { currentStatus: { name: sortDir } }
+          : sort === "owner"
+            ? { ticketOwner: { name: sortDir } }
+            : { [sort]: sortDir };
+
   const [totalItems, rows] = await Promise.all([
     getPrisma().ticket.count({ where }),
     getPrisma().ticket.findMany({
       where,
       include: ticketDetailInclude,
-      orderBy: { createdAt: "desc" },
+      orderBy,
       skip: (page - 1) * pageSize,
       take: pageSize,
     }),

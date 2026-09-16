@@ -231,7 +231,7 @@ export default function StaffTicketQueue({
                     <th>
                       <SortButton
                         label="Ticket No."
-                        field="createdAt"
+                        field="ticketNumber"
                         query={query}
                         onSort={sort}
                       />
@@ -246,8 +246,22 @@ export default function StaffTicketQueue({
                     </th>
                     <th>Summary</th>
                     <th>Category</th>
-                    <th>Req. Priority</th>
-                    <th>IT Priority</th>
+                    <th>
+                      <SortButton
+                        label="Req. Priority"
+                        field="requestedPriority"
+                        query={query}
+                        onSort={sort}
+                      />
+                    </th>
+                    <th>
+                      <SortButton
+                        label="IT Priority"
+                        field="itPriority"
+                        query={query}
+                        onSort={sort}
+                      />
+                    </th>
                     <th>
                       <SortButton
                         label="Status"
@@ -259,7 +273,7 @@ export default function StaffTicketQueue({
                     <th>
                       <SortButton
                         label="Owner"
-                        field="updatedAt"
+                        field="owner"
                         query={query}
                         onSort={sort}
                       />

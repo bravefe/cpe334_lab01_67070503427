@@ -61,7 +61,7 @@
 }
 .queue-table-wrap th {
   background: var(--pale-green);
-  color: var(--muted);
+  color: var(--primary-green);
   font-size: 0.82rem;
 }
 .queue-table-wrap th button {

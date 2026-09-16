@@ -64,7 +64,15 @@ export interface StaffTicketQuery {
   requestedPriority?: string;
   itPriority?: string;
   owner?: "me" | "unassigned" | string;
-  sort: "createdAt" | "updatedAt" | "itPriority" | "status";
+  sort:
+    | "createdAt"
+    | "ticketNumber"
+    | "summary"
+    | "updatedAt"
+    | "requestedPriority"
+    | "itPriority"
+    | "status"
+    | "owner";
   sortDir: "asc" | "desc";
   page: number;
   pageSize: number;
