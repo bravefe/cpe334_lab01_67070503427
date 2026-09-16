@@ -302,10 +302,7 @@ async function handleCommentsOrNotes(
 
   if (req.method === "GET") {
     if (isInternal) {
-      const { items: notes } = await listStaffCommentsOrNotes(
-        ticket.id,
-        true,
-      );
+      const { items: notes } = await listStaffCommentsOrNotes(ticket.id, true);
 
       res.status(200).json({
         items: notes.map((note) => ({
