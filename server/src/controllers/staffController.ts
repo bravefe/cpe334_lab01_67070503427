@@ -1,5 +1,4 @@
 import type { Request, Response } from "express";
-import { getPrisma } from "../prisma.js";
 import { validateContent } from "../lib/content.js";
 
 const transitionMap: Record<string, string[]> = {
@@ -31,35 +30,23 @@ const ticketDetailInclude = {
   requester: true,
   ticketOwner: true,
   category: true,
-  relatedSystem: true,
-  requestedPriority: true,
-  itPriority: true,
-  currentStatus: true,
-  attachments: true,
-} as const;
-
-async function resolveTicketRef(value: string | undefined) {
-  if (!value) return null;
-  const normalized = String(value).trim();
+import {
+  createStaffCommentOrNote,
+  findPriorityByName,
+  findStatusByName,
+  findUserById,
+  listStaffCommentsOrNotes,
+  listStaffTickets as listStaffTicketsService,
+  resolveStaffTicket,
+  ticketDetailInclude,
+  transitionMap,
+  updateStaffTicketOwner,
+  updateStaffTicketPriority,
+  updateStaffTicketStatus,
+} from "../services/staffService.js";
   if (!normalized) return null;
 
-  const numericId = Number(normalized);
-  if (Number.isInteger(numericId) && numericId > 0) {
-    return getPrisma().ticket.findUnique({
-      where: { id: numericId },
-      include: ticketDetailInclude,
-    });
-  }
-
-  return getPrisma().ticket.findUnique({
-    where: { ticketNumber: normalized },
-    include: ticketDetailInclude,
-  });
-}
-
-function formatTicket(ticket: any) {
-  return {
-    id: ticket.id,
+  return resolveStaffTicket(value);
     ticketNumber: ticket.ticketNumber,
     summary: ticket.summary,
     description: ticket.description,

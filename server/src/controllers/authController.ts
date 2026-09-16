@@ -12,6 +12,11 @@ import {
   SESSION_COOKIE,
   sessionCookieOptions,
 } from "../lib/session.js";
+import {
+  findUserByEmail,
+  findUserById,
+  updateUserPassword,
+} from "../services/authService.js";
 
 const publicUser = (user: {
   id: number;
@@ -31,7 +36,8 @@ const publicUser = (user: {
 
 export async function login(req: Request, res: Response): Promise<void> {
   const emailRaw = typeof req.body?.email === "string" ? req.body.email : "";
-  const password = typeof req.body?.password === "string" ? req.body.password : "";
+  const password =
+    typeof req.body?.password === "string" ? req.body.password : "";
 
   if (!emailRaw || !password || !isValidEmail(emailRaw)) {
     res.status(400).json({
@@ -44,9 +50,7 @@ export async function login(req: Request, res: Response): Promise<void> {
   }
 
   const email = normalizeEmail(emailRaw);
-  const user = await getPrisma().user.findFirst({
-    where: { email: { equals: email, mode: "insensitive" } },
-  });
+  const user = await findUserByEmail(email);
 
   if (!user || !(await comparePassword(password, user.passwordHash))) {
     res.status(401).json({
@@ -102,7 +106,10 @@ export function me(req: Request, res: Response): void {
   res.status(200).json(publicUser(req.user));
 }
 
-export async function changePassword(req: Request, res: Response): Promise<void> {
+export async function changePassword(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const currentPassword =
     typeof req.body?.currentPassword === "string"
       ? req.body.currentPassword
@@ -118,9 +125,7 @@ export async function changePassword(req: Request, res: Response): Promise<void>
     return;
   }
 
-  const user = await getPrisma().user.findUnique({
-    where: { id: req.user!.id },
-  });
+  const user = await findUserById(req.user!.id);
 
   if (!user || !(await comparePassword(currentPassword, user.passwordHash))) {
     res.status(401).json({
@@ -142,13 +147,10 @@ export async function changePassword(req: Request, res: Response): Promise<void>
     return;
   }
 
-  const updatedUser = await getPrisma().user.update({
-    where: { id: user.id },
-    data: {
-      passwordHash: await hashPassword(newPassword),
-      mustChangePassword: false,
-    },
-  });
+  const updatedUser = await updateUserPassword(
+    user.id,
+    await hashPassword(newPassword),
+  );
 
   const currentToken = req.cookies?.[SESSION_COOKIE] as string | undefined;
   if (currentToken) {
