@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import {
-  parseTicketQuery,
-  type TicketQuery,
-} from "../lib/tickets.js";
+import { getPrisma } from "../prisma.js";
+import { validateContent } from "../lib/content.js";
+import { parseTicketQuery, type TicketQuery } from "../lib/tickets.js";
+import { isLegalStatusTransition } from "../lib/statusTransitions.js";
 import {
   createTicketService,
   getTicketDetailService,
@@ -10,10 +10,7 @@ import {
   TicketValidationError,
 } from "../services/ticketService.js";
 
-export async function getTickets(
-  req: Request,
-  res: Response,
-): Promise<void> {
+export async function getTickets(req: Request, res: Response): Promise<void> {
   const requesterId = req.user!.id;
 
   const query: TicketQuery = parseTicketQuery(req);
@@ -32,15 +29,13 @@ export async function getTickets(
   }
 }
 
-export async function createTicket(
-  req: Request,
-  res: Response,
-): Promise<void> {
+export async function createTicket(req: Request, res: Response): Promise<void> {
   const requesterId = req.user!.id;
 
   const body = req.body ?? {};
   const summary = typeof body.summary === "string" ? body.summary.trim() : "";
-  const description = typeof body.description === "string" ? body.description.trim() : "";
+  const description =
+    typeof body.description === "string" ? body.description.trim() : "";
   const categoryId = Number(body.categoryId);
   const relatedSystemId = Number(body.relatedSystemId);
   const requestedPriorityId = Number(body.requestedPriorityId);
@@ -117,7 +112,10 @@ export async function createTicket(
     }
 
     res.status(500).json({
-      error: { code: "INTERNAL_ERROR", message: "ERROR 500: Unable to create ticket." },
+      error: {
+        code: "INTERNAL_ERROR",
+        message: "ERROR 500: Unable to create ticket.",
+      },
     });
   }
 }
@@ -150,7 +148,171 @@ export async function getTicketDetail(
     res.status(200).json({ data: ticket });
   } catch (_error) {
     res.status(500).json({
-      error: { code: "INTERNAL_ERROR", message: "ERROR 500: Failed to load ticket detail." },
+      error: {
+        code: "INTERNAL_ERROR",
+        message: "ERROR 500: Failed to load ticket detail.",
+      },
     });
   }
+}
+
+async function resolveTicketAccess(req: Request) {
+  const ticketNumber = String(req.params.ticketNumber ?? "").trim();
+  if (!ticketNumber) return null;
+
+  const ticket = await getPrisma().ticket.findUnique({
+    where: { ticketNumber },
+    include: { requester: true, currentStatus: true },
+  });
+
+  if (!ticket) return null;
+
+  if (req.user!.role === "REQUESTER" && ticket.requesterId !== req.user!.id) {
+    return "forbidden" as const;
+  }
+
+  return ticket;
+}
+
+export async function getTicketComments(req: Request, res: Response) {
+  const ticket = await resolveTicketAccess(req);
+
+  if (!ticket) {
+    return res.status(404).json({
+      error: { code: "NOT_FOUND", message: "Ticket not found." },
+    });
+  }
+  if (ticket === "forbidden") {
+    return res.status(403).json({
+      error: {
+        code: "FORBIDDEN",
+        message: "You are not allowed to access this ticket.",
+      },
+    });
+  }
+
+  const comments = await getPrisma().publicComment.findMany({
+    where: { ticketId: ticket.id },
+    include: { author: true },
+    orderBy: { createdAt: "asc" },
+  });
+
+  return res.status(200).json({
+    items: comments.map((comment) => ({
+      id: comment.id,
+      ticketId: comment.ticketId,
+      authorId: comment.authorId,
+      authorName: comment.author.name,
+      authorRole: comment.author.role,
+      content: comment.content,
+      createdAt: comment.createdAt.toISOString(),
+    })),
+  });
+}
+
+export async function createTicketComment(req: Request, res: Response) {
+  const ticket = await resolveTicketAccess(req);
+
+  if (!ticket) {
+    return res.status(404).json({
+      error: { code: "NOT_FOUND", message: "Ticket not found." },
+    });
+  }
+  if (ticket === "forbidden") {
+    return res.status(403).json({
+      error: {
+        code: "FORBIDDEN",
+        message: "You are not allowed to access this ticket.",
+      },
+    });
+  }
+
+  const content = validateContent(req.body?.content);
+  if (!content) {
+    return res.status(400).json({
+      error: {
+        code: "VALIDATION_ERROR",
+        message: "Content must be between 1 and 2000 characters.",
+      },
+    });
+  }
+
+  const created = await getPrisma().publicComment.create({
+    data: {
+      ticketId: ticket.id,
+      authorId: req.user!.id,
+      content,
+    },
+    include: { author: true },
+  });
+
+  return res.status(201).json({
+    id: created.id,
+    ticketId: created.ticketId,
+    authorId: created.authorId,
+    authorName: created.author.name,
+    authorRole: created.author.role,
+    content: created.content,
+    createdAt: created.createdAt.toISOString(),
+  });
+}
+
+export async function updateTicketResolution(req: Request, res: Response) {
+  const ticketNumber = String(req.params.ticketNumber ?? "").trim();
+  if (!ticketNumber) {
+    return res.status(404).json({
+      error: { code: "NOT_FOUND", message: "Ticket not found." },
+    });
+  }
+
+  const ticket = await getPrisma().ticket.findUnique({
+    where: { ticketNumber },
+    include: { requester: true, currentStatus: true },
+  });
+  if (!ticket) {
+    return res.status(404).json({
+      error: { code: "NOT_FOUND", message: "Ticket not found." },
+    });
+  }
+  if (req.user!.role === "REQUESTER" && ticket.requesterId !== req.user!.id) {
+    return res.status(403).json({
+      error: {
+        code: "FORBIDDEN",
+        message: "You are not allowed to access this ticket.",
+      },
+    });
+  }
+
+  const value = req.body?.problemAppearsResolved;
+  if (typeof value !== "boolean") {
+    return res.status(400).json({
+      error: {
+        code: "VALIDATION_ERROR",
+        message: "problemAppearsResolved must be a boolean.",
+      },
+    });
+  }
+
+  const allowedStatuses = ["Open", "In Progress", "Waiting for Requester"];
+  if (!allowedStatuses.includes(ticket.currentStatus.name)) {
+    return res.status(409).json({
+      error: {
+        code: "INVALID_STATUS",
+        message: `Ticket status must be one of: ${allowedStatuses.join(", ")}.`,
+      },
+    });
+  }
+
+  const updated = await getPrisma().ticket.update({
+    where: { id: ticket.id },
+    data: { problemAppearsResolved: value },
+    include: { currentStatus: true },
+  });
+
+  return res.status(200).json({
+    ...updated,
+    status: updated.currentStatus.name,
+    currentStatus: undefined,
+    currentStatusId: undefined,
+  });
 }

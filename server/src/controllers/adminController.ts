@@ -2,12 +2,163 @@ import type { Request, Response } from "express";
 import { getPrisma } from "../prisma.js";
 import { hashPassword, validatePassword } from "../lib/password.js";
 
-const safe = (user: any) => ({ id: user.id, name: user.name, email: user.email, role: user.role, isActive: user.isActive, mustChangePassword: user.mustChangePassword });
-const fail = (res: Response, status: number, code: string, message: string) => res.status(status).json({ error: { code, message } });
-const validRole = (role: unknown) => ["REQUESTER", "IT_STAFF", "ADMINISTRATOR"].includes(String(role));
+const safe = (user: any) => ({
+  id: user.id,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  isActive: user.isActive,
+  mustChangePassword: user.mustChangePassword,
+});
+const fail = (res: Response, status: number, code: string, message: string) =>
+  res.status(status).json({ error: { code, message } });
+const validRole = (role: unknown) =>
+  ["REQUESTER", "IT_STAFF", "ADMINISTRATOR"].includes(String(role));
 
-export async function listUsers(req: Request, res: Response) { const q = typeof req.query.q === "string" ? req.query.q : undefined; const role = typeof req.query.role === "string" && validRole(req.query.role) ? req.query.role as any : undefined; const users = await getPrisma().user.findMany({ where: { ...(q ? { OR: [{ name: { contains: q, mode: "insensitive" as const } }, { email: { contains: q, mode: "insensitive" as const } }] } : {}), ...(role ? { role } : {}) }, orderBy: { name: "asc" } }); res.json({ items: users.map(safe) }); }
-export async function getUser(req: Request, res: Response) { const user = await getPrisma().user.findUnique({ where: { id: Number(req.params.id) } }); if (!user) return fail(res, 404, "NOT_FOUND", "User not found."); return res.json(safe(user)); }
-export async function createUser(req: Request, res: Response) { const { name, email, role, isActive = true, initialPassword } = req.body ?? {}; const passwordError = validatePassword(initialPassword); if (typeof name !== "string" || !name.trim() || typeof email !== "string" || !/^\S+@\S+\.\S+$/.test(email) || !validRole(role) || passwordError) return fail(res, 400, "VALIDATION_ERROR", passwordError ?? "Invalid user details."); const existing = await getPrisma().user.findFirst({ where: { email: { equals: email.trim(), mode: "insensitive" } } }); if (existing) return fail(res, 409, "DUPLICATE_EMAIL", "A user with this email already exists."); const user = await getPrisma().user.create({ data: { name: name.trim(), email: email.trim().toLowerCase(), role, isActive: Boolean(isActive), passwordHash: await hashPassword(initialPassword), mustChangePassword: true } }); return res.status(201).json(safe(user)); }
-export async function updateUser(req: Request, res: Response) { const userId = Number(req.params.id); const current = await getPrisma().user.findUnique({ where: { id: userId } }); if (!current) return fail(res, 404, "NOT_FOUND", "User not found."); const data = req.body ?? {}; if (userId === req.user!.id && data.isActive === false) return fail(res, 409, "SELF_DEACTIVATION", "You cannot deactivate your own account."); if (data.role && !validRole(data.role)) return fail(res, 400, "VALIDATION_ERROR", "Invalid role."); if (data.email) { const duplicate = await getPrisma().user.findFirst({ where: { email: { equals: String(data.email).trim(), mode: "insensitive" }, NOT: { id: userId } } }); if (duplicate) return fail(res, 409, "DUPLICATE_EMAIL", "A user with this email already exists."); } if (current.role === "ADMINISTRATOR" && current.isActive && (data.isActive === false || data.role && data.role !== "ADMINISTRATOR")) { const count = await getPrisma().user.count({ where: { role: "ADMINISTRATOR", isActive: true } }); if (count <= 1) return fail(res, 409, "LAST_ADMIN", "At least one active administrator is required."); } const updated = await getPrisma().user.update({ where: { id: userId }, data: { ...(data.name ? { name: String(data.name).trim() } : {}), ...(data.email ? { email: String(data.email).trim().toLowerCase() } : {}), ...(data.role ? { role: data.role } : {}), ...(typeof data.isActive === "boolean" ? { isActive: data.isActive } : {}) } }); return res.json(safe(updated)); }
-export async function resetPassword(req: Request, res: Response) { const passwordError = validatePassword(req.body?.newPassword); if (passwordError) return fail(res, 400, "VALIDATION_ERROR", passwordError); const user = await getPrisma().user.update({ where: { id: Number(req.params.id) }, data: { passwordHash: await hashPassword(req.body.newPassword), mustChangePassword: true } }).catch(() => null); if (!user) return fail(res, 404, "NOT_FOUND", "User not found."); return res.json({ mustChangePassword: true }); }
+export async function listUsers(req: Request, res: Response) {
+  const q = typeof req.query.q === "string" ? req.query.q : undefined;
+  const role =
+    typeof req.query.role === "string" && validRole(req.query.role)
+      ? (req.query.role as any)
+      : undefined;
+  const users = await getPrisma().user.findMany({
+    where: {
+      ...(q
+        ? {
+            OR: [
+              { name: { contains: q, mode: "insensitive" as const } },
+              { email: { contains: q, mode: "insensitive" as const } },
+            ],
+          }
+        : {}),
+      ...(role ? { role } : {}),
+    },
+    orderBy: { name: "asc" },
+  });
+  res.json({ items: users.map(safe) });
+}
+export async function getUser(req: Request, res: Response) {
+  const user = await getPrisma().user.findUnique({
+    where: { id: Number(req.params.id) },
+  });
+  if (!user) return fail(res, 404, "NOT_FOUND", "User not found.");
+  return res.json(safe(user));
+}
+export async function createUser(req: Request, res: Response) {
+  const {
+    name,
+    email,
+    role,
+    isActive = true,
+    initialPassword,
+  } = req.body ?? {};
+  const passwordError = validatePassword(initialPassword);
+  if (
+    typeof name !== "string" ||
+    !name.trim() ||
+    typeof email !== "string" ||
+    !/^\S+@\S+\.\S+$/.test(email) ||
+    !validRole(role) ||
+    passwordError
+  )
+    return fail(
+      res,
+      400,
+      "VALIDATION_ERROR",
+      passwordError ?? "Invalid user details.",
+    );
+  const existing = await getPrisma().user.findFirst({
+    where: { email: { equals: email.trim(), mode: "insensitive" } },
+  });
+  if (existing)
+    return fail(
+      res,
+      409,
+      "DUPLICATE_EMAIL",
+      "A user with this email already exists.",
+    );
+  const user = await getPrisma().user.create({
+    data: {
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      role,
+      isActive: Boolean(isActive),
+      passwordHash: await hashPassword(initialPassword),
+      mustChangePassword: true,
+    },
+  });
+  return res.status(201).json(safe(user));
+}
+export async function updateUser(req: Request, res: Response) {
+  const userId = Number(req.params.id);
+  const current = await getPrisma().user.findUnique({ where: { id: userId } });
+  if (!current) return fail(res, 404, "NOT_FOUND", "User not found.");
+  const data = req.body ?? {};
+  if (userId === req.user!.id && data.isActive === false)
+    return fail(
+      res,
+      409,
+      "SELF_DEACTIVATION",
+      "You cannot deactivate your own account.",
+    );
+  if (data.role && !validRole(data.role))
+    return fail(res, 400, "VALIDATION_ERROR", "Invalid role.");
+  if (data.email) {
+    const duplicate = await getPrisma().user.findFirst({
+      where: {
+        email: { equals: String(data.email).trim(), mode: "insensitive" },
+        NOT: { id: userId },
+      },
+    });
+    if (duplicate)
+      return fail(
+        res,
+        409,
+        "DUPLICATE_EMAIL",
+        "A user with this email already exists.",
+      );
+  }
+  if (
+    current.role === "ADMINISTRATOR" &&
+    current.isActive &&
+    (data.isActive === false || (data.role && data.role !== "ADMINISTRATOR"))
+  ) {
+    const count = await getPrisma().user.count({
+      where: { role: "ADMINISTRATOR", isActive: true },
+    });
+    if (count <= 1)
+      return fail(
+        res,
+        409,
+        "LAST_ADMIN",
+        "At least one active administrator is required.",
+      );
+  }
+  const updated = await getPrisma().user.update({
+    where: { id: userId },
+    data: {
+      ...(data.name ? { name: String(data.name).trim() } : {}),
+      ...(data.email ? { email: String(data.email).trim().toLowerCase() } : {}),
+      ...(data.role ? { role: data.role } : {}),
+      ...(typeof data.isActive === "boolean"
+        ? { isActive: data.isActive }
+        : {}),
+    },
+  });
+  return res.json(safe(updated));
+}
+export async function resetPassword(req: Request, res: Response) {
+  const passwordError = validatePassword(req.body?.newPassword);
+  if (passwordError) return fail(res, 400, "VALIDATION_ERROR", passwordError);
+  const user = await getPrisma()
+    .user.update({
+      where: { id: Number(req.params.id) },
+      data: {
+        passwordHash: await hashPassword(req.body.newPassword),
+        mustChangePassword: true,
+      },
+    })
+    .catch(() => null);
+  if (!user) return fail(res, 404, "NOT_FOUND", "User not found.");
+  return res.json({ mustChangePassword: true });
+}
