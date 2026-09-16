@@ -86,6 +86,9 @@ describe("Lab 3 requester ticket detail", () => {
     expect(
       await screen.findByRole("heading", { name: "Ticket Details" }),
     ).toBeInTheDocument();
+    await userEvent
+      .setup()
+      .click(await screen.findByRole("tab", { name: "Attachments" }));
     expect(
       await screen.findByText("Unable to load data. Please try again."),
     ).toBeInTheDocument();
