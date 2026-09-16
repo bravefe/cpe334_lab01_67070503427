@@ -96,42 +96,12 @@ export default function ConversationPanel({
           </button>
         </div>
       )}
-      {!staff && <h2 className="conversation-heading">Public Comments</h2>}
+      {/* {!staff && <h2 className="conversation-heading">Public Comments</h2>} */}
       {tab === "notes" && (
         <p className="internal-note-label">
           Internal - not visible to Requester
         </p>
       )}
-      <form
-        className={
-          tab === "notes"
-            ? "conversation-compose internal"
-            : "conversation-compose"
-        }
-        onSubmit={submit}
-      >
-        <label htmlFor={`${ticketRef}-${tab}-content`}>
-          {tab === "notes" ? "Add Internal Note" : "Add Public Comment"}
-          <textarea
-            id={`${ticketRef}-${tab}-content`}
-            value={content}
-            maxLength={2000}
-            onChange={(event) => setContent(event.target.value)}
-            placeholder={
-              tab === "notes"
-                ? "Write an internal note..."
-                : "Write a public comment..."
-            }
-          />
-        </label>
-        <button
-          className="primary"
-          type="submit"
-          disabled={busy || !content.trim()}
-        >
-          {busy ? "Posting..." : tab === "notes" ? "Add Note" : "Post Comment"}
-        </button>
-      </form>
       {error && (
         <div className="error-banner" role="alert">
           {error}
@@ -153,6 +123,7 @@ export default function ConversationPanel({
             <article className="conversation-entry" key={entry.id}>
               <header>
                 <strong>{entry.authorName}</strong>
+
                 {"authorRole" in entry && (
                   <span>
                     {entry.authorRole === "REQUESTER"
@@ -160,15 +131,50 @@ export default function ConversationPanel({
                       : "IT Support"}
                   </span>
                 )}
+
                 <time dateTime={entry.createdAt}>
                   {formatDate(entry.createdAt)}
                 </time>
               </header>
+
               <p>{entry.content}</p>
             </article>
           ))}
         </div>
       )}
+      {/* Compose form at the bottom */}
+      <form
+        className={
+          tab === "notes"
+            ? "conversation-compose internal"
+            : "conversation-compose"
+        }
+        onSubmit={submit}
+      >
+        <label htmlFor={`${ticketRef}-${tab}-content`}>
+          {tab === "notes" ? "Add Internal Note" : "Add Public Comment"}
+
+          <textarea
+            id={`${ticketRef}-${tab}-content`}
+            value={content}
+            maxLength={2000}
+            onChange={(event) => setContent(event.target.value)}
+            placeholder={
+              tab === "notes"
+                ? "Write an internal note..."
+                : "Write a public comment..."
+            }
+          />
+        </label>
+
+        <button
+          className="primary"
+          type="submit"
+          disabled={busy || !content.trim()}
+        >
+          {busy ? "Posting..." : tab === "notes" ? "Add Note" : "Post Comment"}
+        </button>
+      </form>
     </section>
   );
 }

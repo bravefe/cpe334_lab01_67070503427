@@ -86,15 +86,6 @@ export default function Login({
               onChange={(event) => setPassword(event.target.value)}
               autoComplete="current-password"
             />
-
-            {/* <button
-              type="button"
-              className="show-password"
-              onClick={() => setShowPassword((visible) => !visible)}
-              aria-label={showPassword ? "Hide password" : "Show password"}
-            >
-              {showPassword ? "Hide" : "Show"}
-            </button> */}
           </div>
           {passwordError && <small role="alert">{passwordError}</small>}
         </label>

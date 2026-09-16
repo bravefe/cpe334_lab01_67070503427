@@ -27,6 +27,7 @@
   display: grid;
   gap: 10px;
   margin-bottom: 18px;
+  margin-top: 18px;
 }
 .conversation-compose label {
   display: grid;
