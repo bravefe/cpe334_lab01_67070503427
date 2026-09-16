@@ -1,0 +1,131 @@
+.staff-queue-page {
+  width: min(100% - 48px, 1800px);
+  margin: 0 auto;
+  padding-top: 24px;
+}
+.queue-controls,
+.queue-filters {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.queue-controls .search-field {
+  flex: 1 1 360px;
+}
+.queue-controls label,
+.queue-filters label {
+  display: grid;
+  gap: 7px;
+  color: var(--text);
+  font-weight: 700;
+}
+.queue-controls input,
+.queue-filters select {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font: 14px "DM Sans";
+}
+.queue-filters {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.result-count {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.queue-table-wrap {
+  overflow-x: auto;
+}
+.queue-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.queue-table-wrap th,
+.queue-table-wrap td {
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+.queue-table-wrap th {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.queue-table-wrap th button {
+  min-height: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+.queue-table-wrap tbody tr {
+  cursor: pointer;
+}
+.queue-table-wrap tbody tr:hover {
+  background: var(--pale-green);
+}
+.queue-table-wrap .summary {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.queue-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+}
+.queue-cards {
+  display: none;
+}
+.queue-loading {
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+@media (max-width: 1023px) {
+  .queue-table-wrap {
+    display: none;
+  }
+  .queue-cards {
+    display: grid;
+    gap: 10px;
+  }
+  .queue-card {
+    display: grid;
+    gap: 10px;
+    min-height: auto;
+    padding: 16px;
+    text-align: left;
+  }
+  .queue-card-top,
+  .queue-card-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .queue-card-meta {
+    color: var(--muted);
+    font-size: 0.86rem;
+  }
+}
+@media (max-width: 767px) {
+  .staff-queue-page {
+    width: min(100% - 32px, 1200px);
+    padding-top: 18px;
+  }
+  .queue-controls > button {
+    flex: 1;
+  }
+}

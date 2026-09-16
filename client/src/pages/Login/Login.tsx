@@ -87,14 +87,14 @@ export default function Login({
               autoComplete="current-password"
             />
 
-            <button
+            {/* <button
               type="button"
               className="show-password"
               onClick={() => setShowPassword((visible) => !visible)}
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? "Hide" : "Show"}
-            </button>
+            </button> */}
           </div>
           {passwordError && <small role="alert">{passwordError}</small>}
         </label>

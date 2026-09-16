@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { fetchTicketDetail } from "../../api/tickets";
+import { markTicketResolved } from "../../api/tickets";
 import { Requester } from "../../lib/requester";
 import { TicketDetail as TicketDetailType } from "../../lib/ticket";
 import TopBar from "../TopBar";
 import AttachmentTicketDetail from "./AttachmentTicketDetail";
 import "./TicketDetail.css";
+import ConversationPanel from "./ConversationPanel";
+import "./ConversationPanel.css";
 
 import { formatDate } from "../../lib/formatDate";
 
@@ -27,6 +30,8 @@ export default function TicketDetail({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("attachments");
+  const [resolutionBusy, setResolutionBusy] = useState(false);
+  const [resolutionError, setResolutionError] = useState("");
   const createdFromForm =
     new URLSearchParams(window.location.search).get("created") === "1";
 
@@ -45,6 +50,33 @@ export default function TicketDetail({
         setLoading(false);
       });
   }, [ticketNumber]);
+
+  const canMarkResolved = [
+    "Open",
+    "In Progress",
+    "Waiting for Requester",
+  ].includes(ticket?.currentStatus?.name ?? "");
+  const markResolved = async () => {
+    if (
+      !window.confirm(
+        "Let IT Support know this looks fixed? They'll still need to formally close the ticket.",
+      )
+    )
+      return;
+    setResolutionBusy(true);
+    setResolutionError("");
+    try {
+      setTicket(await markTicketResolved(ticketNumber));
+    } catch (requestError) {
+      setResolutionError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Unable to update the ticket.",
+      );
+    } finally {
+      setResolutionBusy(false);
+    }
+  };
 
   return (
     <>
@@ -156,6 +188,26 @@ export default function TicketDetail({
               </div> */}
             </div>
 
+            {canMarkResolved && !ticket.problemAppearsResolved && (
+              <button
+                type="button"
+                disabled={resolutionBusy}
+                onClick={() => void markResolved()}
+              >
+                {resolutionBusy ? "Saving..." : "Problem Appears Resolved"}
+              </button>
+            )}
+            {ticket.problemAppearsResolved && (
+              <p className="success-inline">
+                ✓ You marked this as appearing resolved.
+              </p>
+            )}
+            {resolutionError && (
+              <div className="error-banner" role="alert">
+                {resolutionError}
+              </div>
+            )}
+
             {/* Summary */}
             <div className="field full-width">
               <span>Summary</span>
@@ -200,6 +252,8 @@ export default function TicketDetail({
             </div>
             {activeTab === "attachments" ? (
               <AttachmentTicketDetail ticketNumber={ticketNumber} />
+            ) : activeTab === "public-comments" ? (
+              <ConversationPanel ticketRef={ticketNumber} />
             ) : (
               <div className="attachment-empty">
                 This section will be implemented later.

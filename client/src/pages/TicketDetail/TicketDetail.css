@@ -201,3 +201,8 @@
     grid-template-columns: 1fr;
   }
 }
+
+.ticket-detail-page .success-inline {
+  color: var(--success);
+  font-weight: 700;
+}
