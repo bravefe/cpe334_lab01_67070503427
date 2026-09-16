@@ -29,7 +29,7 @@ export default function TicketDetail({
   const [ticket, setTicket] = useState<TicketDetailType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState("attachments");
+  const [activeTab, setActiveTab] = useState("public-comments");
   const [resolutionBusy, setResolutionBusy] = useState(false);
   const [resolutionError, setResolutionError] = useState("");
   const createdFromForm =
@@ -233,8 +233,8 @@ export default function TicketDetail({
               {[
                 "Public Comments",
                 "Attachments",
-                "Service Actions",
-                "Event Log",
+                // "Service Actions",
+                // "Event Log",
               ].map((tab) => {
                 const key = tab.toLowerCase().replace(" ", "-");
                 return (
