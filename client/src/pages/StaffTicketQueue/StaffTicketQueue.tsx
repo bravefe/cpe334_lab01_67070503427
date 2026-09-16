@@ -43,7 +43,6 @@ export default function StaffTicketQueue({
   });
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [error, setError] = useState("");
-  const [filtersOpen, setFiltersOpen] = useState(false);
   const [options, setOptions] = useState<{
     categories: Category[];
     priorities: Priority[];
@@ -120,8 +119,13 @@ export default function StaffTicketQueue({
             <h1>My Queue</h1>
             <p className="muted">Triage and resolve support tickets.</p>
           </div>
+          <div className="actions">
+            <button type="button" onClick={clear}>
+              ↻ Clear Filters
+            </button>
+          </div>
         </header>
-        <section className="queue-controls">
+        <section className="queue-filters">
           <label className="search-field" htmlFor="staff-ticket-search">
             Search
             <input
@@ -134,15 +138,7 @@ export default function StaffTicketQueue({
               placeholder="Search by ticket number or summary..."
             />
           </label>
-          <button type="button" onClick={() => setFiltersOpen((open) => !open)}>
-            Filters
-          </button>
-          <button type="button" onClick={clear}>
-            Clear filters
-          </button>
-        </section>
-        {filtersOpen && (
-          <section className="queue-filters">
+          <div className="queue-filter-fields">
             <Filter
               label="Status"
               value={query.status}
@@ -196,8 +192,8 @@ export default function StaffTicketQueue({
                 <option value="unassigned">Unassigned</option>
               </select>
             </label>
-          </section>
-        )}
+          </div>
+        </section>
         {state === "ready" && (
           <p className="result-count">
             Showing {meta.totalItems ? (meta.page - 1) * meta.pageSize + 1 : 0}{" "}
