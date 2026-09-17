@@ -94,6 +94,81 @@ describe("Lab 3 requester ticket detail", () => {
     ).toBeInTheDocument();
   });
 
+  it.each(["Resolved", "Closed"])(
+    "shows the resolution summary for %s tickets",
+    async (status) => {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockImplementation((input: RequestInfo | URL) => {
+          const url = String(input);
+          if (url.includes("/api/auth/me"))
+            return Promise.resolve(response(requester));
+          if (url.endsWith("/comments"))
+            return Promise.resolve(response({ items: [] }));
+          if (url.includes("/attachments"))
+            return Promise.resolve(response({ data: [] }));
+          if (url.endsWith("/api/tickets/TKT-2026-000001"))
+            return Promise.resolve(
+              response({
+                data: {
+                  ...ticket,
+                  currentStatus: { id: 3, name: status },
+                  resolutionSummary: "The issue was resolved after the update.",
+                },
+              }),
+            );
+          return Promise.resolve(response({ data: [] }));
+        }),
+      );
+
+      window.history.pushState({}, "", "/ticket/TKT-2026-000001");
+      render(<App />);
+
+      expect(await screen.findByLabelText("Resolution Summary")).toHaveValue(
+        "The issue was resolved after the update.",
+      );
+    },
+  );
+
+  it.each(["Open", "In Progress", "Waiting for Requester", "New", "Reopened"])(
+    "hides the resolution summary for %s tickets",
+    async (status) => {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockImplementation((input: RequestInfo | URL) => {
+          const url = String(input);
+          if (url.includes("/api/auth/me"))
+            return Promise.resolve(response(requester));
+          if (url.endsWith("/comments"))
+            return Promise.resolve(response({ items: [] }));
+          if (url.includes("/attachments"))
+            return Promise.resolve(response({ data: [] }));
+          if (url.endsWith("/api/tickets/TKT-2026-000001"))
+            return Promise.resolve(
+              response({
+                data: {
+                  ...ticket,
+                  currentStatus: { id: 2, name: status },
+                  resolutionSummary: "Should not show",
+                },
+              }),
+            );
+          return Promise.resolve(response({ data: [] }));
+        }),
+      );
+
+      window.history.pushState({}, "", "/ticket/TKT-2026-000001");
+      render(<App />);
+
+      expect(
+        await screen.findByRole("heading", { name: "Ticket Details" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByLabelText("Resolution Summary"),
+      ).not.toBeInTheDocument();
+    },
+  );
+
   it("UI-21: posts a public comment and clears the compose box", async () => {
     const user = userEvent.setup();
     const fetchMock = vi

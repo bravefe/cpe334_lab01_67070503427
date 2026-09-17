@@ -47,6 +47,7 @@ function formatTicket(ticket: any) {
     createdAt: ticket.createdAt,
     updatedAt: ticket.updatedAt,
     problemAppearsResolved: ticket.problemAppearsResolved,
+    resolutionSummary: ticket.resolutionSummary ?? null,
     attachments: ticket.attachments,
   };
 }

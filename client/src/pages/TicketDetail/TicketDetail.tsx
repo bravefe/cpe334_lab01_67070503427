@@ -64,6 +64,9 @@ export default function TicketDetail({
     "In Progress",
     "Waiting for Requester",
   ].includes(ticket?.currentStatus?.name ?? "");
+  const canDisplayResolutionSummary = ["Resolved", "Closed"].includes(
+    ticket?.currentStatus?.name ?? "",
+  );
   const markResolved = async () => {
     if (
       !window.confirm(
@@ -233,6 +236,19 @@ export default function TicketDetail({
                 rows={1}
               />
             </div>
+
+            {canDisplayResolutionSummary && (
+              <label className="field full-width">
+                <span>Resolution Summary</span>
+                <textarea
+                  value={ticket.resolutionSummary ?? ""}
+                  readOnly
+                  aria-readonly="true"
+                  aria-label="Resolution Summary"
+                  rows={3}
+                />
+              </label>
+            )}
 
             <div
               className="ticket-tabs"

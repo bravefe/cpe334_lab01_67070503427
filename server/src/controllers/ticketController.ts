@@ -142,7 +142,12 @@ export async function getTicketDetail(
     }
 
     if (result.kind === "forbidden") {
-      sendError(res, 403, "FORBIDDEN", "You are not allowed to access this ticket.");
+      sendError(
+        res,
+        403,
+        "FORBIDDEN",
+        "You are not allowed to access this ticket.",
+      );
       return;
     }
 
@@ -189,7 +194,12 @@ export async function getTicketComments(
   }
 
   if (ticket === "forbidden") {
-    sendError(res, 403, "FORBIDDEN", "You are not allowed to access this ticket.");
+    sendError(
+      res,
+      403,
+      "FORBIDDEN",
+      "You are not allowed to access this ticket.",
+    );
     return;
   }
 
@@ -224,7 +234,12 @@ export async function createTicketComment(
   }
 
   if (ticket === "forbidden") {
-    sendError(res, 403, "FORBIDDEN", "You are not allowed to access this ticket.");
+    sendError(
+      res,
+      403,
+      "FORBIDDEN",
+      "You are not allowed to access this ticket.",
+    );
     return;
   }
 
@@ -271,7 +286,12 @@ export async function updateTicketResolution(
   }
 
   if (ticket === "forbidden") {
-    sendError(res, 403, "FORBIDDEN", "You are not allowed to access this ticket.");
+    sendError(
+      res,
+      403,
+      "FORBIDDEN",
+      "You are not allowed to access this ticket.",
+    );
     return;
   }
 
@@ -297,9 +317,20 @@ export async function updateTicketResolution(
     return;
   }
 
+  const rawSummary = req.body?.resolutionSummary;
+  const resolutionSummary =
+    typeof rawSummary === "string"
+      ? rawSummary.trim()
+      : rawSummary === null
+        ? null
+        : undefined;
+
   const updated = await getPrisma().ticket.update({
     where: { id: ticket.id },
-    data: { problemAppearsResolved: value },
+    data: {
+      problemAppearsResolved: value,
+      ...(resolutionSummary !== undefined ? { resolutionSummary } : {}),
+    },
     include: { currentStatus: true },
   });
 

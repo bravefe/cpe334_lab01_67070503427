@@ -105,6 +105,14 @@ export default function StaffTicketDetail({
       setBusy("");
     }
   };
+  const canDisplayResolutionSummary = ["Resolved", "Closed"].includes(
+    ticket?.status ?? "",
+  );
+  const canEditResolutionSummary = [
+    "In Progress",
+    "Waiting for Requester",
+  ].includes(ticket?.status ?? "");
+
   const saveStatus = async (value: string) => {
     if (value === "Resolved" && !summary.trim()) {
       setError("Resolution Summary is required when resolving a ticket.");
@@ -231,15 +239,23 @@ export default function StaffTicketDetail({
                 rows={1}
               />
             </div>
-            <label className="field full-width resolution-field">
-              <span>Resolution Summary</span>
-              <textarea
-                value={summary}
-                ref={resolutionRef}
-                onChange={(event) => setSummary(event.target.value)}
-                placeholder="Describe the resolution before selecting Resolved."
-              />
-            </label>
+            {(canDisplayResolutionSummary || canEditResolutionSummary) && (
+              <label className="field full-width resolution-field">
+                <span>Resolution Summary</span>
+                <textarea
+                  value={summary}
+                  ref={resolutionRef}
+                  readOnly={canDisplayResolutionSummary}
+                  onChange={(event) => setSummary(event.target.value)}
+                  placeholder={
+                    canDisplayResolutionSummary
+                      ? ""
+                      : "Describe the resolution before selecting Resolved."
+                  }
+                  aria-label="Resolution Summary"
+                />
+              </label>
+            )}
             {ticket.problemAppearsResolved && (
               <p className="success-inline">
                 You marked this as appearing resolved.
