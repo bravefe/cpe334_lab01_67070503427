@@ -225,6 +225,11 @@ export default function StaffTicketDetail({
                 </select>
               </label>
             </div>
+            {ticket.problemAppearsResolved && (
+              <p className="success-inline">
+                The ticket have been marked as resolved.
+              </p>
+            )}
             <div className="field full-width">
               <span>Summary</span>
               <input value={ticket.summary} readOnly aria-readonly="true" />
@@ -255,11 +260,6 @@ export default function StaffTicketDetail({
                   aria-label="Resolution Summary"
                 />
               </label>
-            )}
-            {ticket.problemAppearsResolved && (
-              <p className="success-inline">
-                You marked this as appearing resolved.
-              </p>
             )}
             {error && (
               <div className="error-banner" role="alert">
