@@ -48,6 +48,12 @@
   color: var(--text);
   font: 14px "DM Sans";
 }
+.staff-detail-page .field input:focus,
+.staff-detail-page .field textarea:focus,
+.staff-detail-page .field select:focus {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
 .staff-detail-page .field input:read-only,
 .staff-detail-page .field textarea:read-only {
   background: var(--readonly-surface);

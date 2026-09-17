@@ -107,6 +107,13 @@
   color: var(--text);
 }
 
+.ticket-detail-page .field input:focus,
+.ticket-detail-page .field textarea:focus,
+.ticket-detail-page .field select:focus {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
 .ticket-detail-page .field textarea {
   min-height: 0;
   overflow: hidden;

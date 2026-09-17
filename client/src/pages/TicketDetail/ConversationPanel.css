@@ -44,8 +44,13 @@
   background: var(--surface);
   color: var(--text);
   font: 14px "DM Sans";
+  /* text-align: center; */
   overflow: hidden;
   resize: none;
+}
+.conversation-compose textarea:focus {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 .conversation-compose button {
   justify-self: end;
