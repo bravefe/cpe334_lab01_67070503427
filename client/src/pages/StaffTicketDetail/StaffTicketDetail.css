@@ -36,19 +36,34 @@
 .staff-detail-page .field > span {
   font-size: 0.86rem;
 }
+.staff-detail-page .field input,
 .staff-detail-page .field select,
 .staff-detail-page .field textarea {
   width: 100%;
-  border: 1px solid var(--border);
+  box-sizing: border-box;
+  border: 1px solid var(--control-border);
   border-radius: 8px;
   padding: 11px 12px;
   background: var(--surface);
   color: var(--text);
   font: 14px "DM Sans";
 }
+.staff-detail-page .field input:read-only,
+.staff-detail-page .field textarea:read-only {
+  background: var(--readonly-surface);
+}
 .staff-detail-page .field textarea {
-  min-height: 100px;
+  min-height: 120px;
   resize: vertical;
+}
+.staff-detail-page .field input:read-only,
+.staff-detail-page .field textarea:read-only {
+  cursor: default;
+  opacity: 1;
+}
+.staff-detail-page .field input:read-only:focus,
+.staff-detail-page .field textarea:read-only:focus {
+  outline: none;
 }
 .staff-detail-page .read-only {
   min-height: 68px;

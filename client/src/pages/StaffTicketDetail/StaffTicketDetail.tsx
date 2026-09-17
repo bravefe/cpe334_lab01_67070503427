@@ -204,12 +204,19 @@ export default function StaffTicketDetail({
                 </select>
               </label>
             </div>
-            <ReadOnly label="Summary" value={ticket.summary} />
-            <ReadOnly
-              label="Description"
-              value={ticket.description ?? "-"}
-              multiline
-            />
+            <div className="field full-width">
+              <span>Summary</span>
+              <input value={ticket.summary} readOnly aria-readonly="true" />
+            </div>
+            <div className="field full-width">
+              <span>Description</span>
+              <textarea
+                value={ticket.description ?? "-"}
+                readOnly
+                aria-readonly="true"
+                rows={6}
+              />
+            </div>
             <label className="field full-width">
               <span>Resolution Summary</span>
               <textarea
