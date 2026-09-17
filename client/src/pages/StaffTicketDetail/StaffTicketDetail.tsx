@@ -7,7 +7,6 @@ import {
 } from "../../api/tickets";
 import { StaffTicket } from "../../lib/ticket";
 import TopBar from "../TopBar";
-import AttachmentTicketDetail from "../TicketDetail/AttachmentTicketDetail";
 import ConversationPanel from "../TicketDetail/ConversationPanel";
 import "../TicketDetail/ConversationPanel.css";
 import "./StaffTicketDetail.css";
@@ -232,14 +231,6 @@ export default function StaffTicketDetail({
             )}
             {message && <div className="success-banner">{message}</div>}
             <ConversationPanel ticketRef={ticketRef} staff />
-            {/* <section className="staff-tabs">
-              <h2>Attachments</h2>
-              <AttachmentTicketDetail ticketNumber={ticketRef} />
-              <h2>Service Actions</h2>
-              <div className="attachment-empty">
-                Service Actions will be available in a future release.
-              </div>
-            </section> */}
           </section>
         )}
       </main>

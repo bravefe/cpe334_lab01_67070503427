@@ -9,6 +9,7 @@ import {
 } from "../../api/tickets";
 import { InternalNote, TicketComment } from "../../lib/ticket";
 import { formatDate } from "../../lib/formatDate";
+import AttachmentTicketDetail from "./AttachmentTicketDetail";
 
 interface ConversationPanelProps {
   ticketRef: string;
@@ -19,7 +20,9 @@ export default function ConversationPanel({
   ticketRef,
   staff = false,
 }: ConversationPanelProps) {
-  const [tab, setTab] = useState<"comments" | "notes">("comments");
+  const [tab, setTab] = useState<"comments" | "notes" | "attachments">(
+    "comments",
+  );
   const [comments, setComments] = useState<TicketComment[]>([]);
   const [notes, setNotes] = useState<InternalNote[]>([]);
   const [content, setContent] = useState("");
@@ -94,6 +97,15 @@ export default function ConversationPanel({
           >
             Internal Notes ({notes.length})
           </button>
+          <button
+            type="button"
+            className={tab === "attachments" ? "active" : ""}
+            onClick={() => setTab("attachments")}
+            role="tab"
+            aria-selected={tab === "attachments"}
+          >
+            Attachments
+          </button>
         </div>
       )}
       {/* {!staff && <h2 className="conversation-heading">Public Comments</h2>} */}
@@ -107,7 +119,9 @@ export default function ConversationPanel({
           {error}
         </div>
       )}
-      {loading ? (
+      {tab === "attachments" ? (
+        <AttachmentTicketDetail ticketNumber={ticketRef} />
+      ) : loading ? (
         <p className="muted">Loading conversation...</p>
       ) : entries.length === 0 ? (
         <p
@@ -145,38 +159,44 @@ export default function ConversationPanel({
         </div>
       )}
       {/* Compose form at the bottom */}
-      <form
-        className={
-          tab === "notes"
-            ? "conversation-compose internal"
-            : "conversation-compose"
-        }
-        onSubmit={submit}
-      >
-        <label htmlFor={`${ticketRef}-${tab}-content`}>
-          {tab === "notes" ? "Add Internal Note" : "Add Public Comment"}
-
-          <textarea
-            id={`${ticketRef}-${tab}-content`}
-            value={content}
-            maxLength={2000}
-            onChange={(event) => setContent(event.target.value)}
-            placeholder={
-              tab === "notes"
-                ? "Write an internal note..."
-                : "Write a public comment..."
-            }
-          />
-        </label>
-
-        <button
-          className="primary"
-          type="submit"
-          disabled={busy || !content.trim()}
+      {tab !== "attachments" && (
+        <form
+          className={
+            tab === "notes"
+              ? "conversation-compose internal"
+              : "conversation-compose"
+          }
+          onSubmit={submit}
         >
-          {busy ? "Posting..." : tab === "notes" ? "Add Note" : "Post Comment"}
-        </button>
-      </form>
+          <label htmlFor={`${ticketRef}-${tab}-content`}>
+            {tab === "notes" ? "Add Internal Note" : "Add Public Comment"}
+
+            <textarea
+              id={`${ticketRef}-${tab}-content`}
+              value={content}
+              maxLength={2000}
+              onChange={(event) => setContent(event.target.value)}
+              placeholder={
+                tab === "notes"
+                  ? "Write an internal note..."
+                  : "Write a public comment..."
+              }
+            />
+          </label>
+
+          <button
+            className="primary"
+            type="submit"
+            disabled={busy || !content.trim()}
+          >
+            {busy
+              ? "Posting..."
+              : tab === "notes"
+                ? "Add Note"
+                : "Post Comment"}
+          </button>
+        </form>
+      )}
     </section>
   );
 }
