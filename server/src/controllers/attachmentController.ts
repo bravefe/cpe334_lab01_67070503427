@@ -14,7 +14,9 @@ import {
 
 type MulterFactory = {
   (options?: multerTypes.Options): multerTypes.Multer;
-  diskStorage(options?: multerTypes.DiskStorageOptions): multerTypes.StorageEngine;
+  diskStorage(
+    options?: multerTypes.DiskStorageOptions,
+  ): multerTypes.StorageEngine;
 };
 
 const require = createRequire(import.meta.url);
@@ -86,9 +88,10 @@ function sendError(
 
 export async function getAttachments(req: Request, res: Response) {
   const userId = req.user!.id;
+  const role = req.user!.role;
   const ticketNumber = String(req.params.ticketNumber ?? "");
 
-  const result = await listAttachments(ticketNumber, userId);
+  const result = await listAttachments(ticketNumber, userId, role);
   if (!result) {
     return sendError(res, 404, "NOT_FOUND", "Ticket not found.");
   }
@@ -98,6 +101,7 @@ export async function getAttachments(req: Request, res: Response) {
 
 export async function uploadAttachment(req: Request, res: Response) {
   const userId = req.user!.id;
+  const role = req.user!.role;
   const ticketNumber = String(req.params.ticketNumber ?? "");
 
   if (!req.file) {
@@ -109,7 +113,7 @@ export async function uploadAttachment(req: Request, res: Response) {
     );
   }
 
-  const result = await saveAttachment(ticketNumber, userId, req.file);
+  const result = await saveAttachment(ticketNumber, userId, role, req.file);
   if (result.kind === "not-found") {
     return sendError(res, 404, "NOT_FOUND", "Ticket not found.");
   }
@@ -127,9 +131,10 @@ export async function uploadAttachment(req: Request, res: Response) {
 
 export async function downloadAttachment(req: Request, res: Response) {
   const userId = req.user!.id;
+  const role = req.user!.role;
   const attachmentId = Number(req.params.attachmentId);
 
-  const attachment = await downloadableAttachment(attachmentId, userId);
+  const attachment = await downloadableAttachment(attachmentId, userId, role);
   if (!attachment) {
     return res.status(404).end();
   }
@@ -142,15 +147,21 @@ export async function downloadAttachment(req: Request, res: Response) {
 
 export async function removeAttachment(req: Request, res: Response) {
   const userId = req.user!.id;
+  const role = req.user!.role;
   const attachmentId = Number(req.params.attachmentId);
   const reason =
     typeof req.body?.reason === "string" ? req.body.reason.trim() : "";
 
   if (!reason) {
-    return sendError(res, 400, "VALIDATION_ERROR", "Removal reason is required.");
+    return sendError(
+      res,
+      400,
+      "VALIDATION_ERROR",
+      "Removal reason is required.",
+    );
   }
 
-  const result = await softRemoveAttachment(attachmentId, userId, reason);
+  const result = await softRemoveAttachment(attachmentId, userId, role, reason);
   if (result.kind === "not-found") {
     return sendError(res, 404, "NOT_FOUND", "Attachment not found.");
   }

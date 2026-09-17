@@ -12,6 +12,19 @@ export async function ownedTicket(ticketNumber: string, requesterId: number) {
   });
 }
 
+async function accessibleTicket(
+  ticketNumber: string,
+  userId: number,
+  role: string,
+) {
+  return getPrisma().ticket.findFirst({
+    where:
+      role === "IT_STAFF" || role === "ADMINISTRATOR"
+        ? { ticketNumber }
+        : { ticketNumber, requesterId: userId },
+  });
+}
+
 export function formatAttachment(attachment: {
   id: number;
   originalFileName: string;
@@ -25,13 +38,21 @@ export function formatAttachment(attachment: {
     originalFileName: attachment.originalFileName,
     status: attachment.status,
     uploadedAt: attachment.uploadedAt.toISOString(),
-    ...(attachment.removedAt ? { removedAt: attachment.removedAt.toISOString() } : {}),
-    ...(attachment.removalReason ? { removalReason: attachment.removalReason } : {}),
+    ...(attachment.removedAt
+      ? { removedAt: attachment.removedAt.toISOString() }
+      : {}),
+    ...(attachment.removalReason
+      ? { removalReason: attachment.removalReason }
+      : {}),
   };
 }
 
-export async function listAttachments(ticketNumber: string, requesterId: number) {
-  const ticket = await ownedTicket(ticketNumber, requesterId);
+export async function listAttachments(
+  ticketNumber: string,
+  userId: number,
+  role: string,
+) {
+  const ticket = await accessibleTicket(ticketNumber, userId, role);
   if (!ticket) return null;
 
   const attachments = await getPrisma().attachment.findMany({
@@ -44,10 +65,11 @@ export async function listAttachments(ticketNumber: string, requesterId: number)
 
 export async function saveAttachment(
   ticketNumber: string,
-  requesterId: number,
+  userId: number,
+  role: string,
   file: Express.Multer.File,
 ) {
-  const ticket = await ownedTicket(ticketNumber, requesterId);
+  const ticket = await accessibleTicket(ticketNumber, userId, role);
   if (!ticket) {
     await fs.unlink(file.path).catch(() => undefined);
     return { kind: "not-found" as const };
@@ -85,26 +107,34 @@ export async function saveAttachment(
 
 export async function downloadableAttachment(
   attachmentId: number,
-  requesterId: number,
+  userId: number,
+  role: string,
 ) {
   return getPrisma().attachment.findFirst({
     where: {
       id: attachmentId,
       status: "ACTIVE",
-      ticket: { requesterId },
+      ticket:
+        role === "IT_STAFF" || role === "ADMINISTRATOR"
+          ? undefined
+          : { requesterId: userId },
     },
   });
 }
 
 export async function softRemoveAttachment(
   attachmentId: number,
-  requesterId: number,
+  userId: number,
+  role: string,
   reason: string,
 ) {
   const existing = await getPrisma().attachment.findFirst({
     where: {
       id: attachmentId,
-      ticket: { requesterId },
+      ticket:
+        role === "IT_STAFF" || role === "ADMINISTRATOR"
+          ? undefined
+          : { requesterId: userId },
     },
   });
 
