@@ -69,7 +69,7 @@ export default function App() {
             You are not permitted to view the IT Staff queue.
           </p>
           <button type="button" className="primary" onClick={onMyTickets}>
-            Back to My Tickets
+            ← Back to My Tickets
           </button>
         </div>
       </main>

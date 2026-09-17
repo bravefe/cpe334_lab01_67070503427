@@ -135,7 +135,7 @@ export default function StaffTicketDetail({
             <h1>Ticket Detail</h1>
           </div>
           <button type="button" onClick={onQueue}>
-            Back to Queue
+            ← Back to Queue
           </button>
         </header>
         {loading && <div className="empty">Loading ticket...</div>}
@@ -232,14 +232,14 @@ export default function StaffTicketDetail({
             )}
             {message && <div className="success-banner">{message}</div>}
             <ConversationPanel ticketRef={ticketRef} staff />
-            <section className="staff-tabs">
+            {/* <section className="staff-tabs">
               <h2>Attachments</h2>
               <AttachmentTicketDetail ticketNumber={ticketRef} />
               <h2>Service Actions</h2>
               <div className="attachment-empty">
                 Service Actions will be available in a future release.
               </div>
-            </section>
+            </section> */}
           </section>
         )}
       </main>
