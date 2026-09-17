@@ -9,20 +9,24 @@ import {
 } from "../../api/tickets";
 import { InternalNote, TicketComment } from "../../lib/ticket";
 import { formatDate } from "../../lib/formatDate";
-import AttachmentTicketDetail from "./AttachmentTicketDetail";
 
 interface ConversationPanelProps {
   ticketRef: string;
   staff?: boolean;
+  activeTab?: "comments" | "notes";
+  showTabs?: boolean;
 }
 
 export default function ConversationPanel({
   ticketRef,
   staff = false,
+  activeTab,
+  showTabs = true,
 }: ConversationPanelProps) {
-  const [tab, setTab] = useState<"comments" | "notes" | "attachments">(
+  const [internalTab, setInternalTab] = useState<"comments" | "notes">(
     "comments",
   );
+  const tab = activeTab ?? internalTab;
   const [comments, setComments] = useState<TicketComment[]>([]);
   const [notes, setNotes] = useState<InternalNote[]>([]);
   const [content, setContent] = useState("");
@@ -77,12 +81,16 @@ export default function ConversationPanel({
 
   return (
     <section className="conversation-panel" aria-label="Ticket conversation">
-      {staff && (
-        <div className="conversation-tabs" role="tablist">
+      {staff && showTabs && (
+        <div
+          className="ticket-tabs"
+          role="tablist"
+          aria-label="Ticket sections"
+        >
           <button
             type="button"
-            className={tab === "comments" ? "active" : ""}
-            onClick={() => setTab("comments")}
+            className={`attachment-tab${tab === "comments" ? " active" : ""}`}
+            onClick={() => setInternalTab("comments")}
             role="tab"
             aria-selected={tab === "comments"}
           >
@@ -90,8 +98,8 @@ export default function ConversationPanel({
           </button>
           <button
             type="button"
-            className={tab === "notes" ? "active" : ""}
-            onClick={() => setTab("notes")}
+            className={`attachment-tab${tab === "notes" ? " active" : ""}`}
+            onClick={() => setInternalTab("notes")}
             role="tab"
             aria-selected={tab === "notes"}
           >
@@ -99,8 +107,7 @@ export default function ConversationPanel({
           </button>
           <button
             type="button"
-            className={tab === "attachments" ? "active" : ""}
-            onClick={() => setTab("attachments")}
+            className="attachment-tab"
             role="tab"
             aria-selected={tab === "attachments"}
           >
@@ -119,9 +126,7 @@ export default function ConversationPanel({
           {error}
         </div>
       )}
-      {tab === "attachments" ? (
-        <AttachmentTicketDetail ticketNumber={ticketRef} />
-      ) : loading ? (
+      {loading ? (
         <p className="muted">Loading conversation...</p>
       ) : entries.length === 0 ? (
         <p
@@ -159,44 +164,38 @@ export default function ConversationPanel({
         </div>
       )}
       {/* Compose form at the bottom */}
-      {tab !== "attachments" && (
-        <form
-          className={
-            tab === "notes"
-              ? "conversation-compose internal"
-              : "conversation-compose"
-          }
-          onSubmit={submit}
+      <form
+        className={
+          tab === "notes"
+            ? "conversation-compose internal"
+            : "conversation-compose"
+        }
+        onSubmit={submit}
+      >
+        <label htmlFor={`${ticketRef}-${tab}-content`}>
+          {tab === "notes" ? "Add Internal Note" : "Add Public Comment"}
+
+          <textarea
+            id={`${ticketRef}-${tab}-content`}
+            value={content}
+            maxLength={2000}
+            onChange={(event) => setContent(event.target.value)}
+            placeholder={
+              tab === "notes"
+                ? "Write an internal note..."
+                : "Write a public comment..."
+            }
+          />
+        </label>
+
+        <button
+          className="primary"
+          type="submit"
+          disabled={busy || !content.trim()}
         >
-          <label htmlFor={`${ticketRef}-${tab}-content`}>
-            {tab === "notes" ? "Add Internal Note" : "Add Public Comment"}
-
-            <textarea
-              id={`${ticketRef}-${tab}-content`}
-              value={content}
-              maxLength={2000}
-              onChange={(event) => setContent(event.target.value)}
-              placeholder={
-                tab === "notes"
-                  ? "Write an internal note..."
-                  : "Write a public comment..."
-              }
-            />
-          </label>
-
-          <button
-            className="primary"
-            type="submit"
-            disabled={busy || !content.trim()}
-          >
-            {busy
-              ? "Posting..."
-              : tab === "notes"
-                ? "Add Note"
-                : "Post Comment"}
-          </button>
-        </form>
-      )}
+          {busy ? "Posting..." : tab === "notes" ? "Add Note" : "Post Comment"}
+        </button>
+      </form>
     </section>
   );
 }

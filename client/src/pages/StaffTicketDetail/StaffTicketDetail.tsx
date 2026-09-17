@@ -7,6 +7,7 @@ import {
 } from "../../api/tickets";
 import { StaffTicket } from "../../lib/ticket";
 import TopBar from "../TopBar";
+import AttachmentTicketDetail from "../TicketDetail/AttachmentTicketDetail";
 import ConversationPanel from "../TicketDetail/ConversationPanel";
 import "../TicketDetail/ConversationPanel.css";
 import "./StaffTicketDetail.css";
@@ -40,6 +41,9 @@ export default function StaffTicketDetail({
   const [message, setMessage] = useState("");
   const [summary, setSummary] = useState("");
   const [busy, setBusy] = useState("");
+  const [conversationTab, setConversationTab] = useState<
+    "comments" | "notes" | "attachments"
+  >("comments");
 
   const load = () => {
     setLoading(true);
@@ -230,7 +234,54 @@ export default function StaffTicketDetail({
               </div>
             )}
             {message && <div className="success-banner">{message}</div>}
-            <ConversationPanel ticketRef={ticketRef} staff />
+            <div
+              className="ticket-tabs"
+              role="tablist"
+              aria-label="Ticket sections"
+            >
+              <button
+                type="button"
+                role="tab"
+                aria-selected={conversationTab === "comments"}
+                className={`attachment-tab${conversationTab === "comments" ? " active" : ""}`}
+                onClick={() => setConversationTab("comments")}
+              >
+                Public Comments
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={conversationTab === "notes"}
+                className={`attachment-tab${conversationTab === "notes" ? " active" : ""}`}
+                onClick={() => setConversationTab("notes")}
+              >
+                Internal Notes
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={conversationTab === "attachments"}
+                className={`attachment-tab${conversationTab === "attachments" ? " active" : ""}`}
+                onClick={() => setConversationTab("attachments")}
+              >
+                Attachments
+              </button>
+            </div>
+            {conversationTab === "comments" || conversationTab === "notes" ? (
+              <ConversationPanel
+                ticketRef={ticketRef}
+                staff
+                activeTab={conversationTab}
+                showTabs={false}
+              />
+            ) : (
+              <section
+                className="attachment-section"
+                aria-label="Ticket attachments"
+              >
+                <AttachmentTicketDetail ticketNumber={ticketRef} />
+              </section>
+            )}
           </section>
         )}
       </main>
