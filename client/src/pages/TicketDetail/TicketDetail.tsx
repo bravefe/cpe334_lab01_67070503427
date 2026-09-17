@@ -121,16 +121,16 @@ export default function TicketDetail({
               </div>
 
               <div className="field read-only">
-                <span>Ticket Date</span>
+                <span>Requester</span>
                 <div className="field-value">
-                  {formatDate(ticket.createdAt)}
+                  {ticket.requester?.name ?? ""}
                 </div>
               </div>
 
               <div className="field read-only">
-                <span>Requester</span>
+                <span>Ticket Date</span>
                 <div className="field-value">
-                  {ticket.requester?.name ?? ""}
+                  {formatDate(ticket.createdAt)}
                 </div>
               </div>
 

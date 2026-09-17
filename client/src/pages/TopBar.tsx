@@ -22,7 +22,7 @@ export default function TopBar({
   const currentPage = window.location.pathname;
   const isMyTicketsPage = currentPage === "/my-tickets";
   const isCreateTicketPage = currentPage === "/create-ticket";
-  const isQueuePage = currentPage.startsWith("/queue");
+  const isQueuePage = currentPage === "/queue";
 
   return (
     <nav className="topbar">
