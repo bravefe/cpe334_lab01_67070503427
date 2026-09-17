@@ -116,11 +116,11 @@ export default function ConversationPanel({
         </div>
       )}
       {/* {!staff && <h2 className="conversation-heading">Public Comments</h2>} */}
-      {/* {tab === "notes" && (
+      {tab === "notes" && (
         <p className="internal-note-label">
           Internal - not visible to Requester
         </p>
-      )} */}
+      )}
       {error && (
         <div className="error-banner" role="alert">
           {error}
