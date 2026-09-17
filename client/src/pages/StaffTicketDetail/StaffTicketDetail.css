@@ -53,8 +53,12 @@
   background: var(--readonly-surface);
 }
 .staff-detail-page .field textarea {
-  min-height: 120px;
-  resize: vertical;
+  min-height: 0;
+  overflow: hidden;
+  resize: none;
+}
+.staff-detail-page .resolution-field textarea {
+  background: var(--surface);
 }
 .staff-detail-page .field input:read-only,
 .staff-detail-page .field textarea:read-only {

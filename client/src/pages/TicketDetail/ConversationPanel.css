@@ -35,12 +35,17 @@
   font-weight: 700;
 }
 .conversation-compose textarea {
-  min-height: 92px;
-  padding: 10px 12px;
-  border: 1px solid var(--border);
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 0;
+  padding: 11px 12px;
+  border: 1px solid var(--control-border);
   border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
   font: 14px "DM Sans";
-  resize: vertical;
+  overflow: hidden;
+  resize: none;
 }
 .conversation-compose button {
   justify-self: end;

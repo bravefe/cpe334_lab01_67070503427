@@ -1,4 +1,10 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import {
+  ChangeEvent,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   fetchCategories,
   fetchPriorities,
@@ -46,10 +52,18 @@ export default function CreateTicket({
   const [submitError, setSubmitError] = useState("");
   const [successTicket, setSuccessTicket] = useState<string | null>(null);
   const [attachmentFiles, setAttachmentFiles] = useState<File[]>([]);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     loadReferenceData();
   }, []);
+
+  useLayoutEffect(() => {
+    const textarea = descriptionRef.current;
+    if (!textarea) return;
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  }, [form.description]);
 
   const loadReferenceData = () => {
     setReferenceError("");
@@ -257,8 +271,9 @@ export default function CreateTicket({
           <label className="field full-width">
             <span>Description</span>
             <textarea
+              ref={descriptionRef}
               value={form.description}
-              rows={6}
+              rows={1}
               placeholder="Describe your issue in detail..."
               onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
                 updateField("description", event.target.value)

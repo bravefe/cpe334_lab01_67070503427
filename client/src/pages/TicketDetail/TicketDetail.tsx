@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { fetchTicketDetail } from "../../api/tickets";
 import { markTicketResolved } from "../../api/tickets";
 import { Requester } from "../../lib/requester";
@@ -32,6 +32,7 @@ export default function TicketDetail({
   const [activeTab, setActiveTab] = useState("public-comments");
   const [resolutionBusy, setResolutionBusy] = useState(false);
   const [resolutionError, setResolutionError] = useState("");
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const createdFromForm =
     new URLSearchParams(window.location.search).get("created") === "1";
 
@@ -50,6 +51,13 @@ export default function TicketDetail({
         setLoading(false);
       });
   }, [ticketNumber]);
+
+  useLayoutEffect(() => {
+    const textarea = descriptionRef.current;
+    if (!textarea) return;
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  }, [ticket?.description]);
 
   const canMarkResolved = [
     "Open",
@@ -221,7 +229,8 @@ export default function TicketDetail({
                 value={ticket.description}
                 readOnly
                 aria-readonly="true"
-                rows={6}
+                ref={descriptionRef}
+                rows={1}
               />
             </div>
 

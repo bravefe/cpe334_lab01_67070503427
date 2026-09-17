@@ -108,8 +108,9 @@
 }
 
 .ticket-detail-page .field textarea {
-  min-height: 120px;
-  resize: vertical;
+  min-height: 0;
+  overflow: hidden;
+  resize: none;
 }
 
 .ticket-detail-page .field input:read-only,

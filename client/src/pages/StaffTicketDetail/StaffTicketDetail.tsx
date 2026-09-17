@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   fetchStaffTicketDetail,
   updateStaffOwner,
@@ -44,6 +44,8 @@ export default function StaffTicketDetail({
   const [conversationTab, setConversationTab] = useState<
     "comments" | "notes" | "attachments"
   >("comments");
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const resolutionRef = useRef<HTMLTextAreaElement>(null);
 
   const load = () => {
     setLoading(true);
@@ -63,6 +65,14 @@ export default function StaffTicketDetail({
       .finally(() => setLoading(false));
   };
   useEffect(load, [ticketRef]);
+
+  useLayoutEffect(() => {
+    for (const textarea of [descriptionRef.current, resolutionRef.current]) {
+      if (!textarea) continue;
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  }, [ticket?.description, summary]);
 
   const saveOwner = async (ownerId: number | null) => {
     setBusy("owner");
@@ -217,13 +227,15 @@ export default function StaffTicketDetail({
                 value={ticket.description ?? "-"}
                 readOnly
                 aria-readonly="true"
-                rows={6}
+                ref={descriptionRef}
+                rows={1}
               />
             </div>
-            <label className="field full-width">
+            <label className="field full-width resolution-field">
               <span>Resolution Summary</span>
               <textarea
                 value={summary}
+                ref={resolutionRef}
                 onChange={(event) => setSummary(event.target.value)}
                 placeholder="Describe the resolution before selecting Resolved."
               />

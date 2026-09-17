@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   createStaffComment,
   createStaffNote,
@@ -33,6 +33,14 @@ export default function ConversationPanel({
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const composerRef = useRef<HTMLTextAreaElement>(null);
+
+  useLayoutEffect(() => {
+    const textarea = composerRef.current;
+    if (!textarea) return;
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  }, [content, tab]);
 
   useEffect(() => {
     setLoading(true);
@@ -177,6 +185,7 @@ export default function ConversationPanel({
 
           <textarea
             id={`${ticketRef}-${tab}-content`}
+            ref={composerRef}
             value={content}
             maxLength={2000}
             onChange={(event) => setContent(event.target.value)}
