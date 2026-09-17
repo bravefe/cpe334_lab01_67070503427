@@ -48,10 +48,10 @@
   overflow: hidden;
   resize: none;
 }
-.conversation-compose textarea:focus {
+/* .conversation-compose textarea:focus {
   outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
-}
+} */
 .conversation-compose button {
   justify-self: end;
 }

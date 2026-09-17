@@ -65,11 +65,11 @@
   color: var(--text);
 }
 
-.create-ticket-page .field input:focus,
+/* .create-ticket-page .field input:focus,
 .create-ticket-page .field textarea:focus {
   outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
-}
+} */
 
 .create-ticket-page .field textarea {
   min-height: 0;
