@@ -84,6 +84,11 @@
 .staff-detail-page .full-width {
   margin-top: 16px;
 }
+.staff-detail-page .success-inline {
+  margin: 12px 0 0;
+  color: var(--success);
+  font-weight: 700;
+}
 .staff-tabs {
   margin-top: 26px;
 }

@@ -228,6 +228,11 @@ export default function StaffTicketDetail({
                 placeholder="Describe the resolution before selecting Resolved."
               />
             </label>
+            {ticket.problemAppearsResolved && (
+              <p className="success-inline">
+                You marked this as appearing resolved.
+              </p>
+            )}
             {error && (
               <div className="error-banner" role="alert">
                 {error}

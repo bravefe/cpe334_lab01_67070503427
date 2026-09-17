@@ -46,6 +46,7 @@ export interface StaffTicket {
   createdAt: string;
   updatedAt: string;
   attachments?: Attachment[];
+  problemAppearsResolved?: boolean;
   resolutionSummary?: string | null;
 }
 
