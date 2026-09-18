@@ -33,6 +33,7 @@ export default function TicketDetail({
   const [resolutionBusy, setResolutionBusy] = useState(false);
   const [resolutionError, setResolutionError] = useState("");
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const resolutionRef = useRef<HTMLTextAreaElement>(null);
   const createdFromForm =
     new URLSearchParams(window.location.search).get("created") === "1";
 
@@ -52,12 +53,39 @@ export default function TicketDetail({
       });
   }, [ticketNumber]);
 
+  const resizeTextareas = () => {
+    for (const textarea of [descriptionRef.current, resolutionRef.current]) {
+      if (!textarea) continue;
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  };
+
   useLayoutEffect(() => {
-    const textarea = descriptionRef.current;
-    if (!textarea) return;
-    textarea.style.height = "auto";
-    textarea.style.height = `${textarea.scrollHeight}px`;
-  }, [ticket?.description]);
+    resizeTextareas();
+  }, [ticket?.description, ticket?.resolutionSummary]);
+
+  useEffect(() => {
+    resizeTextareas();
+
+    const handleResize = () => resizeTextareas();
+    window.addEventListener("resize", handleResize);
+
+    const textareas = [descriptionRef.current, resolutionRef.current].filter(
+      Boolean,
+    ) as HTMLTextAreaElement[];
+    const observer =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(() => resizeTextareas())
+        : null;
+
+    textareas.forEach((textarea) => observer?.observe(textarea));
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      observer?.disconnect();
+    };
+  }, [ticket?.description, ticket?.resolutionSummary]);
 
   const canMarkResolved = [
     "Open",
@@ -222,7 +250,12 @@ export default function TicketDetail({
             {/* Summary */}
             <div className="field full-width">
               <span>Summary</span>
-              <input value={ticket.summary} readOnly aria-readonly="true" />
+              <input
+                value={ticket.summary}
+                readOnly
+                aria-readonly="true"
+                aria-label="Summary"
+              />
             </div>
 
             {/* Description */}
@@ -232,6 +265,7 @@ export default function TicketDetail({
                 value={ticket.description}
                 readOnly
                 aria-readonly="true"
+                aria-label="Description"
                 ref={descriptionRef}
                 rows={1}
               />
@@ -241,6 +275,7 @@ export default function TicketDetail({
               <label className="field full-width">
                 <span>Resolution Summary</span>
                 <textarea
+                  ref={resolutionRef}
                   value={ticket.resolutionSummary ?? ""}
                   readOnly
                   aria-readonly="true"

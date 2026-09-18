@@ -58,11 +58,34 @@ export default function CreateTicket({
     loadReferenceData();
   }, []);
 
-  useLayoutEffect(() => {
+  const resizeDescription = () => {
     const textarea = descriptionRef.current;
     if (!textarea) return;
     textarea.style.height = "auto";
     textarea.style.height = `${textarea.scrollHeight}px`;
+  };
+
+  useLayoutEffect(() => {
+    resizeDescription();
+  }, [form.description]);
+
+  useEffect(() => {
+    resizeDescription();
+
+    const handleResize = () => resizeDescription();
+    window.addEventListener("resize", handleResize);
+
+    const observer =
+      typeof ResizeObserver !== "undefined" && descriptionRef.current
+        ? new ResizeObserver(() => resizeDescription())
+        : null;
+
+    if (descriptionRef.current) observer?.observe(descriptionRef.current);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      observer?.disconnect();
+    };
   }, [form.description]);
 
   const loadReferenceData = () => {
