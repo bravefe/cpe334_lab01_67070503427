@@ -22,7 +22,9 @@ test("E2E-06: administrator creates a temporary-password user", async ({ page })
 
 test("E2E-07: the self-deactivation control is disabled", async ({ page }) => {
   await signIn(page, "elrond@rivendell.example.com");
-  await page.getByRole("button", { name: "Edit" }).first().click();
+  const ownRow = page.locator("tr", { hasText: "Elrond Half-elven" });
+  await expect(ownRow).toBeVisible();
+  await ownRow.getByRole("button", { name: "Edit" }).click();
   await captureScreen(page, "user-management", "edit-user-panel");
   await expect(page.getByLabel("Active")).toBeDisabled();
   await expect(page.getByText("You can't deactivate your own account")).toBeVisible();
@@ -30,6 +32,7 @@ test("E2E-07: the self-deactivation control is disabled", async ({ page }) => {
 
 test("E2E-08: staff direct navigation to admin is forbidden", async ({ page }) => {
   await signIn(page, "arwen@rivendell.example.com");
+  await expect(page.getByRole("heading", { name: "My Queue" })).toBeVisible();
   await page.goto("/admin/users");
   await expect(page.getByRole("heading", { name: "Access forbidden" })).toBeVisible();
 });

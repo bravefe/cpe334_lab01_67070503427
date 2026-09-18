@@ -14,35 +14,27 @@
 ```
 Error: expect(locator).toBeVisible() failed
 
-Locator: getByRole('heading', { name: 'My Tickets' })
+Locator: getByRole('heading', { name: 'Change password' })
 Expected: visible
 Timeout: 5000ms
 Error: element(s) not found
 
 Call log:
-  - Expect "toBeVisible" getByRole('heading', { name: 'My Tickets' }) with timeout 5000ms
-  - waiting for getByRole('heading', { name: 'My Tickets' })
+  - Expect "toBeVisible" getByRole('heading', { name: 'Change password' }) with timeout 5000ms
+  - waiting for getByRole('heading', { name: 'Change password' })
 
 ```
 
 ```yaml
 - main:
-  - heading "Change password" [level=1]
-  - paragraph: Choose a new password before continuing.
-  - alert: Authentication is required.
-  - text: Current password
-  - textbox "Current password": Password123!
-  - text: New password
-  - textbox "New password": ChangedPassword123!
-  - list:
-    - listitem: ✓ minLength
-    - listitem: ✓ uppercase
-    - listitem: ✓ lowercase
-    - listitem: ✓ number
-    - listitem: ✓ special
-  - text: Confirm password
-  - textbox "Confirm password": ChangedPassword123!
-  - button "Save password"
+  - paragraph: TOKTockIT
+  - heading "Sign in" [level=1]
+  - alert: Invalid email or password.
+  - text: Email
+  - textbox "Email": merry.b@shiremail.example.com
+  - text: Password
+  - textbox "Password": Password123!
+  - button "Sign in"
 ```
 
 # Test source
@@ -72,14 +64,14 @@ Call log:
   22 | 
   23 | test("E2E-02: a temporary password requires a change before app access", async ({ page }) => {
   24 |   await signIn(page, "merry.b@shiremail.example.com");
-  25 |   await expect(page.getByRole("heading", { name: "Change password" })).toBeVisible();
+> 25 |   await expect(page.getByRole("heading", { name: "Change password" })).toBeVisible();
+     |                                                                        ^ Error: expect(locator).toBeVisible() failed
   26 |   await captureScreen(page, "authentication", "mandatory-change-password");
   27 |   await page.getByLabel("Current password").fill(password);
   28 |   await page.getByLabel("New password").fill("ChangedPassword123!");
   29 |   await page.getByLabel("Confirm password").fill("ChangedPassword123!");
   30 |   await page.getByRole("button", { name: "Save password" }).click();
-> 31 |   await expect(page.getByRole("heading", { name: "My Tickets" })).toBeVisible();
-     |                                                                   ^ Error: expect(locator).toBeVisible() failed
+  31 |   await expect(page.getByRole("heading", { name: "My Tickets" })).toBeVisible();
   32 | });
   33 | 
   34 | test("E2E-03: inactive accounts show the safe inactive message", async ({ page }) => {

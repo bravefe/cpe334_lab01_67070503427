@@ -157,7 +157,7 @@ export default function App() {
   return (
     <MyTickets
       requester={requester}
-      onChange={() => undefined}
+      onChange={logout}
       onMyTickets={onMyTickets}
       onCreateTicket={onCreateTicket}
       onOpenTicket={(ticketNumber) => goTo(`/ticket/${ticketNumber}`)}
