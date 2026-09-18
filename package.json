@@ -7,7 +7,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "test:e2e": "playwright test e2e/lab-02/requester-ticket-flow.spec.ts"
+    "test:e2e": "playwright test e2e/lab-03"
   },
   "repository": {
     "type": "git",
