@@ -15,7 +15,7 @@ interface Props {
 const emptyForm = (): UserInput & { initialPassword: string } => ({
   name: "", email: "", role: "REQUESTER", isActive: true, initialPassword: "",
 });
-const roleName = (role: string) => role.replaceAll("_", " ").replace(/\b\w/g, c => c.toUpperCase());
+const roleName = (role: string) => role.toLowerCase().replaceAll("_", " ").replace(/\b\w/g, c => c.toUpperCase());
 
 export default function UserManagement({ currentUserId, user, onLogout, onAdmin }: Props) {
   const [users, setUsers] = useState<ManagedUser[]>([]);

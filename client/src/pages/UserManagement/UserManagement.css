@@ -116,7 +116,7 @@
   background: rgba(23, 59, 45, 0.28);
 }
 .user-panel {
-  width: min(100%, 480px);
+  width: min(100%, 880px);
   min-height: 100%;
   overflow: auto;
   padding: 28px;

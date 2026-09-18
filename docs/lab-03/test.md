@@ -97,7 +97,7 @@ File: `server/tests/lab-03/unit/user-ownership.unit.test.ts`
 | ID | Requirement | What It Tests | Expected Result | Final |
 | - | - | - | - | - |
 | UNIT-11 | BR-14 | Ticket-owner eligibility check: active `IT_STAFF`/`ADMINISTRATOR` eligible; inactive or `REQUESTER` not eligible | Boolean result matches each role/active combination | Planned |
-| UNIT-12 | BR-28 | Last-active-Administrator check against a mocked user list | Returns `true` (blocks) only when exactly one active Administrator would remain zero after the change | Planned |
+| UNIT-12 | BR-28 | Last-active-Administrator check against a mocked user list | Returns `true` (blocks) only when exactly one active Administrator would remain zero after the change | Pass |
 
 ## 2. API / Integration Tests
 
@@ -205,15 +205,15 @@ File: `server/tests/lab-03/users-admin.api.test.ts`
 
 | ID | AC | What It Tests | Expected Result | Final |
 | - | - | - | - | - |
-| API-35 | AC-24 | `GET /api/admin/users?q=&role=` combinations | Result set matches expected fixture subset | Planned |
-| API-36 | AC-25 | Create a user with an initial password | `201`, `mustChangePassword:true`; a subsequent login with that password succeeds and redirects to change-password | Planned |
-| API-37 | AC-26 | Create a user with an email already in use | `409 DUPLICATE_EMAIL`, no user created | Planned |
-| API-38 | BR-11 | Edit a user's email to one already used by another user | `409 DUPLICATE_EMAIL`, no change persisted | Planned |
-| API-39 | AC-27 | Administrator edits their own account with `isActive:false` | `409 SELF_DEACTIVATION`, account remains active | Planned |
-| API-40 | AC-28 | With exactly one active Administrator, deactivate them or change their role away from Administrator | `409 LAST_ADMIN` in both cases, no change persisted | Planned |
-| API-41 | AC-29 | `PATCH .../password` sets a new initial password | `200`, `mustChangePassword:true`; old password no longer authenticates, new one does (until changed) | Planned |
-| API-42 | BR-26 | Edit a user's role from `IT_STAFF` to `REQUESTER` | Stored role is exactly `REQUESTER`; no residual multi-role state | Planned |
-| API-43 | BR-11 | Create/edit with an invalid role enum value or malformed email | `400`, no change persisted | Planned |
+| API-35 | AC-24 | `GET /api/admin/users?q=&role=` combinations | Result set matches expected fixture subset | Pass |
+| API-36 | AC-25 | Create a user with an initial password | `201`, `mustChangePassword:true`; a subsequent login with that password succeeds and redirects to change-password | Pass |
+| API-37 | AC-26 | Create a user with an email already in use | `409 DUPLICATE_EMAIL`, no user created | Pass |
+| API-38 | BR-11 | Edit a user's email to one already used by another user | `409 DUPLICATE_EMAIL`, no change persisted | Pass |
+| API-39 | AC-27 | Administrator edits their own account with `isActive:false` | `409 SELF_DEACTIVATION`, account remains active | Pass |
+| API-40 | AC-28 | With exactly one active Administrator, deactivate them or change their role away from Administrator | `409 LAST_ADMIN` in both cases, no change persisted | Pass |
+| API-41 | AC-29 | `PATCH .../password` sets a new initial password | `200`, `mustChangePassword:true`; old password no longer authenticates, new one does (until changed) | Pass |
+| API-42 | BR-26 | Edit a user's role from `IT_STAFF` to `REQUESTER` | Stored role is exactly `REQUESTER`; no residual multi-role state | Pass |
+| API-43 | BR-11 | Create/edit with an invalid role enum value or malformed email | `400`, no change persisted | Pass |
 
 ## 3. UI Component Tests
 
@@ -278,11 +278,23 @@ File: `client/tests/lab-03/UserManagement.test.tsx`
 
 | ID | AC | What It Tests | Expected Result | Final |
 | - | - | - | - | - |
-| UI-17 | — | Create form with missing/invalid required fields | Inline field errors; Save disabled or request blocked client-side | Planned |
-| UI-18 | AC-26 | Submit with a `409 DUPLICATE_EMAIL` response | Inline error appears under the Email field specifically | Planned |
-| UI-19 | AC-27 | Row for the currently-logged-in Administrator | Active toggle rendered disabled with an explanatory tooltip | Planned |
-| UI-20 | — | Open Edit on an existing user | Panel fields prefill with that user's current name/email/role/active state | Planned |
-| UI-29 | AC-32/AC-28 | Submit triggers a `409 LAST_ADMIN` response | Message shown inline above Save; panel stays open with entered values intact | Planned |
+| UI-17 | — | Create form with missing/invalid required fields | Inline field errors; Save disabled or request blocked client-side | Pass |
+| UI-18 | AC-26 | Submit with a `409 DUPLICATE_EMAIL` response | Inline error appears under the Email field specifically | Pass |
+| UI-19 | AC-27 | Row for the currently-logged-in Administrator | Active toggle rendered disabled with an explanatory tooltip | Pass |
+| UI-20 | — | Open Edit on an existing user | Panel fields prefill with that user's current name/email/role/active state | Pass |
+| UI-29 | AC-32/AC-28 | Submit triggers a `409 LAST_ADMIN` response | Message shown inline above Save; panel stays open with entered values intact | Pass |
+
+Latest targeted run (2026-09-18):
+
+```bash
+server: npm test -- tests/lab-03/unit/user-ownership.unit.test.ts tests/lab-03/users-admin.api.test.ts
+Test Files  2 passed (2)
+     Tests  11 passed (11)
+
+client: npm test -- tests/lab-03/UserManagement.test.tsx
+Test Files  1 passed (1)
+     Tests  5 passed (5)
+```
 
 ```bash
  RUN v2.1.9 D:/KMUTT/Year 3/Software Engineer/client
