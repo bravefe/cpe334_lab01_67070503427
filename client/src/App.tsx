@@ -8,6 +8,7 @@ import MyTickets from "./pages/MyTickets/MyTickets";
 import TicketDetail from "./pages/TicketDetail/TicketDetail";
 import StaffTicketQueue from "./pages/StaffTicketQueue/StaffTicketQueue";
 import StaffTicketDetail from "./pages/StaffTicketDetail/StaffTicketDetail";
+import UserManagement from "./pages/UserManagement/UserManagement";
 
 export default function App() {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -59,6 +60,7 @@ export default function App() {
   const onMyTickets = () => goTo("/my-tickets");
   const onCreateTicket = () => goTo("/create-ticket");
   const onQueue = () => goTo("/queue");
+  const onAdmin = () => goTo("/admin/users");
 
   if (path.startsWith("/queue") && user.role !== "IT_STAFF") {
     return (
@@ -74,6 +76,14 @@ export default function App() {
         </div>
       </main>
     );
+  }
+
+  if (path.startsWith("/admin/users") && user.role !== "ADMINISTRATOR") {
+    return <main className="selection"><div className="selection-card"><h1>Access forbidden</h1><p className="muted">You are not permitted to view User Management.</p><button type="button" className="primary" onClick={onMyTickets}>← Back</button></div></main>;
+  }
+
+  if (user.role === "ADMINISTRATOR") {
+    return <UserManagement currentUserId={user.id} user={requester} onLogout={logout} onAdmin={onAdmin} />;
   }
 
   if (user.role === "IT_STAFF") {

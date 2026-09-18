@@ -47,6 +47,14 @@ export default function StaffTicketDetail({
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const resolutionRef = useRef<HTMLTextAreaElement>(null);
 
+  const resizeTextareas = () => {
+    for (const textarea of [descriptionRef.current, resolutionRef.current]) {
+      if (!textarea) continue;
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  };
+
   const load = () => {
     setLoading(true);
     setError("");
@@ -67,11 +75,29 @@ export default function StaffTicketDetail({
   useEffect(load, [ticketRef]);
 
   useLayoutEffect(() => {
-    for (const textarea of [descriptionRef.current, resolutionRef.current]) {
-      if (!textarea) continue;
-      textarea.style.height = "auto";
-      textarea.style.height = `${textarea.scrollHeight}px`;
-    }
+    resizeTextareas();
+  }, [ticket?.description, summary]);
+
+  useEffect(() => {
+    resizeTextareas();
+
+    const handleResize = () => resizeTextareas();
+    window.addEventListener("resize", handleResize);
+
+    const textareas = [descriptionRef.current, resolutionRef.current].filter(
+      Boolean,
+    ) as HTMLTextAreaElement[];
+    const observer =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(() => resizeTextareas())
+        : null;
+
+    textareas.forEach((textarea) => observer?.observe(textarea));
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      observer?.disconnect();
+    };
   }, [ticket?.description, summary]);
 
   const saveOwner = async (ownerId: number | null) => {
@@ -233,7 +259,12 @@ export default function StaffTicketDetail({
             )}
             <div className="field full-width">
               <span>Summary</span>
-              <input value={ticket.summary} readOnly aria-readonly="true" />
+              <input
+                value={ticket.summary}
+                readOnly
+                aria-readonly="true"
+                aria-label="Summary"
+              />
             </div>
             <div className="field full-width">
               <span>Description</span>
@@ -241,6 +272,7 @@ export default function StaffTicketDetail({
                 value={ticket.description ?? "-"}
                 readOnly
                 aria-readonly="true"
+                aria-label="Description"
                 ref={descriptionRef}
                 rows={1}
               />
@@ -251,6 +283,8 @@ export default function StaffTicketDetail({
                 <textarea
                   value={summary}
                   ref={resolutionRef}
+                  rows={1}
+                  className="compact-textarea"
                   readOnly={canDisplayResolutionSummary}
                   onChange={(event) => setSummary(event.target.value)}
                   placeholder={

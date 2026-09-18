@@ -35,11 +35,34 @@ export default function ConversationPanel({
   const [error, setError] = useState("");
   const composerRef = useRef<HTMLTextAreaElement>(null);
 
-  useLayoutEffect(() => {
+  const resizeComposer = () => {
     const textarea = composerRef.current;
     if (!textarea) return;
     textarea.style.height = "auto";
     textarea.style.height = `${textarea.scrollHeight}px`;
+  };
+
+  useLayoutEffect(() => {
+    resizeComposer();
+  }, [content, tab]);
+
+  useEffect(() => {
+    resizeComposer();
+
+    const handleResize = () => resizeComposer();
+    window.addEventListener("resize", handleResize);
+
+    const observer =
+      typeof ResizeObserver !== "undefined" && composerRef.current
+        ? new ResizeObserver(() => resizeComposer())
+        : null;
+
+    if (composerRef.current) observer?.observe(composerRef.current);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      observer?.disconnect();
+    };
   }, [content, tab]);
 
   useEffect(() => {
@@ -187,6 +210,8 @@ export default function ConversationPanel({
             id={`${ticketRef}-${tab}-content`}
             ref={composerRef}
             value={content}
+            rows={1}
+            className="compact-textarea"
             maxLength={2000}
             onChange={(event) => setContent(event.target.value)}
             placeholder={

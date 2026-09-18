@@ -99,6 +99,30 @@ describe("Lab 3 staff ticket detail", () => {
     ).toHaveClass("conversation-panel");
   });
 
+  it("resizes detail textareas when the viewport changes size", async () => {
+    Object.defineProperty(HTMLElement.prototype, "scrollHeight", {
+      configurable: true,
+      get() {
+        return 160;
+      },
+    });
+
+    renderDetail(vi.fn().mockImplementation(defaultFetch));
+    const description = await screen.findByLabelText("Description");
+    expect(description.style.height).toBe("160px");
+
+    Object.defineProperty(description, "scrollHeight", {
+      configurable: true,
+      get: () => 220,
+    });
+
+    window.dispatchEvent(new Event("resize"));
+
+    await waitFor(() => {
+      expect(description.style.height).toBe("220px");
+    });
+  });
+
   it("UI-15: blocks Resolved without a resolution summary", async () => {
     const user = userEvent.setup();
     const fetchMock = vi.fn().mockImplementation(defaultFetch);
