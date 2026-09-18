@@ -5,12 +5,18 @@ import {
   hashPassword,
   validatePassword,
 } from "../lib/password.js";
+import { isValidEmail, normalizeEmail } from "../lib/email.js";
 import {
   createSession,
   revokeSession,
   SESSION_COOKIE,
   sessionCookieOptions,
 } from "../lib/session.js";
+import {
+  findUserByEmail,
+  findUserById,
+  updateUserPassword,
+} from "../services/authService.js";
 
 const publicUser = (user: {
   id: number;
@@ -28,14 +34,12 @@ const publicUser = (user: {
   mustChangePassword: user.mustChangePassword,
 });
 
-export async function login(req: Request, res: Response) {
-  const email =
-    typeof req.body?.email === "string"
-      ? req.body.email.trim().toLowerCase()
-      : "";
+export async function login(req: Request, res: Response): Promise<void> {
+  const emailRaw = typeof req.body?.email === "string" ? req.body.email : "";
   const password =
     typeof req.body?.password === "string" ? req.body.password : "";
-  if (!email || !password || !/^\S+@\S+\.\S+$/.test(email)) {
+
+  if (!emailRaw || !password || !isValidEmail(emailRaw)) {
     res.status(400).json({
       error: {
         code: "VALIDATION_ERROR",
@@ -44,9 +48,10 @@ export async function login(req: Request, res: Response) {
     });
     return;
   }
-  const user = await getPrisma().user.findFirst({
-    where: { email: { equals: email, mode: "insensitive" } },
-  });
+
+  const email = normalizeEmail(emailRaw);
+  const user = await findUserByEmail(email);
+
   if (!user || !(await comparePassword(password, user.passwordHash))) {
     res.status(401).json({
       error: {
@@ -56,27 +61,6 @@ export async function login(req: Request, res: Response) {
     });
     return;
   }
-  // if (!user) {
-  //   res.status(401).json({
-  //     error: {
-  //       code: "INVALID_EMAIL",
-  //       message: "Email not found.",
-  //     },
-  //   });
-  //   return;
-  // }
-
-  // const isPasswordValid = await comparePassword(password, user.passwordHash);
-
-  // if (!isPasswordValid) {
-  //   res.status(401).json({
-  //     error: {
-  //       code: "INVALID_PASSWORD",
-  //       message: "Incorrect password.",
-  //     },
-  //   });
-  //   return;
-  // }
 
   if (!user.isActive) {
     res.status(403).json({
@@ -87,42 +71,62 @@ export async function login(req: Request, res: Response) {
     });
     return;
   }
+
   res.cookie(
     SESSION_COOKIE,
     createSession(publicUser(user)),
     sessionCookieOptions(),
   );
+
   res.status(200).json({ user: publicUser(user) });
 }
 
-export function logout(req: Request, res: Response) {
+export function logout(req: Request, res: Response): void {
   const token = req.cookies?.[SESSION_COOKIE] as string | undefined;
-  if (token) revokeSession(token);
+  if (token) {
+    revokeSession(token);
+  }
+
   const { maxAge: _maxAge, ...clearOptions } = sessionCookieOptions();
   res.clearCookie(SESSION_COOKIE, clearOptions);
   res.status(204).end();
 }
-export function me(req: Request, res: Response) {
-  res.status(200).json(publicUser(req.user!));
+
+export function me(req: Request, res: Response): void {
+  if (!req.user) {
+    res.status(401).json({
+      error: {
+        code: "UNAUTHENTICATED",
+        message: "Authentication is required.",
+      },
+    });
+    return;
+  }
+
+  res.status(200).json(publicUser(req.user));
 }
 
-export async function changePassword(req: Request, res: Response) {
+export async function changePassword(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const currentPassword =
     typeof req.body?.currentPassword === "string"
       ? req.body.currentPassword
       : "";
   const newPassword =
     typeof req.body?.newPassword === "string" ? req.body.newPassword : "";
-  const error = validatePassword(newPassword);
-  if (error) {
-    res
-      .status(400)
-      .json({ error: { code: "VALIDATION_ERROR", message: error } });
+
+  const validationError = validatePassword(newPassword);
+  if (validationError) {
+    res.status(400).json({
+      error: { code: "VALIDATION_ERROR", message: validationError },
+    });
     return;
   }
-  const user = await getPrisma().user.findUnique({
-    where: { id: req.user!.id },
-  });
+
+  const user = await findUserById(req.user!.id);
+
   if (!user || !(await comparePassword(currentPassword, user.passwordHash))) {
     res.status(401).json({
       error: {
@@ -132,6 +136,7 @@ export async function changePassword(req: Request, res: Response) {
     });
     return;
   }
+
   if (currentPassword === newPassword) {
     res.status(400).json({
       error: {
@@ -141,19 +146,22 @@ export async function changePassword(req: Request, res: Response) {
     });
     return;
   }
-  const updatedUser = await getPrisma().user.update({
-    where: { id: user.id },
-    data: {
-      passwordHash: await hashPassword(newPassword),
-      mustChangePassword: false,
-    },
-  });
+
+  const updatedUser = await updateUserPassword(
+    user.id,
+    await hashPassword(newPassword),
+  );
+
   const currentToken = req.cookies?.[SESSION_COOKIE] as string | undefined;
-  if (currentToken) revokeSession(currentToken);
+  if (currentToken) {
+    revokeSession(currentToken);
+  }
+
   res.cookie(
     SESSION_COOKIE,
     createSession(publicUser(updatedUser)),
     sessionCookieOptions(),
   );
+
   res.status(200).json({ mustChangePassword: false });
 }

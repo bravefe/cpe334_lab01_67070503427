@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
-import { get } from "./api/client";
+import { getCurrentUser, logout as logoutUser } from "./api/auth";
 import ChangePassword from "./pages/ChangePassword/ChangePassword";
 import CreateTicket from "./pages/CreateTicket/CreateTicket";
-import Login, { AuthUser } from "./pages/Login/Login";
+import Login from "./pages/Login/Login";
+import { AuthUser } from "./lib/auth";
 import MyTickets from "./pages/MyTickets/MyTickets";
 import TicketDetail from "./pages/TicketDetail/TicketDetail";
+import StaffTicketQueue from "./pages/StaffTicketQueue/StaffTicketQueue";
+import StaffTicketDetail from "./pages/StaffTicketDetail/StaffTicketDetail";
 
 export default function App() {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -12,7 +15,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    get<AuthUser>("/api/auth/me")
+    getCurrentUser()
       .then(setUser)
       .catch(() => setUser(null))
       .finally(() => setLoading(false));
@@ -47,18 +50,61 @@ export default function App() {
     isActive: user.isActive,
   };
   const logout = async () => {
-    await fetch(
-      `${import.meta.env.VITE_API_URL ?? "http://localhost:3000"}/api/auth/logout`,
-      {
-        method: "POST",
-        credentials: "include",
-        headers: { "X-Requested-With": "TokTickIT" },
-      },
-    );
-    setUser(null);
+    try {
+      await logoutUser();
+    } finally {
+      setUser(null);
+    }
   };
   const onMyTickets = () => goTo("/my-tickets");
   const onCreateTicket = () => goTo("/create-ticket");
+  const onQueue = () => goTo("/queue");
+
+  if (path.startsWith("/queue") && user.role !== "IT_STAFF") {
+    return (
+      <main className="selection">
+        <div className="selection-card">
+          <h1>Access forbidden</h1>
+          <p className="muted">
+            You are not permitted to view the IT Staff queue.
+          </p>
+          <button type="button" className="primary" onClick={onMyTickets}>
+            ← Back to My Tickets
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  if (user.role === "IT_STAFF") {
+    if (path === "/queue")
+      return (
+        <StaffTicketQueue
+          requester={requester}
+          onLogout={logout}
+          onQueue={onQueue}
+          onOpenTicket={(ticketRef) => goTo(`/queue/${ticketRef}`)}
+        />
+      );
+    const staffTicketMatch = path.match(/^\/queue\/(.+)$/);
+    if (staffTicketMatch)
+      return (
+        <StaffTicketDetail
+          requester={requester}
+          ticketRef={staffTicketMatch[1]}
+          onLogout={logout}
+          onQueue={onQueue}
+        />
+      );
+    return (
+      <StaffTicketQueue
+        requester={requester}
+        onLogout={logout}
+        onQueue={onQueue}
+        onOpenTicket={(ticketRef) => goTo(`/queue/${ticketRef}`)}
+      />
+    );
+  }
 
   if (path === "/my-tickets") {
     return (

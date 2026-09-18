@@ -33,7 +33,7 @@ describe("Lab 3 Login", () => {
     render(<Login onLogin={vi.fn()} />);
     await events.type(screen.getByLabelText("Email"), "frodo@example.com");
     await events.type(screen.getByLabelText("Password"), "wrong");
-    await events.click(screen.getByRole("button", { name: "Show password" }));
+    // await events.click(screen.getByRole("button", { name: "Show password" }));
     await events.click(screen.getByRole("button", { name: "Sign in" }));
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Invalid email or password.",

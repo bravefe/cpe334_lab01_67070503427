@@ -1,4 +1,8 @@
-.create-ticket-page { width: min(100% - 48px, 1800px); margin: 0 auto; padding-top: 24px; }
+.create-ticket-page {
+  width: min(100% - 48px, 1800px);
+  margin: 0 auto;
+  padding-top: 24px;
+}
 
 .create-ticket-page .detail-header {
   display: flex;
@@ -8,7 +12,9 @@
   margin-bottom: 18px;
 }
 
-.create-header { margin-bottom: 18px; }
+.create-header {
+  margin-bottom: 18px;
+}
 
 .create-ticket-page .ticket-form-card {
   background: var(--surface);
@@ -53,18 +59,20 @@
   background: var(--surface);
   padding: 11px 12px;
   font: 14px "DM Sans";
-  resize: vertical;
+  min-height: 0;
+  overflow: hidden;
+  resize: none;
   color: var(--text);
 }
 
-.create-ticket-page .field input:focus,
+/* .create-ticket-page .field input:focus,
 .create-ticket-page .field textarea:focus {
   outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
-}
+} */
 
 .create-ticket-page .field textarea {
-  min-height: 120px;
+  min-height: 0;
 }
 
 .create-ticket-page .field.read-only {

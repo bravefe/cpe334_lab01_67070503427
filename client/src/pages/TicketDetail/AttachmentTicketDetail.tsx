@@ -11,6 +11,7 @@ import "../Attachment.css";
 
 interface AttachmentTicketDetailProps {
   ticketNumber: string;
+  requesterId?: number;
 }
 const allowedMimeTypes: Record<string, string> = {
   ".jpg": "image/jpeg",

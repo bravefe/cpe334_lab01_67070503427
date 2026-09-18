@@ -48,7 +48,7 @@
   --warning-border: #f2c98b;
   --success-banner-surface: #edfdf4;
   --success-banner-border: #b9edc8;
-  
+
   --low-priority-surface: #eef8f1;
   --low-priority-text: #2b6b42;
   --medium-priority-surface: #fff7e8;
@@ -80,7 +80,9 @@ button {
   transition: 0.15s ease;
 }
 
-button:hover:not(:disabled) { background: var(--pale-green); }
+button:hover:not(:disabled) {
+  background: var(--pale-green);
+}
 
 button:disabled {
   cursor: not-allowed;
@@ -118,13 +120,16 @@ button:disabled {
 button:focus-visible,
 input:focus-visible,
 select:focus-visible,
+textarea:focus-visible,
 a:focus-visible {
   outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;
   }

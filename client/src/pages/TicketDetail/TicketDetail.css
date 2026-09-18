@@ -107,9 +107,17 @@
   color: var(--text);
 }
 
+/* .ticket-detail-page .field input:focus,
+.ticket-detail-page .field textarea:focus,
+.ticket-detail-page .field select:focus {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+} */
+
 .ticket-detail-page .field textarea {
-  min-height: 120px;
-  resize: vertical;
+  min-height: 0;
+  overflow: hidden;
+  resize: none;
 }
 
 .ticket-detail-page .field input:read-only,
@@ -200,4 +208,9 @@
   .ticket-detail-page .form-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.ticket-detail-page .success-inline {
+  color: var(--success);
+  font-weight: 700;
 }

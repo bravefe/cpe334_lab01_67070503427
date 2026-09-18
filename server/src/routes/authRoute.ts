@@ -1,6 +1,15 @@
 import { Router } from "express";
-import { changePassword, login, logout, me } from "../controllers/authController.js";
-import { authenticate, optionalAuthenticate, requireCsrf } from "../middleware/authentication.js";
+import {
+  changePassword,
+  login,
+  logout,
+  me,
+} from "../controllers/authController.js";
+import {
+  authenticate,
+  optionalAuthenticate,
+  requireCsrf,
+} from "../middleware/authentication.js";
 
 const router = Router();
 router.post("/auth/login", login);

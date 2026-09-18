@@ -40,15 +40,6 @@ describe("Lab 3 Migration & Data Model Verification", () => {
       expect(ticket.requester.role).toBe("REQUESTER");
       expect(ticket.requester.isActive).toBe(true);
 
-      // If DevRequester records exist, verify email correspondence
-      const devRequester = await prisma.devRequester.findUnique({
-        where: { email: ticket.requester.email },
-      });
-      if (devRequester) {
-        expect(ticket.requester.email.toLowerCase()).toBe(
-          devRequester.email.toLowerCase(),
-        );
-      }
     }
   });
 
@@ -86,7 +77,6 @@ describe("Lab 3 Migration & Data Model Verification", () => {
       systemBefore,
       priorityBefore,
       statusBefore,
-      devRequesterBefore,
       userBefore,
       ticketBefore,
       commentBefore,
@@ -96,7 +86,6 @@ describe("Lab 3 Migration & Data Model Verification", () => {
       prisma.relatedSystem.count(),
       prisma.priority.count(),
       prisma.status.count(),
-      prisma.devRequester.count(),
       prisma.user.count(),
       prisma.ticket.count(),
       prisma.publicComment.count(),
@@ -112,7 +101,6 @@ describe("Lab 3 Migration & Data Model Verification", () => {
       systemAfter,
       priorityAfter,
       statusAfter,
-      devRequesterAfter,
       userAfter,
       ticketAfter,
       commentAfter,
@@ -122,7 +110,6 @@ describe("Lab 3 Migration & Data Model Verification", () => {
       prisma.relatedSystem.count(),
       prisma.priority.count(),
       prisma.status.count(),
-      prisma.devRequester.count(),
       prisma.user.count(),
       prisma.ticket.count(),
       prisma.publicComment.count(),
@@ -134,7 +121,6 @@ describe("Lab 3 Migration & Data Model Verification", () => {
     expect(systemAfter).toBe(systemBefore);
     expect(priorityAfter).toBe(priorityBefore);
     expect(statusAfter).toBe(statusBefore);
-    expect(devRequesterAfter).toBe(devRequesterBefore);
     expect(userAfter).toBe(userBefore);
     expect(ticketAfter).toBe(ticketBefore);
     expect(commentAfter).toBe(commentBefore);

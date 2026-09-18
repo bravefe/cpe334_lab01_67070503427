@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { fetchTicketDetail } from "../../api/tickets";
+import { markTicketResolved } from "../../api/tickets";
 import { Requester } from "../../lib/requester";
 import { TicketDetail as TicketDetailType } from "../../lib/ticket";
 import TopBar from "../TopBar";
 import AttachmentTicketDetail from "./AttachmentTicketDetail";
 import "./TicketDetail.css";
+import ConversationPanel from "./ConversationPanel";
+import "./ConversationPanel.css";
 
 import { formatDate } from "../../lib/formatDate";
 
@@ -26,7 +29,10 @@ export default function TicketDetail({
   const [ticket, setTicket] = useState<TicketDetailType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState("attachments");
+  const [activeTab, setActiveTab] = useState("public-comments");
+  const [resolutionBusy, setResolutionBusy] = useState(false);
+  const [resolutionError, setResolutionError] = useState("");
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const createdFromForm =
     new URLSearchParams(window.location.search).get("created") === "1";
 
@@ -45,6 +51,43 @@ export default function TicketDetail({
         setLoading(false);
       });
   }, [ticketNumber]);
+
+  useLayoutEffect(() => {
+    const textarea = descriptionRef.current;
+    if (!textarea) return;
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  }, [ticket?.description]);
+
+  const canMarkResolved = [
+    "Open",
+    "In Progress",
+    "Waiting for Requester",
+  ].includes(ticket?.currentStatus?.name ?? "");
+  const canDisplayResolutionSummary = ["Resolved", "Closed"].includes(
+    ticket?.currentStatus?.name ?? "",
+  );
+  const markResolved = async () => {
+    if (
+      !window.confirm(
+        "Let IT Support know this looks fixed? They'll still need to formally close the ticket.",
+      )
+    )
+      return;
+    setResolutionBusy(true);
+    setResolutionError("");
+    try {
+      setTicket(await markTicketResolved(ticketNumber));
+    } catch (requestError) {
+      setResolutionError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Unable to update the ticket.",
+      );
+    } finally {
+      setResolutionBusy(false);
+    }
+  };
 
   return (
     <>
@@ -89,16 +132,16 @@ export default function TicketDetail({
               </div>
 
               <div className="field read-only">
-                <span>Ticket Date</span>
+                <span>Requester</span>
                 <div className="field-value">
-                  {formatDate(ticket.createdAt)}
+                  {ticket.requester?.name ?? ""}
                 </div>
               </div>
 
               <div className="field read-only">
-                <span>Requester</span>
+                <span>Ticket Date</span>
                 <div className="field-value">
-                  {ticket.requester?.name ?? ""}
+                  {formatDate(ticket.createdAt)}
                 </div>
               </div>
 
@@ -156,6 +199,26 @@ export default function TicketDetail({
               </div> */}
             </div>
 
+            {canMarkResolved && !ticket.problemAppearsResolved && (
+              <button
+                type="button"
+                disabled={resolutionBusy}
+                onClick={() => void markResolved()}
+              >
+                {resolutionBusy ? "Saving..." : "Problem Appears Resolved"}
+              </button>
+            )}
+            {ticket.problemAppearsResolved && (
+              <p className="success-inline">
+                You marked this as appearing resolved.
+              </p>
+            )}
+            {resolutionError && (
+              <div className="error-banner" role="alert">
+                {resolutionError}
+              </div>
+            )}
+
             {/* Summary */}
             <div className="field full-width">
               <span>Summary</span>
@@ -169,9 +232,23 @@ export default function TicketDetail({
                 value={ticket.description}
                 readOnly
                 aria-readonly="true"
-                rows={6}
+                ref={descriptionRef}
+                rows={1}
               />
             </div>
+
+            {canDisplayResolutionSummary && (
+              <label className="field full-width">
+                <span>Resolution Summary</span>
+                <textarea
+                  value={ticket.resolutionSummary ?? ""}
+                  readOnly
+                  aria-readonly="true"
+                  aria-label="Resolution Summary"
+                  rows={3}
+                />
+              </label>
+            )}
 
             <div
               className="ticket-tabs"
@@ -181,8 +258,8 @@ export default function TicketDetail({
               {[
                 "Public Comments",
                 "Attachments",
-                "Service Actions",
-                "Event Log",
+                // "Service Actions",
+                // "Event Log",
               ].map((tab) => {
                 const key = tab.toLowerCase().replace(" ", "-");
                 return (
@@ -200,6 +277,8 @@ export default function TicketDetail({
             </div>
             {activeTab === "attachments" ? (
               <AttachmentTicketDetail ticketNumber={ticketNumber} />
+            ) : activeTab === "public-comments" ? (
+              <ConversationPanel ticketRef={ticketNumber} />
             ) : (
               <div className="attachment-empty">
                 This section will be implemented later.

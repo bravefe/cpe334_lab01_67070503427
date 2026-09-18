@@ -1,0 +1,116 @@
+.conversation-panel {
+  margin-top: 24px;
+}
+.conversation-heading {
+  margin: 20px 0 12px;
+  font-size: 1.1rem;
+}
+.conversation-tabs {
+  display: flex;
+  gap: 18px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.conversation-tabs button {
+  min-height: 42px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--muted);
+}
+.conversation-tabs button.active {
+  color: var(--text);
+  border-bottom: 3px solid var(--primary-green);
+}
+.conversation-compose {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+  margin-top: 18px;
+}
+.conversation-compose label {
+  display: grid;
+  gap: 8px;
+  font-weight: 700;
+}
+.conversation-compose textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 0;
+  padding: 11px 12px;
+  border: 1px solid var(--control-border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font: 14px "DM Sans";
+  /* text-align: center; */
+  overflow: hidden;
+  resize: none;
+}
+/* .conversation-compose textarea:focus {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+} */
+.conversation-compose button {
+  justify-self: end;
+}
+.conversation-compose.internal,
+.conversation-list.internal {
+  padding: 14px;
+  background: #f1f5ed;
+  border: 1px solid #d7e4d2;
+  border-radius: 8px;
+}
+.internal-note-label {
+  margin: 0 0 10px;
+  color: var(--warning);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+.conversation-list {
+  display: grid;
+  gap: 10px;
+}
+.conversation-entry {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.conversation-entry header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.conversation-entry header span {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--pale-green);
+  color: var(--primary-green);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.conversation-entry time {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.conversation-entry p {
+  margin: 10px 0 0;
+  white-space: pre-wrap;
+}
+.conversation-empty {
+  padding: 18px 0;
+  color: var(--muted);
+}
+@media (max-width: 767px) {
+  .conversation-compose button {
+    width: 100%;
+  }
+  .conversation-entry time {
+    width: 100%;
+    margin-left: 0;
+  }
+}
