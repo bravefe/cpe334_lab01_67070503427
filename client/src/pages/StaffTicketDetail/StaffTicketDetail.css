@@ -99,6 +99,34 @@
   color: var(--success);
   font-weight: 700;
 }
+
+.staff-detail-page .error-banner,
+.staff-detail-page .warning-banner,
+.staff-detail-page .success-banner {
+  margin-top: 18px;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-weight: 700;
+}
+
+.staff-detail-page .error-banner {
+  background: var(--error-banner-surface);
+  border: 1px solid var(--error-banner-border);
+  color: var(--error);
+}
+
+.staff-detail-page .warning-banner {
+  background: var(--warning-surface);
+  border: 1px solid var(--warning-border);
+  color: var(--warning);
+}
+
+.staff-detail-page .success-banner {
+  background: var(--success-banner-surface);
+  border: 1px solid var(--success-banner-border);
+  color: var(--success);
+}
+
 .staff-tabs {
   margin-top: 26px;
 }

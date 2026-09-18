@@ -117,7 +117,7 @@ export default function ConversationPanel({
             type="button"
             className="attachment-tab"
             role="tab"
-            aria-selected={tab === "attachments"}
+            // aria-selected={tab === "attachment"}
           >
             Attachments
           </button>

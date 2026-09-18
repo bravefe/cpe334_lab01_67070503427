@@ -116,6 +116,7 @@ export default function StaffTicketDetail({
   const saveStatus = async (value: string) => {
     if (value === "Resolved" && !summary.trim()) {
       setError("Resolution Summary is required when resolving a ticket.");
+      setMessage("");
       return;
     }
     if (
@@ -262,7 +263,14 @@ export default function StaffTicketDetail({
               </label>
             )}
             {error && (
-              <div className="error-banner" role="alert">
+              <div
+                className={
+                  error.includes("Resolution Summary is required")
+                    ? "warning-banner"
+                    : "error-banner"
+                }
+                role="alert"
+              >
                 {error}
               </div>
             )}

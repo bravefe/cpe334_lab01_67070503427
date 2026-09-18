@@ -107,11 +107,12 @@ describe("Lab 3 staff ticket detail", () => {
     const status = await screen.findByLabelText("Current Status");
     await user.selectOptions(status, "Resolved");
 
-    expect(
-      await screen.findByText(
-        "Resolution Summary is required when resolving a ticket.",
-      ),
-    ).toBeInTheDocument();
+    const warning = await screen.findByRole("alert");
+    expect(warning).toHaveTextContent(
+      "Resolution Summary is required when resolving a ticket.",
+    );
+    expect(warning).toHaveClass("warning-banner");
+    expect(warning).not.toHaveClass("error-banner");
     expect(
       fetchMock.mock.calls.some(([, init]) => init?.method === "PATCH"),
     ).toBe(false);
