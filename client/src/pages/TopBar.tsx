@@ -77,7 +77,9 @@ export default function TopBar({
           aria-label="Admin"
           title="User Management"
         >
-          <span className="nav-icon" aria-hidden="true">âš™</span>
+          <span className="nav-icon" aria-hidden="true">
+            ▣
+          </span>
           <span className="nav-label">Admin</span>
         </a>
       )}
