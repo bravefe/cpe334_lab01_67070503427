@@ -20,7 +20,25 @@ test("E2E-01: active users can log in and logged-out sessions are blocked", asyn
   await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
 });
 
-test("E2E-02: a temporary password requires a change before app access", async ({ page }) => {
+test("E2E-02: a temporary password requires a change before app access", async ({ page, request }) => {
+  // Restore this seeded temporary account first, so the test is repeatable even
+  // after a previous run successfully changed its password.
+  const adminLogin = await request.post("http://localhost:3000/api/auth/login", {
+    data: { email: "elrond@rivendell.example.com", password },
+  });
+  expect(adminLogin.ok()).toBe(true);
+  const users = await request.get("http://localhost:3000/api/admin/users");
+  expect(users.ok()).toBe(true);
+  const merry = (await users.json()).items.find(
+    (user: { email: string }) => user.email === "merry.b@shiremail.example.com",
+  );
+  expect(merry).toBeTruthy();
+  const reset = await request.patch(
+    `http://localhost:3000/api/admin/users/${merry.id}/password`,
+    { data: { newPassword: password }, headers: { "X-Requested-With": "TokTickIT" } },
+  );
+  expect(reset.ok()).toBe(true);
+
   await signIn(page, "merry.b@shiremail.example.com");
   await expect(page.getByRole("heading", { name: "Change password" })).toBeVisible();
   await captureScreen(page, "authentication", "mandatory-change-password");

@@ -8,7 +8,19 @@ async function signIn(page: import("@playwright/test").Page) {
   await page.getByRole("button", { name: "Sign in" }).click();
 }
 
-test("E2E-04: staff can open a queue ticket and claim an unassigned ticket", async ({ page }) => {
+test("E2E-04: staff can open a queue ticket and claim an unassigned ticket", async ({ page, request }) => {
+  // E2E-04 deliberately changes ownership; put its fixture back before every
+  // run so reruns remain independent of the previous successful execution.
+  const setupLogin = await request.post("http://localhost:3000/api/auth/login", {
+    data: { email: "arwen@rivendell.example.com", password: "Password123!" },
+  });
+  expect(setupLogin.ok()).toBe(true);
+  const unassign = await request.patch(
+    "http://localhost:3000/api/staff/tickets/TKT-2026-000007/owner",
+    { data: { ownerId: null }, headers: { "X-Requested-With": "TokTickIT" } },
+  );
+  expect(unassign.ok()).toBe(true);
+
   await signIn(page);
   await expect(page.getByRole("heading", { name: "My Queue" })).toBeVisible();
   await captureScreen(page, "staff-queue", "queue-default");
