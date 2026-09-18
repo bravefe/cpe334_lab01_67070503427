@@ -37,6 +37,7 @@
 .conversation-compose textarea,
 .compact-textarea {
   width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
   min-height: 44px;
   height: auto;
@@ -50,8 +51,14 @@
   line-height: 1.5;
   display: block;
   overflow: hidden;
+  overflow-x: hidden;
   resize: none;
   vertical-align: top;
+  flex: 1 1 auto;
+  align-self: stretch;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-all;
 }
 /* .conversation-compose textarea:focus {
   outline: 3px solid var(--focus-ring);
@@ -105,6 +112,9 @@
 .conversation-entry p {
   margin: 10px 0 0;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  overflow-x: hidden;
 }
 .conversation-empty {
   padding: 18px 0;
