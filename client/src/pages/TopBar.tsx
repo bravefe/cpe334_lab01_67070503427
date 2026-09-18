@@ -9,6 +9,7 @@ interface TopBarProps {
   onMyTickets?: () => void;
   onCreateTicket?: () => void;
   onQueue?: () => void;
+  onAdmin?: () => void;
 }
 
 export default function TopBar({
@@ -18,6 +19,7 @@ export default function TopBar({
   onMyTickets,
   onCreateTicket,
   onQueue,
+  onAdmin,
 }: TopBarProps) {
   const currentPage = window.location.pathname;
   const isMyTicketsPage = currentPage === "/my-tickets";
@@ -56,7 +58,7 @@ export default function TopBar({
             <span className="nav-label">Create Ticket</span>
           </a>
         </>
-      ) : (
+      ) : role === "IT_STAFF" ? (
         <a
           className={isQueuePage ? "active" : undefined}
           onClick={onQueue ?? onMyTickets}
@@ -67,6 +69,16 @@ export default function TopBar({
             ▣
           </span>
           <span className="nav-label">My Queue</span>
+        </a>
+      ) : (
+        <a
+          className={currentPage === "/admin/users" ? "active" : undefined}
+          onClick={onAdmin}
+          aria-label="Admin"
+          title="User Management"
+        >
+          <span className="nav-icon" aria-hidden="true">âš™</span>
+          <span className="nav-label">Admin</span>
         </a>
       )}
       <a className="profile" onClick={onChange}>
