@@ -251,6 +251,8 @@ export default function StaffTicketDetail({
                 <textarea
                   value={summary}
                   ref={resolutionRef}
+                  rows={1}
+                  className="compact-textarea"
                   readOnly={canDisplayResolutionSummary}
                   onChange={(event) => setSummary(event.target.value)}
                   placeholder={

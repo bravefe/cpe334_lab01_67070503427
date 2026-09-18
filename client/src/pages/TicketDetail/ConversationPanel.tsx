@@ -187,6 +187,8 @@ export default function ConversationPanel({
             id={`${ticketRef}-${tab}-content`}
             ref={composerRef}
             value={content}
+            rows={1}
+            className="compact-textarea"
             maxLength={2000}
             onChange={(event) => setContent(event.target.value)}
             placeholder={

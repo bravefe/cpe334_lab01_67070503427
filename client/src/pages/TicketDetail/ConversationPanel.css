@@ -34,19 +34,24 @@
   gap: 8px;
   font-weight: 700;
 }
-.conversation-compose textarea {
+.conversation-compose textarea,
+.compact-textarea {
   width: 100%;
   box-sizing: border-box;
-  min-height: 0;
+  min-height: 44px;
+  height: auto;
+  margin: 0;
   padding: 11px 12px;
   border: 1px solid var(--control-border);
   border-radius: 8px;
   background: var(--surface);
   color: var(--text);
   font: 14px "DM Sans";
-  /* text-align: center; */
+  line-height: 1.5;
+  display: block;
   overflow: hidden;
   resize: none;
+  vertical-align: top;
 }
 /* .conversation-compose textarea:focus {
   outline: 3px solid var(--focus-ring);

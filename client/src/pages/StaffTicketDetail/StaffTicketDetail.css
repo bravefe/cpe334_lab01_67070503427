@@ -38,7 +38,8 @@
 }
 .staff-detail-page .field input,
 .staff-detail-page .field select,
-.staff-detail-page .field textarea {
+.staff-detail-page .field textarea,
+.staff-detail-page .compact-textarea {
   width: 100%;
   box-sizing: border-box;
   border: 1px solid var(--control-border);
@@ -47,6 +48,12 @@
   background: var(--surface);
   color: var(--text);
   font: 14px "DM Sans";
+  line-height: 1.5;
+  margin: 0;
+  display: block;
+  min-height: 44px;
+  height: auto;
+  vertical-align: top;
 }
 /* .staff-detail-page .field input:focus,
 .staff-detail-page .field textarea:focus,
