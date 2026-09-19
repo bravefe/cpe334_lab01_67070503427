@@ -10,6 +10,12 @@ async function signIn(page: import("@playwright/test").Page, email: string) {
 
 test("E2E-06: administrator creates a temporary-password user", async ({ page }) => {
   await signIn(page, "elrond@rivendell.example.com");
+
+  // Preserve the Administrator's initial authenticated view, including the
+  // role-aware top navigation, before opening a management panel.
+  await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
+  await expect(page.locator("tbody tr").first()).toBeVisible();
+  await captureScreen(page, "user-management", "admin-main-menu");
   await captureScreen(page, "user-management", "users-list");
   await page.getByRole("button", { name: "Create User" }).click();
   await captureScreen(page, "user-management", "create-user-panel");

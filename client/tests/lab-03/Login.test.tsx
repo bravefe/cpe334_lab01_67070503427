@@ -34,7 +34,9 @@ describe("Lab 3 Login", () => {
     await events.type(screen.getByLabelText("Email"), "frodo@example.com");
     await events.type(screen.getByLabelText("Password"), "wrong");
     // await events.click(screen.getByRole("button", { name: "Show password" }));
-    await events.click(screen.getByRole("button", { name: "Sign in" }));
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Sign in" })).toBeEnabled(),
+    );
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Invalid email or password.",
     );
