@@ -7,7 +7,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "test:e2e": "playwright test e2e/lab-02/requester-ticket-flow.spec.ts"
+    "test:e2e": "playwright test e2e/lab-03"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,10 @@
   },
   "homepage": "https://github.com/bravefe/cpe334_lab01_67070503427#readme",
   "devDependencies": {
-    "@playwright/test": "^1.63.0"
+    "@playwright/test": "^1.63.0",
+    "@types/bcryptjs": "^2.4.6"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3"
   }
 }

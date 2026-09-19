@@ -55,19 +55,3 @@ export async function getStatusesService() {
     },
   });
 }
-
-export async function getDevRequestersService() {
-  return getPrisma().devRequester.findMany({
-    where: {
-      isActive: true,
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-    },
-    orderBy: {
-      name: "asc",
-    },
-  });
-}

@@ -72,6 +72,12 @@
   padding: 12px 14px;
   min-height: 68px;
   box-sizing: border-box;
+  /* max-width: 100%;
+  flex: 1 1 auto;
+  align-self: stretch;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-all; */
 }
 
 .ticket-detail-page .field.read-only > span {
@@ -103,13 +109,34 @@
   border-radius: 8px;
   background: var(--readonly-surface);
   padding: 11px 12px;
+  line-height: 4;
+  /* padding: 11px 12px; */
   font: 14px "DM Sans";
   color: var(--text);
+  /* flex: 1 1 auto;
+  align-self: stretch;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-all; */
+}
+.ticket-detail-page .field textarea {
+  line-height: 1.6;
+  min-height: 120px;
+  resize: none;
+  overflow: hidden;
 }
 
+/* .ticket-detail-page .field input:focus,
+.ticket-detail-page .field textarea:focus,
+.ticket-detail-page .field select:focus {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+} */
+
 .ticket-detail-page .field textarea {
-  min-height: 120px;
-  resize: vertical;
+  min-height: 0;
+  overflow: hidden;
+  resize: none;
 }
 
 .ticket-detail-page .field input:read-only,
@@ -200,4 +227,9 @@
   .ticket-detail-page .form-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.ticket-detail-page .success-inline {
+  color: var(--success);
+  font-weight: 700;
 }

@@ -1,8 +1,7 @@
-import { Request, Response } from "express";
-import {
-  parseTicketQuery,
-  type TicketQuery,
-} from "../lib/tickets.js";
+import type { Request, Response } from "express";
+import { getPrisma } from "../prisma.js";
+import { validateContent } from "../lib/content.js";
+import { parseTicketQuery, type TicketQuery } from "../lib/tickets.js";
 import {
   createTicketService,
   getTicketDetailService,
@@ -10,24 +9,24 @@ import {
   TicketValidationError,
 } from "../services/ticketService.js";
 
-function getRequesterId(req: Request): number | null {
-  const requesterId = Number(req.header("X-Dev-Requester-Id"));
-  return Number.isInteger(requesterId) && requesterId > 0 ? requesterId : null;
+function sendError(
+  res: Response,
+  status: number,
+  code: string,
+  message: string,
+  extra?: Record<string, unknown>,
+) {
+  return res.status(status).json({
+    error: {
+      code,
+      message,
+      ...extra,
+    },
+  });
 }
 
-export async function getTickets(
-  req: Request,
-  res: Response,
-): Promise<void> {
-  const requesterId = getRequesterId(req);
-
-  if (!requesterId) {
-    res.status(400).json({
-      error: { code: "VALIDATION_ERROR", message: "A valid requester context is required." },
-    });
-    return;
-  }
-
+export async function getTickets(req: Request, res: Response): Promise<void> {
+  const requesterId = req.user!.id;
   const query: TicketQuery = parseTicketQuery(req);
 
   try {
@@ -38,28 +37,17 @@ export async function getTickets(
 
     res.status(200).json(result);
   } catch (_error) {
-    res.status(500).json({
-      error: { code: "INTERNAL_ERROR", message: "Failed to fetch tickets." },
-    });
+    sendError(res, 500, "INTERNAL_ERROR", "Failed to fetch tickets.");
   }
 }
 
-export async function createTicket(
-  req: Request,
-  res: Response,
-): Promise<void> {
-  const requesterId = getRequesterId(req);
-
-  if (!requesterId) {
-    res.status(400).json({
-      error: { code: "VALIDATION_ERROR", message: "A valid requester context is required." },
-    });
-    return;
-  }
+export async function createTicket(req: Request, res: Response): Promise<void> {
+  const requesterId = req.user!.id;
 
   const body = req.body ?? {};
   const summary = typeof body.summary === "string" ? body.summary.trim() : "";
-  const description = typeof body.description === "string" ? body.description.trim() : "";
+  const description =
+    typeof body.description === "string" ? body.description.trim() : "";
   const categoryId = Number(body.categoryId);
   const relatedSystemId = Number(body.relatedSystemId);
   const requestedPriorityId = Number(body.requestedPriorityId);
@@ -102,12 +90,8 @@ export async function createTicket(
   }
 
   if (fieldErrors.length > 0) {
-    res.status(400).json({
-      error: {
-        code: "VALIDATION_ERROR",
-        message: "Ticket validation failed.",
-        fieldErrors,
-      },
+    sendError(res, 400, "VALIDATION_ERROR", "Ticket validation failed.", {
+      fieldErrors,
     });
     return;
   }
@@ -125,19 +109,13 @@ export async function createTicket(
     res.status(201).json({ data: ticket });
   } catch (error) {
     if (error instanceof TicketValidationError) {
-      res.status(400).json({
-        error: {
-          code: "VALIDATION_ERROR",
-          message: "Ticket validation failed.",
-          fieldErrors: [{ field: error.field, message: error.message }],
-        },
+      sendError(res, 400, "VALIDATION_ERROR", "Ticket validation failed.", {
+        fieldErrors: [{ field: error.field, message: error.message }],
       });
       return;
     }
 
-    res.status(500).json({
-      error: { code: "INTERNAL_ERROR", message: "ERROR 500: Unable to create ticket." },
-    });
+    sendError(res, 500, "INTERNAL_ERROR", "Unable to create ticket.");
   }
 }
 
@@ -145,38 +123,221 @@ export async function getTicketDetail(
   req: Request,
   res: Response,
 ): Promise<void> {
-  const requesterId = getRequesterId(req);
+  const requesterId = req.user!.id;
+  const ticketRef = String(
+    req.params.ticketNumber ?? req.params.id ?? "",
+  ).trim();
 
-  if (!requesterId) {
-    res.status(400).json({
-      error: { code: "VALIDATION_ERROR", message: "ERROR 400: A valid requester context is required." },
-    });
-    return;
-  }
-
-  const ticketNumber = String(req.params.ticketNumber ?? "").trim();
-
-  if (!ticketNumber) {
-    res.status(404).json({
-      error: { code: "NOT_FOUND", message: "ERROR 404: Ticket not found." },
-    });
+  if (!ticketRef) {
+    sendError(res, 404, "NOT_FOUND", "Ticket not found.");
     return;
   }
 
   try {
-    const ticket = await getTicketDetailService({ requesterId, ticketNumber });
+    const result = await getTicketDetailService({ requesterId, ticketRef });
 
-    if (!ticket) {
-      res.status(404).json({
-        error: { code: "NOT_FOUND", message: "ERROR 404: Ticket not found." },
-      });
+    if (result.kind === "not_found") {
+      sendError(res, 404, "NOT_FOUND", "Ticket not found.");
       return;
     }
 
-    res.status(200).json({ data: ticket });
+    if (result.kind === "forbidden") {
+      sendError(
+        res,
+        403,
+        "FORBIDDEN",
+        "You are not allowed to access this ticket.",
+      );
+      return;
+    }
+
+    res.status(200).json({ data: result.data });
   } catch (_error) {
-    res.status(500).json({
-      error: { code: "INTERNAL_ERROR", message: "ERROR 500: Failed to load ticket detail." },
-    });
+    sendError(res, 500, "INTERNAL_ERROR", "Failed to load ticket detail.");
   }
+}
+
+async function resolveTicketAccess(req: Request) {
+  const ref = String(req.params.ticketNumber ?? req.params.id ?? "").trim();
+  if (!ref) return null;
+
+  const numericId = Number(ref);
+  const ticket =
+    Number.isInteger(numericId) && numericId > 0
+      ? await getPrisma().ticket.findUnique({
+          where: { id: numericId },
+          include: { requester: true, currentStatus: true },
+        })
+      : await getPrisma().ticket.findUnique({
+          where: { ticketNumber: ref },
+          include: { requester: true, currentStatus: true },
+        });
+
+  if (!ticket) return null;
+
+  if (req.user!.role === "REQUESTER" && ticket.requesterId !== req.user!.id) {
+    return "forbidden" as const;
+  }
+
+  return ticket;
+}
+
+export async function getTicketComments(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const ticket = await resolveTicketAccess(req);
+
+  if (!ticket) {
+    sendError(res, 404, "NOT_FOUND", "Ticket not found.");
+    return;
+  }
+
+  if (ticket === "forbidden") {
+    sendError(
+      res,
+      403,
+      "FORBIDDEN",
+      "You are not allowed to access this ticket.",
+    );
+    return;
+  }
+
+  const comments = await getPrisma().publicComment.findMany({
+    where: { ticketId: ticket.id },
+    include: { author: true },
+    orderBy: { createdAt: "asc" },
+  });
+
+  res.status(200).json({
+    items: comments.map((comment) => ({
+      id: comment.id,
+      ticketId: comment.ticketId,
+      authorId: comment.authorId,
+      authorName: comment.author.name,
+      authorRole: comment.author.role,
+      content: comment.content,
+      createdAt: comment.createdAt.toISOString(),
+    })),
+  });
+}
+
+export async function createTicketComment(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const ticket = await resolveTicketAccess(req);
+
+  if (!ticket) {
+    sendError(res, 404, "NOT_FOUND", "Ticket not found.");
+    return;
+  }
+
+  if (ticket === "forbidden") {
+    sendError(
+      res,
+      403,
+      "FORBIDDEN",
+      "You are not allowed to access this ticket.",
+    );
+    return;
+  }
+
+  const content = validateContent(req.body?.content);
+  if (!content) {
+    sendError(
+      res,
+      400,
+      "VALIDATION_ERROR",
+      "Content must be between 1 and 2000 characters.",
+    );
+    return;
+  }
+
+  const created = await getPrisma().publicComment.create({
+    data: {
+      ticketId: ticket.id,
+      authorId: req.user!.id,
+      content,
+    },
+    include: { author: true },
+  });
+
+  res.status(201).json({
+    id: created.id,
+    ticketId: created.ticketId,
+    authorId: created.authorId,
+    authorName: created.author.name,
+    authorRole: created.author.role,
+    content: created.content,
+    createdAt: created.createdAt.toISOString(),
+  });
+}
+
+export async function updateTicketResolution(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const ticket = await resolveTicketAccess(req);
+
+  if (!ticket) {
+    sendError(res, 404, "NOT_FOUND", "Ticket not found.");
+    return;
+  }
+
+  if (ticket === "forbidden") {
+    sendError(
+      res,
+      403,
+      "FORBIDDEN",
+      "You are not allowed to access this ticket.",
+    );
+    return;
+  }
+
+  const value = req.body?.problemAppearsResolved;
+  if (typeof value !== "boolean") {
+    sendError(
+      res,
+      400,
+      "VALIDATION_ERROR",
+      "problemAppearsResolved must be a boolean.",
+    );
+    return;
+  }
+
+  const allowedStatuses = ["Open", "In Progress", "Waiting for Requester"];
+  if (!allowedStatuses.includes(ticket.currentStatus.name)) {
+    sendError(
+      res,
+      409,
+      "INVALID_STATUS",
+      `Ticket status must be one of: ${allowedStatuses.join(", ")}.`,
+    );
+    return;
+  }
+
+  const rawSummary = req.body?.resolutionSummary;
+  const resolutionSummary =
+    typeof rawSummary === "string"
+      ? rawSummary.trim()
+      : rawSummary === null
+        ? null
+        : undefined;
+
+  const updated = await getPrisma().ticket.update({
+    where: { id: ticket.id },
+    data: {
+      problemAppearsResolved: value,
+      ...(resolutionSummary !== undefined ? { resolutionSummary } : {}),
+    },
+    include: { currentStatus: true },
+  });
+
+  res.status(200).json({
+    ...updated,
+    status: updated.currentStatus.name,
+    currentStatus: undefined,
+    currentStatusId: undefined,
+  });
 }

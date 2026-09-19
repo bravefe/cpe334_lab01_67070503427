@@ -1,40 +1,25 @@
 import { useEffect, useState } from "react";
-import { fetchRequesters } from "./api/requesters";
-import { Requester } from "./lib/requester";
-import ChooseRequester from "./pages/ChooseRequester/ChooseRequester";
+import { getCurrentUser, logout as logoutUser } from "./api/auth";
+import ChangePassword from "./pages/ChangePassword/ChangePassword";
 import CreateTicket from "./pages/CreateTicket/CreateTicket";
+import Login from "./pages/Login/Login";
+import { AuthUser } from "./lib/auth";
 import MyTickets from "./pages/MyTickets/MyTickets";
 import TicketDetail from "./pages/TicketDetail/TicketDetail";
+import StaffTicketQueue from "./pages/StaffTicketQueue/StaffTicketQueue";
+import StaffTicketDetail from "./pages/StaffTicketDetail/StaffTicketDetail";
+import UserManagement from "./pages/UserManagement/UserManagement";
 
 export default function App() {
-  const [requesters, setRequesters] = useState<Requester[]>([]);
-  const [requesterId, setRequesterId] = useState<number | null>(() =>
-    Number(localStorage.getItem("requesterId")) || null,
-  );
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [path, setPath] = useState(window.location.pathname);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
-  const loadRequesters = () => {
-    setLoading(true);
-    setError("");
-    fetchRequesters()
-      .then((result) => setRequesters(result.data))
-      .catch((requestError: Error) => setError(requestError.message))
+  useEffect(() => {
+    getCurrentUser()
+      .then(setUser)
+      .catch(() => setUser(null))
       .finally(() => setLoading(false));
-  };
-
-  useEffect(() => {
-    loadRequesters();
-  }, []);
-
-  useEffect(() => {
-    if (window.location.pathname === "/") {
-      setPath("/choose-requester");
-    }
-  }, []);
-
-  useEffect(() => {
     const handlePopState = () => setPath(window.location.pathname);
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
@@ -45,40 +30,88 @@ export default function App() {
     setPath(new URL(nextPath, window.location.origin).pathname);
   };
 
-  const selectedRequester = requesters.find((item) => item.id === requesterId);
-
-  const handleSelect = (id: number) => {
-    localStorage.setItem("requesterId", String(id));
-    setRequesterId(id);
-    goTo("/my-tickets");
-  };
-
-  const handleChangeRequester = () => {
-    goTo("/choose-requester");
-  };
-
-  const handleMyTickets = () => goTo("/my-tickets");
-  const handleCreateTicket = () => goTo("/create-ticket");
-  const handleOpenTicket = (ticketNumber: string) => goTo(`/ticket/${ticketNumber}`);
-  const handleCreatedTicket = (ticketNumber: string) => goTo(`/ticket/${ticketNumber}?created=1`);
-
-  const sharedProps = {
-    requesters,
-    requester: selectedRequester,
-    loading,
-    error,
-    retry: loadRequesters,
-    onChange: handleChangeRequester,
-    onMyTickets: handleMyTickets,
-    onCreateTicket: handleCreateTicket,
-  };
-
-  if (path === "/choose-requester") {
+  if (loading)
     return (
-      <ChooseRequester
-        {...sharedProps}
-        onSelect={handleSelect}
-        onMyTickets={handleMyTickets}
+      <main className="selection">
+        <div className="loading">Loading...</div>
+      </main>
+    );
+  if (!user) return <Login onLogin={setUser} />;
+  if (user.mustChangePassword)
+    return (
+      <ChangePassword
+        onComplete={() => setUser({ ...user, mustChangePassword: false })}
+      />
+    );
+
+  const requester = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    isActive: user.isActive,
+  };
+  const logout = async () => {
+    try {
+      await logoutUser();
+    } finally {
+      setUser(null);
+    }
+  };
+  const onMyTickets = () => goTo("/my-tickets");
+  const onCreateTicket = () => goTo("/create-ticket");
+  const onQueue = () => goTo("/queue");
+  const onAdmin = () => goTo("/admin/users");
+
+  if (path.startsWith("/queue") && user.role !== "IT_STAFF") {
+    return (
+      <main className="selection">
+        <div className="selection-card">
+          <h1>Access forbidden</h1>
+          <p className="muted">
+            You are not permitted to view the IT Staff queue.
+          </p>
+          <button type="button" className="primary" onClick={onMyTickets}>
+            ← Back to My Tickets
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  if (path.startsWith("/admin/users") && user.role !== "ADMINISTRATOR") {
+    return <main className="selection"><div className="selection-card"><h1>Access forbidden</h1><p className="muted">You are not permitted to view User Management.</p><button type="button" className="primary" onClick={onMyTickets}>← Back</button></div></main>;
+  }
+
+  if (user.role === "ADMINISTRATOR") {
+    return <UserManagement currentUserId={user.id} user={requester} onLogout={logout} onAdmin={onAdmin} />;
+  }
+
+  if (user.role === "IT_STAFF") {
+    if (path === "/queue")
+      return (
+        <StaffTicketQueue
+          requester={requester}
+          onLogout={logout}
+          onQueue={onQueue}
+          onOpenTicket={(ticketRef) => goTo(`/queue/${ticketRef}`)}
+        />
+      );
+    const staffTicketMatch = path.match(/^\/queue\/(.+)$/);
+    if (staffTicketMatch)
+      return (
+        <StaffTicketDetail
+          requester={requester}
+          ticketRef={staffTicketMatch[1]}
+          onLogout={logout}
+          onQueue={onQueue}
+        />
+      );
+    return (
+      <StaffTicketQueue
+        requester={requester}
+        onLogout={logout}
+        onQueue={onQueue}
+        onOpenTicket={(ticketRef) => goTo(`/queue/${ticketRef}`)}
       />
     );
   }
@@ -86,12 +119,11 @@ export default function App() {
   if (path === "/my-tickets") {
     return (
       <MyTickets
-        requester={selectedRequester}
-        requesterId={requesterId}
-        onChange={handleChangeRequester}
-        onMyTickets={handleMyTickets}
-        onCreateTicket={handleCreateTicket}
-        onOpenTicket={handleOpenTicket}
+        requester={requester}
+        onChange={logout}
+        onMyTickets={onMyTickets}
+        onCreateTicket={onCreateTicket}
+        onOpenTicket={(ticketNumber) => goTo(`/ticket/${ticketNumber}`)}
       />
     );
   }
@@ -99,30 +131,36 @@ export default function App() {
   if (path === "/create-ticket") {
     return (
       <CreateTicket
-        requester={selectedRequester}
-        requesterId={requesterId}
-        onBack={handleMyTickets}
-        onCreateTicket={handleCreateTicket}
-        onOpenTicket={handleCreatedTicket}
+        requester={requester}
+        onBack={onMyTickets}
+        onLogout={logout}
+        onCreateTicket={onCreateTicket}
+        onOpenTicket={(ticketNumber) =>
+          goTo(`/ticket/${ticketNumber}?created=1`)
+        }
       />
     );
   }
 
   const ticketMatch = path.match(/^\/ticket\/(.+)$/);
   if (ticketMatch) {
-    if (!requesterId) {
-      return <ChooseRequester {...sharedProps} onSelect={handleSelect} onMyTickets={handleMyTickets} />;
-    }
-
     return (
       <TicketDetail
-        requester={selectedRequester}
-        requesterId={requesterId}
+        requester={requester}
         ticketNumber={ticketMatch[1]}
-        onBack={handleMyTickets}
+        onBack={onMyTickets}
+        onLogout={logout}
       />
     );
   }
 
-  return <ChooseRequester {...sharedProps} onSelect={handleSelect} onMyTickets={handleMyTickets} />;
+  return (
+    <MyTickets
+      requester={requester}
+      onChange={logout}
+      onMyTickets={onMyTickets}
+      onCreateTicket={onCreateTicket}
+      onOpenTicket={(ticketNumber) => goTo(`/ticket/${ticketNumber}`)}
+    />
+  );
 }

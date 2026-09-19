@@ -1,39 +1,46 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { fetchTicketDetail } from "../../api/tickets";
+import { markTicketResolved } from "../../api/tickets";
 import { Requester } from "../../lib/requester";
 import { TicketDetail as TicketDetailType } from "../../lib/ticket";
 import TopBar from "../TopBar";
 import AttachmentTicketDetail from "./AttachmentTicketDetail";
 import "./TicketDetail.css";
+import ConversationPanel from "./ConversationPanel";
+import "./ConversationPanel.css";
 
 import { formatDate } from "../../lib/formatDate";
 
 interface TicketDetailProps {
   requester?: Requester;
-  requesterId: number;
   ticketNumber: string;
   onBack: () => void;
+  onLogout?: () => void;
   onCreateTicket?: () => void;
 }
 
-
 export default function TicketDetail({
   requester,
-  requesterId,
   ticketNumber,
   onBack,
+  onLogout,
   onCreateTicket,
 }: TicketDetailProps) {
   const [ticket, setTicket] = useState<TicketDetailType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState("attachments");
-  const createdFromForm = new URLSearchParams(window.location.search).get("created") === "1";
+  const [activeTab, setActiveTab] = useState("public-comments");
+  const [resolutionBusy, setResolutionBusy] = useState(false);
+  const [resolutionError, setResolutionError] = useState("");
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const resolutionRef = useRef<HTMLTextAreaElement>(null);
+  const createdFromForm =
+    new URLSearchParams(window.location.search).get("created") === "1";
 
   useEffect(() => {
     setLoading(true);
 
-    fetchTicketDetail(requesterId, ticketNumber)
+    fetchTicketDetail(ticketNumber)
       .then((result) => {
         setTicket(result);
         setError("");
@@ -44,13 +51,77 @@ export default function TicketDetail({
       .finally(() => {
         setLoading(false);
       });
-  }, [requesterId, ticketNumber]);
-  
+  }, [ticketNumber]);
+
+  const resizeTextareas = () => {
+    for (const textarea of [descriptionRef.current, resolutionRef.current]) {
+      if (!textarea) continue;
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  };
+
+  useLayoutEffect(() => {
+    resizeTextareas();
+  }, [ticket?.description, ticket?.resolutionSummary]);
+
+  useEffect(() => {
+    resizeTextareas();
+
+    const handleResize = () => resizeTextareas();
+    window.addEventListener("resize", handleResize);
+
+    const textareas = [descriptionRef.current, resolutionRef.current].filter(
+      Boolean,
+    ) as HTMLTextAreaElement[];
+    const observer =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(() => resizeTextareas())
+        : null;
+
+    textareas.forEach((textarea) => observer?.observe(textarea));
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      observer?.disconnect();
+    };
+  }, [ticket?.description, ticket?.resolutionSummary]);
+
+  const canMarkResolved = [
+    "Open",
+    "In Progress",
+    "Waiting for Requester",
+  ].includes(ticket?.currentStatus?.name ?? "");
+  const canDisplayResolutionSummary = ["Resolved", "Closed"].includes(
+    ticket?.currentStatus?.name ?? "",
+  );
+  const markResolved = async () => {
+    if (
+      !window.confirm(
+        "Let IT Support know this looks fixed? They'll still need to formally close the ticket.",
+      )
+    )
+      return;
+    setResolutionBusy(true);
+    setResolutionError("");
+    try {
+      setTicket(await markTicketResolved(ticketNumber));
+    } catch (requestError) {
+      setResolutionError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Unable to update the ticket.",
+      );
+    } finally {
+      setResolutionBusy(false);
+    }
+  };
+
   return (
     <>
       <TopBar
         requester={requester}
-        onChange={() => window.location.assign("/choose-requester")}
+        onChange={onLogout ?? (() => undefined)}
         onMyTickets={onBack}
         onCreateTicket={() => window.location.assign("/create-ticket")}
       />
@@ -67,7 +138,9 @@ export default function TicketDetail({
           </button>
         </div>
 
-        {createdFromForm && <div className="success-banner">Ticket created: {ticketNumber}</div>}
+        {createdFromForm && (
+          <div className="success-banner">Ticket created: {ticketNumber}</div>
+        )}
 
         {loading && <div className="empty">Loading ticket...</div>}
 
@@ -87,16 +160,16 @@ export default function TicketDetail({
               </div>
 
               <div className="field read-only">
-                <span>Ticket Date</span>
+                <span>Requester</span>
                 <div className="field-value">
-                  {formatDate(ticket.createdAt)}
+                  {ticket.requester?.name ?? ""}
                 </div>
               </div>
 
               <div className="field read-only">
-                <span>Requester</span>
+                <span>Ticket Date</span>
                 <div className="field-value">
-                  {ticket.requester?.name ?? ""}
+                  {formatDate(ticket.createdAt)}
                 </div>
               </div>
 
@@ -152,8 +225,27 @@ export default function TicketDetail({
                   {ticket.currentStatus?.name ?? ""}
                 </div>
               </div> */}
-
             </div>
+
+            {canMarkResolved && !ticket.problemAppearsResolved && (
+              <button
+                type="button"
+                disabled={resolutionBusy}
+                onClick={() => void markResolved()}
+              >
+                {resolutionBusy ? "Saving..." : "Problem Appears Resolved"}
+              </button>
+            )}
+            {ticket.problemAppearsResolved && (
+              <p className="success-inline">
+                You marked this as appearing resolved.
+              </p>
+            )}
+            {resolutionError && (
+              <div className="error-banner" role="alert">
+                {resolutionError}
+              </div>
+            )}
 
             {/* Summary */}
             <div className="field full-width">
@@ -162,6 +254,7 @@ export default function TicketDetail({
                 value={ticket.summary}
                 readOnly
                 aria-readonly="true"
+                aria-label="Summary"
               />
             </div>
 
@@ -172,21 +265,63 @@ export default function TicketDetail({
                 value={ticket.description}
                 readOnly
                 aria-readonly="true"
-                rows={6}
+                aria-label="Description"
+                ref={descriptionRef}
+                rows={1}
               />
             </div>
 
-            <div className="ticket-tabs" role="tablist" aria-label="Ticket sections">
-              {["Public Comments", "Attachments", "Service Actions", "Event Log"].map((tab) => {
+            {canDisplayResolutionSummary && (
+              <label className="field full-width">
+                <span>Resolution Summary</span>
+                <textarea
+                  ref={resolutionRef}
+                  value={ticket.resolutionSummary ?? ""}
+                  readOnly
+                  aria-readonly="true"
+                  aria-label="Resolution Summary"
+                  rows={3}
+                />
+              </label>
+            )}
+
+            <div
+              className="ticket-tabs"
+              role="tablist"
+              aria-label="Ticket sections"
+            >
+              {[
+                "Public Comments",
+                "Attachments",
+                // "Service Actions",
+                // "Event Log",
+              ].map((tab) => {
                 const key = tab.toLowerCase().replace(" ", "-");
-                return <button key={tab} type="button" role="tab" className={`attachment-tab${activeTab === key ? " active" : ""}`} onClick={() => setActiveTab(key)}>{tab}</button>;
+                return (
+                  <button
+                    key={tab}
+                    type="button"
+                    role="tab"
+                    className={`attachment-tab${activeTab === key ? " active" : ""}`}
+                    onClick={() => setActiveTab(key)}
+                  >
+                    {tab}
+                  </button>
+                );
               })}
             </div>
-            {activeTab === "attachments" ? <AttachmentTicketDetail requesterId={requesterId} ticketNumber={ticketNumber} /> : <div className="attachment-empty">This section will be implemented later.</div>}
+            {activeTab === "attachments" ? (
+              <AttachmentTicketDetail ticketNumber={ticketNumber} />
+            ) : activeTab === "public-comments" ? (
+              <ConversationPanel ticketRef={ticketNumber} />
+            ) : (
+              <div className="attachment-empty">
+                This section will be implemented later.
+              </div>
+            )}
           </section>
         )}
       </main>
     </>
   );
 }
-

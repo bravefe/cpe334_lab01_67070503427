@@ -15,11 +15,6 @@ interface CreateTicketParams {
   requestedPriorityId: number;
 }
 
-interface GetTicketDetailParams {
-  requesterId: number;
-  ticketNumber: string;
-}
-
 export class TicketValidationError extends Error {
   constructor(public readonly field: string, message: string) {
     super(message);
@@ -43,7 +38,9 @@ async function generateTicketNumber(): Promise<string> {
     },
   });
 
-  const nextValue = lastTicket ? Number(lastTicket.ticketNumber.slice(-6)) + 1 : 1;
+  const nextValue = lastTicket
+    ? Number(lastTicket.ticketNumber.slice(-6)) + 1
+    : 1;
   return `${prefix}${String(nextValue).padStart(6, "0")}`;
 }
 
@@ -64,7 +61,6 @@ export async function getTicketsService({
 
   const where = {
     requesterId,
-
     ...(search
       ? {
           OR: [
@@ -83,20 +79,20 @@ export async function getTicketsService({
           ],
         }
       : {}),
-
     ...(categoryId ? { categoryId } : {}),
     ...(priorityId ? { requestedPriorityId: priorityId } : {}),
     ...(statusId ? { currentStatusId: statusId } : {}),
   };
 
-  const orderBy = sortBy === "requestedPriorityId"
-    ? [{ requestedPriority: { sortOrder: sortDir } }]
-    : sortBy === "currentStatusId"
-      ? [{ currentStatus: { name: sortDir } }]
-      : [
-          { [sortBy]: sortDir },
-          ...(sortBy === "createdAt" ? [{ ticketNumber: sortDir }] : []),
-        ];
+  const orderBy =
+    sortBy === "requestedPriorityId"
+      ? [{ requestedPriority: { sortOrder: sortDir } }]
+      : sortBy === "currentStatusId"
+        ? [{ currentStatus: { name: sortDir } }]
+        : [
+            { [sortBy]: sortDir },
+            ...(sortBy === "createdAt" ? [{ ticketNumber: sortDir }] : []),
+          ];
 
   const [totalItems, tickets] = await Promise.all([
     getPrisma().ticket.count({ where }),
@@ -116,6 +112,7 @@ export async function getTicketsService({
 
   return {
     data: tickets,
+    items: tickets,
     page,
     pageSize,
     totalItems,
@@ -169,11 +166,14 @@ export async function createTicketService({
           summary,
           description,
           requestedPriorityId,
+          itPriorityId: requestedPriorityId,
           currentStatusId: defaultStatus.id,
+          problemAppearsResolved: false,
         },
       });
 
       return {
+        id: created.id,
         ticketNumber: created.ticketNumber,
         requesterId: created.requesterId,
         summary: created.summary,
@@ -186,10 +186,11 @@ export async function createTicketService({
         updatedAt: created.updatedAt.toISOString(),
       };
     } catch (error) {
-      const isUniqueTicketNumberConflict = typeof error === "object"
-        && error !== null
-        && "code" in error
-        && error.code === "P2002";
+      const isUniqueTicketNumberConflict =
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        error.code === "P2002";
       if (!isUniqueTicketNumberConflict || attempt === 2) throw error;
     }
   }
@@ -199,46 +200,77 @@ export async function createTicketService({
 
 export async function getTicketDetailService({
   requesterId,
-  ticketNumber,
-}: GetTicketDetailParams) {
-  const ticket = await getPrisma().ticket.findUnique({
-    where: { ticketNumber },
-    include: {
-      requester: true,
-      category: true,
-      relatedSystem: true,
-      requestedPriority: true,
-      currentStatus: true,
-      attachments: { orderBy: { uploadedAt: "desc" } },
-    },
-  });
+  ticketRef,
+}: {
+  requesterId: number;
+  ticketRef: string;
+}) {
+  const normalized = ticketRef.trim();
+  if (!normalized) return { kind: "not_found" as const };
 
-  if (!ticket || ticket.requesterId !== requesterId) {
-    return null;
+  const numericId = Number(normalized);
+  const ticket =
+    Number.isInteger(numericId) && numericId > 0
+      ? await getPrisma().ticket.findUnique({
+          where: { id: numericId },
+          include: {
+            requester: true,
+            category: true,
+            relatedSystem: true,
+            requestedPriority: true,
+            currentStatus: true,
+            attachments: { orderBy: { uploadedAt: "desc" } },
+          },
+        })
+      : await getPrisma().ticket.findUnique({
+          where: { ticketNumber: normalized },
+          include: {
+            requester: true,
+            category: true,
+            relatedSystem: true,
+            requestedPriority: true,
+            currentStatus: true,
+            attachments: { orderBy: { uploadedAt: "desc" } },
+          },
+        });
+
+  if (!ticket) {
+    return { kind: "not_found" as const };
+  }
+
+  if (ticket.requesterId !== requesterId) {
+    return { kind: "forbidden" as const };
   }
 
   return {
-    ticketNumber: ticket.ticketNumber,
-    summary: ticket.summary,
-    description: ticket.description,
-    categoryId: ticket.categoryId,
-    relatedSystemId: ticket.relatedSystemId,
-    requestedPriorityId: ticket.requestedPriorityId,
-    currentStatusId: ticket.currentStatusId,
-    createdAt: ticket.createdAt.toISOString(),
-    updatedAt: ticket.updatedAt.toISOString(),
-    requester: { id: ticket.requester.id, name: ticket.requester.name },
-    category: { id: ticket.category.id, name: ticket.category.name },
-    relatedSystem: { id: ticket.relatedSystem.id, name: ticket.relatedSystem.name },
-    requestedPriority: { id: ticket.requestedPriority.id, name: ticket.requestedPriority.name },
-    currentStatus: { id: ticket.currentStatus.id, name: ticket.currentStatus.name },
-    attachments: ticket.attachments.map((attachment) => ({
-      attachmentId: attachment.id,
-      originalFileName: attachment.originalFileName,
-      status: attachment.status,
-      uploadedAt: attachment.uploadedAt.toISOString(),
-      ...(attachment.removedAt ? { removedAt: attachment.removedAt.toISOString() } : {}),
-      ...(attachment.removalReason ? { removalReason: attachment.removalReason } : {}),
-    })),
+    kind: "success" as const,
+    data: {
+      id: ticket.id,
+      ticketNumber: ticket.ticketNumber,
+      summary: ticket.summary,
+      description: ticket.description,
+      categoryId: ticket.categoryId,
+      relatedSystemId: ticket.relatedSystemId,
+      requestedPriorityId: ticket.requestedPriorityId,
+      itPriorityId: ticket.itPriorityId,
+      currentStatusId: ticket.currentStatusId,
+      problemAppearsResolved: ticket.problemAppearsResolved,
+      resolutionSummary: ticket.resolutionSummary,
+      createdAt: ticket.createdAt.toISOString(),
+      updatedAt: ticket.updatedAt.toISOString(),
+      requester: { id: ticket.requester.id, name: ticket.requester.name },
+      category: { id: ticket.category.id, name: ticket.category.name },
+      relatedSystem: { id: ticket.relatedSystem.id, name: ticket.relatedSystem.name },
+      requestedPriority: { id: ticket.requestedPriority.id, name: ticket.requestedPriority.name },
+      currentStatus: { id: ticket.currentStatus.id, name: ticket.currentStatus.name },
+      attachments: ticket.attachments.map((attachment) => ({
+        attachmentId: attachment.id,
+        originalFileName: attachment.originalFileName,
+        status: attachment.status,
+        uploadedAt: attachment.uploadedAt.toISOString(),
+        ...(attachment.removedAt ? { removedAt: attachment.removedAt.toISOString() } : {}),
+        ...(attachment.removalReason ? { removalReason: attachment.removalReason } : {}),
+      })),
+    },
   };
 }
