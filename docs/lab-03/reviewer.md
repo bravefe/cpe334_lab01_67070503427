@@ -660,3 +660,230 @@ Include:
 ```
 > **SaintCrois** review is pending
 
+## Pull Requests I reviewed
+
+| PR | Branch | Reviewer verdict |
+|----|--------|------------------|
+| [#35](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/35) | feature/11-lab3-specification | Approve |
+| [#36](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/36) | feature/12-lab3-test-plan | Approve |
+| [#37](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/37) | feature/13-user-migration-seed | Approve |
+| [#38](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/38) | feature/14-authentication | Approve |
+| [#39](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/39) | feature/15-role-authorization | Approve |
+| [#40](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/40) | feature/16-requester-regression | Approve |
+| [#41](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/41) | feature/17-staff-ticket-queue | Approve |
+| [#42](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/42) | feature/18-staff-ticket-operations | Approve |
+| [#43](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/43) | feature/19-admin-user-management | Approve |
+| [#44](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/44) | feature/20-lab3-test-implementation | Approve |
+| [#45](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/45) | feature/21-ui-responsive-verification | Approve |
+
+#35 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/35
+#36 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/36
+#37 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/37
+#38 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/38
+#39 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/39
+#40 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/40
+#41 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/41
+#42 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/42
+#43 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/43
+#44 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/44
+#45 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/45
+
+### #35 feature/11-lab3-specification
+```
+## Scope
+
+* Lab 3 specification.
+* UI specification.
+* API contract.
+* Engineering contract for the Lab 3 implementation.
+
+## Approval
+
+No review-comment transcript is retained in this repository.
+```
+> **bravefe** approved these changes
+
+> **bravefe** merged commit 60f7540 into lab3-staging
+
+### #36 feature/12-lab3-test-plan
+```
+## Scope
+
+* Lab 3 test plan.
+* Acceptance-criterion traceability.
+```
+> **bravefe** requested the test plan review
+
+**bravefe:**
+```
+I saw your test file. Have alot to cover. Please let me know when you want me to proceed.
+```
+**Me:** Thank you! Please merge.
+
+> **bravefe** approved these changes
+
+> **bravefe** merged commit bc619e0 into lab3-staging
+
+### #37 feature/13-user-migration-seed
+```
+## Scope
+
+* User migration from Lab 2.
+* Deterministic and idempotent seed data.
+* Required active and inactive users.
+* Varied ticket data.
+```
+> **bravefe** approved these changes
+
+> **bravefe** merged commit 3f3054f into lab3-staging
+
+### #38 feature/14-authentication
+```
+## Scope
+
+* Authentication.
+* Mandatory password change.
+* Session handling.
+* Authenticated requester workflow.
+```
+> **bravefe** approved these changes
+
+> **bravefe** merged commit ddfc661 into lab3-staging
+
+### #39 feature/15-role-authorization
+```
+## Scope
+
+* Role authorization.
+* Authenticated application shell.
+* Role-based navigation and access control.
+```
+> **bravefe** approved these changes
+
+> **bravefe** merged commit 4cfe035 into lab3-staging
+
+### #40 feature/16-requester-regression
+```
+## Scope
+
+* Requester regression testing.
+* Public comments.
+* Internal notes.
+* Verification that existing Lab 2 requester functionality works under authentication.
+```
+**bravefe:**
+```
+all of the 100, no i mean 101 test are passging so now you may actually work on the ui now
+
+go go go
+```
+**Me:** Alright! Thank you, please merge.
+
+**bravefe:** gotta go fast
+
+> **bravefe** approved these changes and noted "i forgot to approve but will merge"
+
+> **bravefe** merged commit d4d8435 into lab3-staging
+
+### #41 feature/17-staff-ticket-queue
+```
+## Scope
+
+* IT Staff ticket queue.
+* Search, filtering, sorting, and pagination.
+* Empty, no-results, forbidden, loading, and failure states.
+* Responsive desktop, tablet, and mobile layouts.
+```
+> **bravefe** approved these changes
+
+> **bravefe** merged commit 598d082 into lab3-staging
+
+### #42 feature/18-staff-ticket-operations
+```
+## Scope
+
+* Staff ticket detail.
+* Ticket ownership assignment.
+* Priority and status updates.
+* Resolution summary.
+* Public comments and internal notes.
+* Attachments and service actions placeholder.
+```
+> **bravefe** approved these changes
+
+> **bravefe** merged commit e16ac57 into lab3-staging
+
+### #43 feature/19-admin-user-management
+```
+## Scope
+
+* Administrator user management.
+* User list, search, and role filtering.
+* User creation and editing.
+* Duplicate-email detection.
+* Self-deactivation and last-Administrator protection.
+* Password reset and active/inactive state management.
+```
+> **bravefe** approved these changes
+
+> **bravefe** merged commit 480d046 into lab3-staging
+
+### #44 feature/20-lab3-test-implementation
+```
+## Scope
+
+* API tests.
+* UI tests.
+* Authorization tests.
+* End-to-end tests.
+* Regression coverage for the integrated Lab 3 workflow.
+```
+> **bravefe** approved these changes
+
+> **bravefe** merged commit b5db70e into lab3-staging
+
+### #45 feature/21-ui-responsive-verification
+```
+## Scope
+
+* Zen Green UI verification.
+* Responsive verification across desktop, tablet, and mobile.
+* Accessibility verification.
+* Screenshot evidence.
+```
+**bravefe:**
+```
+The UI verification, responsive screenshots, and documentation are complete and ready for merge.
+```
+**Me:** Thank you! Please merge.
+
+> **bravefe** approved these changes
+
+> **bravefe** merged commit d610341 into lab3-staging
+
+## Final Verification Approval Record
+
+The final release verification was prepared on `feature/22-final-lab3-integration`. It records the evidence ready for maintainer review before the final merge to `lab3-staging` and `main`.
+
+| Check | Result | Approval / response |
+|---|---|---|
+| Database migration status | 3 migrations; schema up to date | Ready for maintainer approval. |
+| Seed data | Idempotent seed completed; required active/inactive users and varied tickets verified | Ready for maintainer approval. |
+| Server API, security, and Lab 2 regression tests | 149 passed, 0 failed | Ready for maintainer approval. |
+| Client component and regression tests | 36 passed, 0 failed | Ready for maintainer approval. |
+| Playwright E2E | 12 passed, 0 failed across desktop, tablet, and mobile | Ready for maintainer approval. |
+| Acceptance-criterion traceability | AC-01 through AC-15 mapped in `tests.md` | Ready for maintainer approval. |
+| UI screenshot evidence | 18 screenshots under `artifacts/lab-03/screenshots/` | Ready for maintainer approval. |
+
+## Final-PDF Evidence Checklist
+
+- [x] Part 1 — Engineering specification: `docs/lab-03/specification.md`.
+- [x] Part 2 — API contract: `docs/lab-03/api-spec.md`.
+- [x] Part 3 — UI design and responsive/accessibility record: `docs/lab-03/ui-spec.md`.
+- [x] Part 4 — Test strategy and acceptance-criterion traceability: `docs/lab-03/tests.md`.
+- [x] Part 5 — Authentication, roles, authorization, and requester-regression evidence: server/client/E2E tests.
+- [x] Part 6 — IT Staff queue/detail workflow evidence: server/client/E2E tests and screenshots.
+- [x] Part 7 — Administrator user-management evidence: server/client/E2E tests and screenshots.
+- [x] Part 8 — Desktop, tablet, and mobile screenshot evidence: `artifacts/lab-03/screenshots/`.
+- [x] Part 9 — Review, AI-use, seed, migration, and final release verification: this file and `ai-use.md`.
+
