@@ -37,6 +37,24 @@
   font: inherit;
   color: var(--text);
 }
+.user-field .password-input {
+  display: flex;
+  overflow: hidden;
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.user-field .password-input input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+}
+.user-field .password-input:focus-within {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
 .users-table-wrap {
   overflow: auto;
 }

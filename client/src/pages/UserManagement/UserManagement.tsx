@@ -45,6 +45,7 @@ export default function UserManagement({
   const [loadError, setLoadError] = useState("");
   const [editing, setEditing] = useState<ManagedUser | null | "create">(null);
   const [notice, setNotice] = useState("");
+  const [searchReady, setSearchReady] = useState(false);
 
   const load = () => {
     setStatus("loading");
@@ -100,11 +101,13 @@ export default function UserManagement({
           <label>
             Search users
             <input
-              name="user-search"
+              name="search-query"
               type="search"
-              autoComplete="off"
+              autoComplete="new-password"
+              readOnly={!searchReady}
               aria-label="Search users"
               value={search}
+              onFocus={() => setSearchReady(true)}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search users…"
             />
@@ -236,6 +239,8 @@ function UserPanel({
   const [conflict, setConflict] = useState("");
   const [saving, setSaving] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [showInitialPassword, setShowInitialPassword] = useState(false);
+  const [showResetPassword, setShowResetPassword] = useState(false);
   const self = user?.id === currentUserId;
   const change = (key: keyof typeof form, value: string | boolean) =>
     setForm((current) => ({ ...current, [key]: value }));
@@ -295,7 +300,7 @@ function UserPanel({
             ×
           </button>
         </header>
-        <form autoComplete="off" onSubmit={submit} noValidate>
+        <form autoComplete="new-password" onSubmit={submit} noValidate>
           <Field label="Full Name" error={errors.name}>
             <input
               name="new-user-name"
@@ -306,8 +311,9 @@ function UserPanel({
           </Field>
           <Field label="Email Address" error={errors.email}>
             <input
-              name="new-user-email"
-              type="email"
+              name="account-alias"
+              type="text"
+              inputMode="email"
               autoComplete="off"
               value={form.email}
               onChange={(e) => change("email", e.target.value)}
@@ -342,13 +348,27 @@ function UserPanel({
           {create && (
             <>
               <Field label="Initial Password" error={errors.initialPassword}>
-                <input
-                  name="new-user-password"
-                  type="password"
-                  autoComplete="new-password"
-                  value={form.initialPassword}
-                  onChange={(e) => change("initialPassword", e.target.value)}
-                />
+                <div className="password-input">
+                  <input
+                    name="new-user-password"
+                    type={showInitialPassword ? "text" : "password"}
+                    autoComplete="new-password"
+                    value={form.initialPassword}
+                    onChange={(e) => change("initialPassword", e.target.value)}
+                  />
+                  <button
+                    className="show-password"
+                    type="button"
+                    aria-label={
+                      showInitialPassword ? "Hide password" : "Show password"
+                    }
+                    onClick={() =>
+                      setShowInitialPassword((visible) => !visible)
+                    }
+                  >
+                    {showInitialPassword ? "Hide" : "Show"}
+                  </button>
+                </div>
               </Field>
               <p className="password-note">
                 The user will sign in with this password and must change it
@@ -374,11 +394,25 @@ function UserPanel({
           <section className="reset-section">
             <h3>Reset Password</h3>
             <Field label="New Initial Password" error={errors.initialPassword}>
-              <input
-                type="password"
-                value={form.initialPassword}
-                onChange={(e) => change("initialPassword", e.target.value)}
-              />
+              <div className="password-input">
+                <input
+                  name="reset-user-password"
+                  type={showResetPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  value={form.initialPassword}
+                  onChange={(e) => change("initialPassword", e.target.value)}
+                />
+                <button
+                  className="show-password"
+                  type="button"
+                  aria-label={
+                    showResetPassword ? "Hide password" : "Show password"
+                  }
+                  onClick={() => setShowResetPassword((visible) => !visible)}
+                >
+                  {showResetPassword ? "Hide" : "Show"}
+                </button>
+              </div>
             </Field>
             <button type="button" disabled={resetting} onClick={reset}>
               {resetting ? "Resetting..." : "Reset Password"}
