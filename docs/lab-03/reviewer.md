@@ -660,14 +660,3 @@ Include:
 ```
 > **SaintCrois** review is pending
 
----
-
-## Pull Requests I reviewed
-| PR | Branch | Reviewer verdict |
-|----|--------|------------------|
-| [#16](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/16) | docs/lab2-spec-plan | Approve |
-| [#17](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/17) | feat/lab2-db-context | Approve |
-| [#18](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/18) | feature/6-create-ticket | Approve |
-| [#19](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/19) | feature/7-my-tickets | Approve |
-| [#20](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/20) | feature/8-ticket-detail-attachments | Approve |
-| [#21](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/21) | feature/9-e2e-release | Approve |
