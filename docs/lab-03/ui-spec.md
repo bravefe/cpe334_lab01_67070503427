@@ -18,7 +18,7 @@ panel, role-aware nav).
   - IT Staff: **My Queue** (default view = full queue, "My Queue" label kept for continuity with
     the reference mockup), no Create Ticket entry.
   - Administrator: **Admin** (User Management). No ticket-facing nav item (Assumption A-1).
-- Profile menu: current user's name and role badge, **Change Password**, **Logout**.
+- Profile menu: current user's name and role badge,  **Logout**.
 - Logout immediately clears local UI state and redirects to Login; any in-flight request that
   returns `401` also forces this redirect (session-expiry handling), showing a one-line "Your
   session has ended. Please sign in again." banner on the Login screen.

@@ -24,7 +24,7 @@ export default defineConfig({
     },
     {
       command: "npm run dev --prefix client -- --host localhost",
-      url: "http://localhost:5173",
+      url: "http://localhost:5172",
       reuseExistingServer: true,
       timeout: 120_000,
     },
