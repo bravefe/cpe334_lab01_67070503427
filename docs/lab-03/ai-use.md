@@ -1,7 +1,6 @@
 # Lab 2 — AI Use 
  
-
-### **LLM/Agent Used: ChatGPT 5.6 Luna**
+### **LLM/Agent Used: ChatGPT 5.6 Luna/Tera (Codex/Copilot)**
 
 | # | Prompt (Summarised) | What I Did with the Result |
 | - | - | - |
@@ -11,12 +10,12 @@
 | 4 | Pasted an older page and asked the agent to make the UI consistent with the newer design. | Compared the old and new layouts, adjusted the styling, and aligned the page with the existing UI system. |
 | 5 | Included the entire specification content in the prompt so the agent could work from the full project requirements. | Reviewed the complete specification, used it as the source of truth, and aligned the implementation with the documented requirements. |
 
-### **LLM/Agent Used: Antigravity Gemini 3.8**
+### **LLM/Agent Used: Gemini 3.8 (Antigravity)**
 
 | # | Prompt (Summarised) | What I Did with the Result |
 | - | - | - |
 | 1 | Implemented Issue 11: Lab 3 data model, database migration from Lab 2, idempotent seed data, and unit/migration tests. | Reviewed implementation plan, validated migration and seed idempotence, and confirmed all automated tests passed. |
-| 2 | Fixed the end-to-end test failures and resolved the errors. | Reviewed the failing E2E flow, corrected the underlying issues, and verified the tests passed. |
+| 2 | Implement and fixed the end-to-end test failures and resolved the errors. | Create the E2E test and Reviewed the failing E2E flow, corrected the underlying issues, and verified the tests passed. |
 
 ## Reflection
 
