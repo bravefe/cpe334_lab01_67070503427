@@ -1,708 +1,896 @@
-# Lab 2 — Peer Review Record 
+# Lab 3 — Peer Review Record 
 
 **Author:** Patcharak Plipat — 67070503427 — bravefe
 **Peer reviewer:** Punnapob Wirojwongchai — 67070503425 — SaintCrois
+
 ## Pull Requests I authored (reviewed by my partner)
 | PR | Branch | Reviewer verdict |
 |----|--------|------------------|
-|  [#23](https://github.com/bravefe/cpe334_lab01_67070503427/pull/23)  | feature/5-specification | Aprove |
-|  [#25](https://github.com/bravefe/cpe334_lab01_67070503427/pull/23)  | feature/6-database| Aprove |
-|  [#30](https://github.com/bravefe/cpe334_lab01_67070503427/pull/30), [#31](https://github.com/bravefe/cpe334_lab01_67070503427/pull/31), [#32](https://github.com/bravefe/cpe334_lab01_67070503427/pull/32)  | feature/7-ticket-2 | Aprove |
-|  [#33](https://github.com/bravefe/cpe334_lab01_67070503427/pull/33)  | feature/8-create-ticket | Aprove |
-|  [#34](https://github.com/bravefe/cpe334_lab01_67070503427/pull/34)  | feature/9-attachment | Aprove |
+| [#44](https://github.com/bravefe/cpe334_lab01_67070503427/pull/44) | document/lab3 | Approve |
+| [#46](https://github.com/bravefe/cpe334_lab01_67070503427/pull/46) | feature/lab3-data-model | Approve |
+| [#48](https://github.com/bravefe/cpe334_lab01_67070503427/pull/48) | feature/12-lab3-auth | Approve |
+| [#49](https://github.com/bravefe/cpe334_lab01_67070503427/pull/49) | feature/14-lab3-staff-ticket-management | Approve |
+| [#50](https://github.com/bravefe/cpe334_lab01_67070503427/pull/50) | feature/lab3-admin-users | Approve |
+| [#51](https://github.com/bravefe/cpe334_lab01_67070503427/pull/51) | feature/16-lab3-integration-qa | Pending |
 
-#23 https://github.com/bravefe/cpe334_lab01_67070503427/pull/23
-#25 https://github.com/bravefe/cpe334_lab01_67070503427/pull/25
-#30 https://github.com/bravefe/cpe334_lab01_67070503427/pull/30
-#31 https://github.com/bravefe/cpe334_lab01_67070503427/pull/31
-#32 https://github.com/bravefe/cpe334_lab01_67070503427/pull/32
-#33 https://github.com/bravefe/cpe334_lab01_67070503427/pull/33
-#34 https://github.com/bravefe/cpe334_lab01_67070503427/pull/34
+#44 https://github.com/bravefe/cpe334_lab01_67070503427/pull/44
+#46 https://github.com/bravefe/cpe334_lab01_67070503427/pull/46
+#48 https://github.com/bravefe/cpe334_lab01_67070503427/pull/48
+#49 https://github.com/bravefe/cpe334_lab01_67070503427/pull/49
+#50 https://github.com/bravefe/cpe334_lab01_67070503427/pull/50
+#51 https://github.com/bravefe/cpe334_lab01_67070503427/pull/51
 
-
-### #23 feature/5-specification
+### #44 document/lab3
 ```
-## Issue 5 — Specification
-## Acceptance Criteria
-- [x] Include specification.md file with topic as folow: 
-   - [x] Sprint Goal  
-   - [x] Stakeholder Request 
-   - [x] Scope
-   - [x] Function Requirements
-   - [x] Business Rule
-   - [x] UI Specification Summary
-   - [x] Data Changes
-   - [x] API Contract
-   - [x] Aceptance Criteria
-   - [x] Definition of Done
-   - [x] Assumptions and Decisions
- - [x] Add reviewer.md
- - [x] Add ai-use.md
- - [x] Add api-spec.md
- - [x] Add test.md
- - [x] Add ui-spec.md
-```
-> **SaintCrois** requested changes
+## Issue 10
+**Branch:** document/lab3
 
-**SaintCrois:**
-```
-Hey! I see you have done a nice work there. I saw some inconsistency, but it is no major issue. Here are the details.
+## Scope
 
-- docs/lab-02/ui-spec.md — §5 My Tickets: includes IT Priority and Ticket Owner even though they're excluded from Lab 2.
-- docs/lab-02/ui-spec.md — §6 Ticket Detail: includes Public Comments, Service Actions, Event Log, and Resolution Summary even though they're out of scope.
-- docs/lab-02/test.md — §1 Test Strategy: says E2E is out of scope, but specification.md §10.1 requires E2E tests.
-- docs/lab-02/specification.md — §7.1 Status: status values differ from the earlier required status definition; confirm which set is correct.
-```
-**Me:** Nice catch. Thank you for your thorough and in-depth review. I will proceed to edit my specification.md file.
+* Author and approve:
+  * docs/lab-03/specification.md
+  * docs/lab-03/ui-spec.md
+  * docs/lab-03/api-spec.md
+  * docs/lab-03/tests.md
+* Create Issues #36 - #42 on the board.
+* Confirm the engineering contract is completed before implementation PRs are opened.
 
-**Me:**
-```
-I have made further changes to `test.md`, including additional test cases as well as coverage for E2E and unit testing.
+## Definition of Done
 
-Additionally:
-
-* `itPriority` has been removed from both the API and UI but will still remain in database for future implementation.
-* Public comments, service actions, and event logs have been removed from the API for the current implementation, but their UI components will remain in place for future implementation.
-Thankyou for your understanding.
-
-For `docs/lab-02/specification.md`, I have also rechecked the current database tables and confirmed that the structure is correct.
-
-Please review these changes as well and let me know if everything is clear and ready to merge.
+* All four Lab 3 documents are merged into lab3-staging.
+* Issues #36 - #42 exist on the GitHub Project board.
 ```
 > **SaintCrois** approved these changes
 
-**SaintCrois:** Very good! Everything is cleared. I'll proceed to merge now.
+**Me:** Please merge, thank you.
 
-**Me:** Please use squash merge for this issue due to confusing commit timeline.
+> **SaintCrois** merged commit 42f8406 into lab3-staging
 
-**SaintCrois:** Sure!
-
-> **SaintCrois** merged commit 7311dce into lab2-staging
-
-### #25 feature/6-database
+### #46 feature/lab3-data-model
 ```
-## Database
+## Issue 11
+**Branch:** feature/lab3-data-model
 
-Updates the Prisma schema and seed data to support the ticketing system.
+## Scope
 
-### Files Changed
+### Database
 
-* `server/prisma/schema.prisma`
+* Add the User model:
+  * id
+  * name
+  * email
+  * passwordHash
+  * role
+  * isActive
+  * mustChangePassword
+  * timestamps
+* Make email unique and case-insensitive.
+* Extend Ticket with:
+  * ticketOwnerId
+  * itPriority
+  * problemAppearsResolved
+  * resolutionSummary
+* Change Ticket.requesterId to reference User.
+* Add:
+  * PublicComment
+  * InternalNote
 
-  * Added `Priority`, `Status`, `DevRequester`, `RelatedSystem`, `Ticket`, `Attachment`, `PublicComment`, `ServiceAction`, and `EventLog` models.
-  * Added relationships, indexes, and `AttachmentStatus`.
-  * Changed `Category.createdAt` to `Category.isActive`.
+### Migration
 
-* `server/prisma/seed.ts`
+Implement the Lab 2 → Lab 3 migration described in specification.md §7.1:
 
-  * Added seed data for categories, systems, priorities, statuses, and requesters.
-  * Added 10 sample tickets.
-  * Uses `upsert` to keep seeding idempotent.
+* Create User records for existing Development Requesters.
+* Backfill Ticket.requesterId.
+* Copy requestedPriority to itPriority.
+* Set problemAppearsResolved = false.
+* Preserve existing Lab 2 ticket data.
 
-### Please check
+### Seed
 
-* Prisma relationships and foreign keys are correct.
-* Required/optional fields and defaults match the requirements.
-* `Category.createdAt` → `isActive` migration is intentional.
-* Seed data matches the expected categories, priorities, statuses, and systems.
-* Running the seed multiple times does not create duplicates.
-* Sample tickets are created with valid foreign-key references.
+Create idempotent seed data according to the handout:
+
+* At least 4 active Requesters.
+* At least 1 inactive Requester.
+* At least 3 active IT Staff.
+* At least 1 inactive IT Staff.
+* At least 1 active Administrator.
+* Realistic ticket distribution.
+* Example public comments and internal notes.
+* No sensitive information.
+* Document local-development credentials.
+
+Do not remove client functionality yet.
+
+## Tests to Add
+
+* server/tests/lab-03/unit/email.unit.test.ts
+  * UNIT-07
+  * UNIT-08
+* server/tests/lab-03/migration.api.test.ts
+  * MIG-02
+  * MIG-03
+  * MIG-04
+  * MIG-05
+
+## Covers
+
+* specification.md §7
+* specification.md §7.1
+
+## Definition of Done
+
+* Migration succeeds on the Lab 2 database.
+* Seed is idempotent.
+* All Issue #37 tests pass.
+* Existing Lab 2 data is preserved.
 ```
 > **SaintCrois** requested changes
 
 **SaintCrois:**
 ```
-Hey, Great job! I spot some of the explicitly excluded functions included here.
-
-- server/prisma/schema.prisma remove PublicComment, ServiceAction, and EventLog models because collaboration features are explicitly excluded from Lab 2 scope.
-- server/prisma/schema.prisma rename ticketCode to ticketNumber and fileSizeBytes to fileSize because the code must exactly match the approved Phase 1 specification fields.
-- server/prisma/seed.ts change the generated ticket prefix from TK-2026- to TKT-2026- because FR-02 strictly mandates the TKT-YYYY-###### format.
-
-Please check. I may be wrong.
+Looking great! I am not quite sure about uploading the uploads into GitHub. If you would like to fix that, you may do it now. If not, then please get to me when you are ready to merge!
 ```
 **Me:**
 ```
-After reconsidering the changes, I’ve made the following updates:
-
-* Removed the `PublicComment`, `ServiceAction`, and `EventLog` models/databases entirely.
-* Renamed `ticketCode` to `ticketNumber` and `fileSizeBytes` to `fileSize` in `schema.prisma`.
-* Updated `server/prisma/seed.ts` to change the generated ticket prefix from `TK-2026-` to `TKT-2026-` (`TKT-YYYY-######`).
-
-Please have another look when you have a chance. If you have any further concerns or suggestions, please let me know. Otherwise, if everything looks good, tell me when it is ready to merge. Thank you!
+I have removed the uploaded files and updated .gitignore to exclude the uploads folder.
+If there is nothing else left, please proceed to merge.
 ```
-**SaintCrois:** 
-```
-Great! I see you had fixed most of the issues. Unfortunately, there a just a little bit more than we can make this perfect.
+> **SaintCrois** approved these changes
 
-1. Attachment Status Type Mismatch: It looks like Attachment.status was changed from an Enum (ACTIVE, REMOVED) to a boolean (isActive). The Phase 1 spec strictly requires an Enum so we can add future states (like QUARANTINED or ARCHIVED) without breaking the database.
-2. ​Doc Contradiction: The update to specification.md created a self-contradiction where section 6 now literally states "attachment.isActive is an enum... rather than a boolean".
-I may be wrong! If you feels like these are incorrect or unnecessary you can always inform me.
+> **SaintCrois** merged commit 169a961 into lab3-staging
+
+### #48 feature/12-lab3-auth
 ```
+## Issue 12
+**Branch:** feature/12-lab3-auth
+
+## Scope
+
+Implement the complete authentication, authorization, application shell, and authenticated requester workflow.
+
+### Authentication
+
+* bcrypt password hashing with cost 12.
+* Password-policy validator.
+* POST /api/auth/login
+* POST /api/auth/logout
+* GET /api/auth/me
+* POST /api/auth/change-password
+* Signed JWT authentication.
+* Store JWT in an httpOnly, Secure, SameSite=Strict cookie.
+* Implement logout/session invalidation.
+* Session middleware populating req.user.
+* Return 401 for unauthenticated requests.
+* Implement X-Requested-With validation for state-changing requests.
+* Remove X-Dev-Requester-Id handling from the server.
+
+### Authorization
+
+* Implement reusable requireRole(...).
+* Implement ticket and attachment ownership checks.
+* Apply authorization rules to existing API routes.
+* Implement the authorization matrix from api-spec.md §6.
+* Ensure correct 401 vs 403 responses.
+* Apply the safe-error response format from api-spec.md §7.
+
+### Application Shell
+
+Implement:
+
+* Login screen.
+* Login validation.
+* Invalid-credential banner.
+* Inactive-account banner.
+* Loading/busy states.
+* Mandatory Change Password screen.
+* Live password-rule checklist.
+* Confirm-password validation.
+* Voluntary Change Password from Profile.
+* Role-based navigation.
+* Profile menu.
+* Logout.
+* Session-expiry handling.
+* Redirect to Login after 401.
+* Shared Forbidden screen.
+
+### Requester UI
+
+Remove the Development Requester selector and all related state.
+
+Re-point requester functionality to the authenticated session:
+
+* My Tickets.
+* Create Ticket.
+* Ticket Detail.
+* Attachments.
+* Public requester actions.
+
+The server must derive the requester identity from req.user.
+
+Confirm that existing Lab 2 requester functionality continues to work for authenticated Requesters.
+
+## Tests to Add
+
+### Unit
+
+server/tests/lab-03/unit/password.unit.test.ts
+
+* UNIT-01
+* UNIT-02
+
+server/tests/lab-03/unit/session.unit.test.ts
+
+* UNIT-03
+* UNIT-04
+
+### API
+
+server/tests/lab-03/auth.api.test.ts
+
+* API-01–API-07
+
+server/tests/lab-03/authorization.api.test.ts
+
+* SEC-01–SEC-09
+
+server/tests/lab-03/migration.api.test.ts
+
+* MIG-01 — full Lab 2 regression under authentication
+
+### Authentication UI
+
+client/tests/lab-03/Login.test.tsx
+
+* UI-01–UI-04
+* UI-26
+
+client/tests/lab-03/ChangePassword.test.tsx
+
+* UI-05–UI-08
+
+client/tests/lab-03/AppShell.test.tsx
+
+* UI-24
+* UI-25
+
+### Requester UI
+
+client/tests/lab-03/RequesterTicketDetail.test.tsx
+
+* UI-21–UI-23
+* UI-30
+
+## Covers
+
+* FR-01–04
+* FR-06
+* BR-01–03
+* BR-06–10
+* BR-12
+* BR-13
+* BR-31
+* AC-01–08
+* AC-09–11
+* AC-22
+* AC-23
+* AC-30
+
+## Definition of Done
+
+* Users can log in and log out through the session cookie.
+* Mandatory and voluntary password changes work.
+* Password policies are enforced.
+* Role-based navigation and authorization work correctly.
+* Ticket and attachment ownership is enforced server-side.
+* Correct 401 and 403 responses are returned.
+* Safe-error responses are used for applicable failures.
+* Session expiry redirects users to Login.
+* The shared Forbidden screen is displayed for unauthorized access.
+* Requester screens work using the authenticated session.
+* The Development Requester selector and related state are completely removed.
+* X-Dev-Requester-Id is no longer used anywhere in authentication or requester functionality.
+* Authenticated requester functionality passes the full Lab 2 regression.
+* All Issue #38 tests pass.
+```
+> **SaintCrois** approved these changes
+
+**Me:** Great, thanks. Please merge.
+
+> **SaintCrois** merged commit 7c7c1b4 into lab3-staging
+
+### #49 feature/14-lab3-staff-ticket-management
+```
+## Issue 14
+**Branch:** feature/14-lab3-staff-ticket-management
+
+## Scope
+
+Implement the complete IT Staff ticket workflow.
+
+### Comments & Internal Notes API
+
+Implement:
+
+* Public Comment create/list.
+* Internal Note create/list.
+* Content validation.
+* Append-only behavior.
+* Server-controlled author and timestamp.
+* No edit functionality.
+
+Implement:
+
+* PATCH /api/tickets/:id/resolution
+
+with the required status-gate rule.
+
+### Requester Ticket Detail
+
+Add:
+
+* Public Comments tab.
+* Functional public comment creation/list.
+* Problem Appears Resolved action.
+* Visibility rules.
+* Confirmation step.
+
+### IT Staff Ticket Queue
+
+Implement:
+
+* GET /api/staff/tickets
+* Search.
+* Filters.
+* Sorting.
+* Pagination.
+* Query validation.
+* Empty state.
+* No-results state.
+* Forbidden state.
+* Failure/loading states.
+* Responsive desktop/tablet/mobile layouts.
+
+### IT Staff Ticket Detail
+
+Implement:
+
+* Owner assignment.
+* Priority update.
+* Status update.
+* Eligibility rules.
+* Reassignment rules.
+* Status transition matrix.
+* Resolution Summary.
+* Public Comments.
+* Internal Notes.
+* Attachments.
+* Service Actions placeholder.
+* Confirmation dialog for Resolved/Cancelled.
+
+## Tests to Add
+
+### Unit
+
+server/tests/lab-03/unit/content.unit.test.ts
+
+* UNIT-09
+* UNIT-10
+
+server/tests/lab-03/unit/status-transitions.unit.test.ts
+
+* UNIT-05
+* UNIT-06
+
+server/tests/lab-03/unit/user-ownership.unit.test.ts
+
+* UNIT-11
+
+### API
+
+server/tests/lab-03/comments-notes.api.test.ts
+
+* API-08
+* API-27–API-34
+
+server/tests/lab-03/staff-queue.api.test.ts
+
+* API-13–API-17
+
+server/tests/lab-03/staff-ticket-detail.api.test.ts
+
+* API-18–API-26
+
+### UI
+
+client/tests/lab-03/RequesterTicketDetail.test.tsx
+
+* UI-21–UI-23
+* UI-30
+
+client/tests/lab-03/StaffTicketQueue.test.tsx
+
+* UI-09–UI-12
+* UI-27
+
+client/tests/lab-03/StaffTicketDetail.test.tsx
+
+* UI-13–UI-16
+* UI-28
+
+client/tests/lab-03/ZenGreenStyle.test.tsx
+
+* STYLE-01
+* STYLE-02
+
+## Covers
+
+* FR-09–17
+* BR-04, 05
+* BR-14–25
+* AC-04
+* AC-12–23
+* AC-32
+
+## Definition of Done
+
+* IT Staff can find and manage tickets.
+* Requesters can use public comments.
+* Staff can use internal notes.
+* Ticket ownership, priority, status, and resolution rules are enforced.
+* All Issue #40 tests pass.
+```
+> **SaintCrois** approved these changes
+
+**Me:** Nice, please merge.
+
+**Me:** Wait, I noticed a UI bug and am fixing it.
+
 **Me:**
 ```
-Thank you for the detailed review. I’ve made the requested changes by restoring `Attachment.status` as an Enum with `ACTIVE` and `REMOVED`, and I’ve also corrected the contradiction in `specification.md` regarding `attachment.isActive`.
-
-I also made some further improvements to the seed data to make it more realistic.
-
-Plese recheck and tell me when it's ready to merge.
+I have fixed the UI issues, including consistency updates and the resolution summary behavior.
+Please let me know when you are ready for the final review.
 ```
-> **SaintCrois** approved these changes 
+> **SaintCrois** approved these changes
 
-**SaintCrois:** Hey! I see you've done a Grape job! Please tell me when you are ready to merge this PR.
+> **SaintCrois** merged commit b9f99cf into lab3-staging
 
-> **SaintCrois** merged commit 3b9ce05 into lab2-staging
-
-### #30, #31, #32 feature/7-ticket
-#### #30
+### #50 feature/lab3-admin-users
 ```
-## Overview
+## Issue 15
+**Branch:** feature/lab3-admin-users
 
-This PR implements the **My Tickets** menu and the **Requester** menu for the ticket system.
+## Scope
 
-## My Tickets Menu
+### API
 
-The **My Tickets** menu allows a requester to view and manage only the tickets that belong to them.
+Implement:
 
-### API Tests
+* GET /api/admin/users
+* POST /api/admin/users
+* PATCH /api/admin/users
+* PATCH /api/admin/users/:id/password
 
-The following tests were added and passed:
+Support:
 
-* **API-16:** Returns only tickets owned by the requester.
-* **API-17:** Returns only tickets matching the search text.
-* **API-18:** Returns only tickets matching all selected filters.
-* **API-19:** Reverses ticket order when `sortDir` is toggled.
-* **API-20:** Returns the next set of tickets when moving to the next page.
-* **API-21:** Falls back to default pagination for invalid values.
+* Search.
+* Role filtering.
+* User creation.
+* User editing.
+* Duplicate-email detection.
+* Case-insensitive email handling.
+* Self-deactivation protection.
+* Last-Administrator protection.
+* Password reset as initial password.
+* Role and active/inactive state management.
 
-## Requester Menu
+### UI
 
-The **Requester** menu allows users to select a requester when working with requester-related ticket information.
+Implement Administrator User Management:
 
-### Tests
+* User list.
+* Search/filter.
+* Create User slide-over.
+* Edit User slide-over.
+* Field validation.
+* Duplicate-email error.
+* Disabled self-deactivation control.
+* Success notifications.
+* Appropriate loading/error/forbidden states.
 
-* My Tickets API: **7/7 passed**
+## Tests to Add
+
+### Unit
+
+server/tests/lab-03/unit/user-ownership.unit.test.ts
+
+* UNIT-12
+
+### API
+
+server/tests/lab-03/users-admin.api.test.ts
+
+* API-35–API-43
+
+### UI
+
+client/tests/lab-03/UserManagement.test.tsx
+
+* UI-17–UI-20
+* UI-29
+
+## Covers
+
+* FR-18–24
+* BR-08
+* BR-11
+* BR-26–29
+* AC-24–30
+
+## Definition of Done
+
+* Administrators can create and manage users.
+* Security restrictions are enforced server-side.
+* User management UI follows the Lab 3 design.
+* All Issue #41 tests pass.
 ```
-> **SaintCrois** approved these changes 
+> **SaintCrois** approved these changes
 
+**Me:** Thank you, please merge.
+
+> **SaintCrois** merged commit 23f00c6 into lab3-staging
+
+### #51 feature/16-lab3-integration-qa
+```
+## Issue 16
+**Branch:** feature/16-lab3-integration-qa
+
+## Scope
+
+This issue is the final integration and release milestone.
+
+### Migration & Regression
+
+Run the complete migration/regression suite:
+
+* MIG-01
+* MIG-02
+* MIG-03
+* MIG-04
+* MIG-05
+
+Confirm:
+
+* Lab 2 data migrated correctly.
+* Seed remains idempotent.
+* No Development Requester selector remains.
+* No X-Dev-Requester-Id references remain.
+* Existing Lab 2 functionality still works under authentication.
+
+### E2E Testing
+
+Implement and pass:
+
+* e2e/lab-03/authentication.spec.ts — E2E-01–E2E-03
+* e2e/lab-03/staff-ticket-flow.spec.ts — E2E-04, E2E-05
+* e2e/lab-03/user-administration.spec.ts — E2E-06–E2E-08
+* e2e/lab-03/responsive.spec.ts — RESP-01–RESP-03
+
+### Responsive & Visual QA
+
+Capture screenshots for:
+
+* Authentication.
+* Staff Ticket Queue.
+* Staff Ticket Detail.
+* User Management.
+
+Store them under:
+
+artifacts/lab-03/screenshots/
+├── authentication/
+├── staff-queue/
+├── staff-ticket-detail/
+└── user-management/
+
+Run the Zen Green visual checklist:
+
+* Design consistency.
+* Role-based navigation.
+* Status/role badges.
+* Editable vs read-only styling.
+* Validation placement.
+* Focus states.
+* Responsive layout.
+* Clipping.
+* Overlap.
+* Overflow.
+
+Complete:
+
+* STYLE-03
+
+### Documentation
+
+Create:
+
+* docs/lab-03/reviewer.md
+* docs/lab-03/ai-use.md
+
+Include:
+
+* Reviewer identity.
+* PR links.
+* Review comments.
+* Responses.
+* Approvals.
+* LLM/tools used.
+* 6–10 key prompts.
+* My Reflection.
+
+### Release
+
+* Confirm all Definition of Done items in specification.md §10.
+* Ensure all tests in tests.md are Pass.
+* Merge lab3-staging into main.
+* Move Issues #36 – #41 to Done.
+* Verify the final submission evidence directly from main.
+
+## Tests to Add / Final Verification
+
+* All UNIT-* tests.
+* All API-* tests.
+* All UI-* tests.
+* All SEC-* tests.
+* All MIG-* tests.
+* All E2E-* tests.
+* All RESP-* tests.
+* All STYLE-* tests.
+
+## Definition of Done
+
+* main contains the complete Lab 3 implementation.
+* All tests in tests.md show Pass.
+* E2E tests pass against the integrated application.
+* Responsive screenshots are captured.
+* Zen Green visual QA is complete.
+* reviewer.md is complete.
+* ai-use.md is complete.
+* All required submission evidence can be assembled from main.
+* Issue #42 is closed after the final release merge.
+```
 **SaintCrois:**
 ```
-Good work! It is amazing to see a lot of commits before you finally settle with this version. Shows how much effort you've put into this work. 
-
-After reviewing, I see no wrong with your code. It seems to align with what you've written in description and issue.
-
-**Approved**`
+Great work! Please let me know when you would like it merged.
 ```
 
-**Me:** Thankyou for the review, plese merge my pull request and I will then continue on the next issue.
+> **SaintCrois** approved these changes
 
-> **SaintCrois** merged commit 7422434 into main
-
-#### #31 Revert Change of #30
-
-**Me:** Plese Aprove and Revert my change to main
-
-**SaintCrois:**Alright!
-
-> **SaintCrois** approved these changes 
-
-> **SaintCrois** merged commit 7422434 into main (revert-30-feature/7-ticket-2)
-
-#### #32
-> **SaintCrois** approved these changes 
-
-**SaintCrois:**
-```
-Good work! It is amazing to see a lot of commits before you finally settle with this version. Shows how much effort you've put into this work.
-
-After reviewing, I see no wrong with your code. It seems to align with what you've written in description and issue.
-
-**Approved**
-```
-> **SaintCrois** merged commit 10d06ec into lab2-staging
-
-### #33 feature/8-create-ticket
-```
-## Issue 8 — Create Ticket & Ticket Detail
-
-Implemented the API and pages for:
-
-* `/create-ticket`
-* `/ticket/:ticketNumber`
-
-Added API tests for ticket creation, validation, ticket detail, and cross-requester access protection.
-
-### Tests
-
-* Create Ticket API: **6/6 passed**
-* Ticket Detail API: **2/2 passed**
-```
-> **SaintCrois** approved these changes 
-
-**SaintCrois:** After reviewing I see you have done a great job. Please tell me when you are ready to merge.
-
-**Me:** Thank you very much plese proceed to merge.
-
-> **SaintCrois** merged commit 8f70fc8 into lab2-staging
-
-### #34 feature/9-attachment
-```
-## Issue 9 — Attachments
-
-Implemented the attachment lifecycle:
-
-* Upload validation
-* File size/type restrictions
-* Active attachment limit
-* Attachment listing
-* Download
-* Soft removal with removal reason
-* Ownership protection
-
-### Tests
-
-* Attachment API: **11/11 passed**
-* Attachment UI: **3/3 passed**
-* Ticket Detail Attachment UI: **2/2 passed**
-* Create Ticket UI: **9/9 passed**
-* My Tickets UI: **3/3 passed**
-* E2E Attachment lifecycle: **passed**
-```
-> **SaintCrois** approved these changes 
-```
-I checked the PR. The attachment functionality and related tests appear to be implemented, including the client attachment test and ticket/requester detail tests.
-
-Make sure that your tests pass. That's all. Great job.
-Notify me when you want to merge.
-```
-**Me:** Thank you very much all the document are now complete. You can now merge it.
+**Me:** Thanks.
 
 ## Pull Requests I reviewed
 
 | PR | Branch | Reviewer verdict |
 |----|--------|------------------|
-| [#16](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/16) | `docs/lab2-spec-plan` | Approve |
-| [#17](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/17) | `feat/lab2-db-context` | Approve |
-| [#18](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/18) | `feature/6-create-ticket` | Approve |
-| [#19](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/19) | `feature/7-my-tickets` | Approve |
-| [#20](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/20) | `feature/8-ticket-detail-attachments` | Approve |
-| [#21](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/21) | `feature/9-e2e-release` | Approve |
+| [#35](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/35) | feature/11-lab3-specification | Approve |
+| [#36](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/36) | feature/12-lab3-test-plan | Approve |
+| [#37](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/37) | feature/13-user-migration-seed | Approve |
+| [#38](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/38) | feature/14-authentication | Approve |
+| [#39](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/39) | feature/15-role-authorization | Approve |
+| [#40](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/40) | feature/16-requester-regression | Approve |
+| [#41](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/41) | feature/17-staff-ticket-queue | Approve |
+| [#42](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/42) | feature/18-staff-ticket-operations | Approve |
+| [#43](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/43) | feature/19-admin-user-management | Approve |
+| [#44](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/44) | feature/20-lab3-test-implementation | Approve |
+| [#45](https://github.com/SaintCrois/Mein-Uni-Kampf/pull/45) | feature/21-ui-responsive-verification | Approve |
 
-#16 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/16
-#17 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/17
-#18 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/18
-#19 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/19
-#20 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/20
-#21 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/21
+#35 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/35
+#36 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/36
+#37 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/37
+#38 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/38
+#39 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/39
+#40 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/40
+#41 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/41
+#42 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/42
+#43 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/43
+#44 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/44
+#45 https://github.com/SaintCrois/Mein-Uni-Kampf/pull/45
 
-
-### #16 docs/lab2-spec-plan
+### #35 feature/11-lab3-specification
 ```
-## Description
-This PR introduces the Spec-Driven Development (Spec DD) and Test-Driven Development (Test DD) documentation required for Lab 2, Phase 1. It establishes the foundational engineering contract prior to any codebase implementation.
+## Scope
 
-## Deliverables Completed
-* **Specification:** Added `docs/lab-02/specification.md` containing the Sprint Goal, Scope, Functional Requirements (FR-01 to FR-07), Business Rules (BR-01 to BR-05), Acceptance Criteria, and the Definition of Done.
-* **UI Rules:** Added `docs/lab-02/ui-spec.md` detailing the Zen Green theme color palette (`#006B3C`), responsive breakpoints (Desktop, Tablet, Mobile), and component states.
-* **API Contract:** Added `docs/lab-02/api-spec.md` outlining the required REST endpoints, HTTP status codes, and error response handling.
-* **Test Plan:** Added `docs/lab-02/tests.md` featuring the Planned-Test Table, acceptance-criterion traceability, and test strategy.
+* Lab 3 specification.
+* UI specification.
+* API contract.
+* Engineering contract for the Lab 3 implementation.
 
-## Related Issue 
-Related to #10
+## Approval
 
-## Notes for Reviewer
-Please ensure all 4 markdown files meet the Phase 1 documentation requirements. *(Note: I will capture the required timestamp screenshot of this PR before merging!)*
+No review-comment transcript is retained in this repository.
 ```
-> **bravefe** requested changes
+> **bravefe** approved these changes
+
+> **bravefe** merged commit 60f7540 into lab3-staging
+
+### #36 feature/12-lab3-test-plan
+```
+## Scope
+
+* Lab 3 test plan.
+* Acceptance-criterion traceability.
+```
+> **bravefe** requested the test plan review
 
 **bravefe:**
 ```
-Thank you for the detailed PR description. Before I approve the work, could you please recheck `docs/lab-02/tests.md` in detail?
-
-In particular, please verify that:
-
-* The test cases and expected results are sufficiently detailed and accurately reflect the requirements and acceptance criteria.
-
-Additionally, adding more detail to the specification file, where appropriate, would be welcome.
-
-Once you have rechecked and confirmed these points, please let me know so I can proceed with the review and approval.
+I saw your test file. Have alot to cover. Please let me know when you want me to proceed.
 ```
-
-**SaintCrois:** Of course! Will look into that. Thank you.
-
-**SaintCrois:** Hey! I have fixed the problem you've outlined. Please take a look!
+**Me:** Thank you! Please merge.
 
 > **bravefe** approved these changes
 
-**bravefe** I’ve reviewed your changes, and they include the additional information discussed. If there are no further changes needed, I’ll proceed with merging the PR.
+> **bravefe** merged commit bc619e0 into lab3-staging
 
-**SaintCrois:** Wait. I found a bit of flaw in test.md. Please wait until further notice.
-
-**SaintCrois:** The problem had been solved. Please proceed with final review. Sorry for inconvenience.
-
-> **bravefe** merged commit d440f25 into lab2-staging
-
-### #17 feat/lab2-db-context
+### #37 feature/13-user-migration-seed
 ```
-# What is it
-- Aligns the database schema and seed data with the approved Phase 1 specification for Lab 2 (Issue 6).
-- Corrects previous schema deviations before starting backend API development.
-- Keeps the implementation within the defined Lab 2 scope.
+## Scope
 
-# What changed
-- Updated `server/prisma/schema.prisma` to match `specification.md`.
-- Removed out-of-scope models:
-  - `PublicComment`
-  - `ServiceAction`
-  - `EventLog`
-- Renamed `ticketCode` → `ticketNumber`.
-- Renamed `fileSizeBytes` → `fileSize`.
-- Updated `server/prisma/seed.ts` to generate tickets using the required `TKT-2026-` prefix.
-- Seeded the database with:
-  - Active Requesters
-  - Categories
-  - Related Systems
-  - 10 dummy tickets
-
-# Testing
-- [x] Ran `npx prisma migrate dev`
-- [x] Ran `npx prisma db seed`
-- [x] Ran `npx prisma generate`
-- [x] Verified the generated TypeScript types.
-
-# Related Issue
-- Related to #11
-
-# Notes for Reviewer
-- Please verify that the Prisma schema matches the Phase 1 specification.
-- Please verify that no out-of-scope models or fields were added.
-- The database is now ready for the backend API implementation.
+* User migration from Lab 2.
+* Deterministic and idempotent seed data.
+* Required active and inactive users.
+* Varied ticket data.
 ```
 > **bravefe** approved these changes
 
-**bravefe:**
+> **bravefe** merged commit 3f3054f into lab3-staging
+
+### #38 feature/14-authentication
 ```
-Flawless work! All the data has been implemented correctly with the appropriate names and attributes. The only thing I noticed is that some of the dummy data looks oddly familiar. 😄
+## Scope
 
-Other than that, there is nothing else that needs to be changed. Please let me know when you’re ready to merge the PR.
+* Authentication.
+* Mandatory password change.
+* Session handling.
+* Authenticated requester workflow.
 ```
+> **bravefe** approved these changes
 
-**SaintCrois:** Thank you! Hehe. Please proceed to merge this PR.
+> **bravefe** merged commit ddfc661 into lab3-staging
 
-> **bravefe** merged commit 28e97a6 into lab2-staging 
-
-### #18 feature/6-create-ticket
+### #39 feature/15-role-authorization
 ```
-## Summary
+## Scope
 
-Implemented Issue 7: Ticket creation API, UI, validation, and tests.
+* Role authorization.
+* Authenticated application shell.
+* Role-based navigation and access control.
+```
+> **bravefe** approved these changes
 
-## Changes
+> **bravefe** merged commit 4cfe035 into lab3-staging
 
-- Added active Development Requester loading and selection/context handling.
-- Added Create Ticket screen with:
-  - Summary
-  - Category
-  - Related System
-  - Requested Priority
-  - Description
-  - Attachments
-- Implemented ticket creation through `POST /api/tickets`.
-- Added backend ticket validation and requester ownership.
-- Added backend-generated unique Ticket Numbers.
-- Set newly created tickets to `New`.
-- Added attachment validation for:
-  - JPG
-  - PNG
-  - WEBP
-  - PDF
-  - Maximum 5 files
-  - Maximum 5MB per file
-- Added loading and duplicate-submission protection.
-- Added success confirmation with generated Ticket Number.
-- Added safe API/network error handling while preserving form values.
-- Added/updated automated API and UI tests.
+### #40 feature/16-requester-regression
+```
+## Scope
 
-##Related Issue
-Related to #12 
-
-## Testing
-
-### Client
-- 9/9 tests passing
-
-### Server
-- 23/23 tests passing
-
-### Total
-- 32/32 tests passing
+* Requester regression testing.
+* Public comments.
+* Internal notes.
+* Verification that existing Lab 2 requester functionality works under authentication.
 ```
 **bravefe:**
 ```
-I’ve tested the ticket creation functionality, and it works as intended. The related `.test` files are also included, and all the tests are passing.
-<img width="1366" height="741" alt="image" src="https://github.com/user-attachments/assets/437a8e07-f056-43a8-a1ab-e1d8e35b4389" />
+all of the 100, no i mean 101 test are passging so now you may actually work on the ui now
 
-Please let me know when you’re ready for me to merge it.
+go go go
+```
+**Me:** Alright! Thank you, please merge.
+
+**bravefe:** gotta go fast
+
+> **bravefe** approved these changes and noted "i forgot to approve but will merge"
+
+> **bravefe** merged commit d4d8435 into lab3-staging
+
+### #41 feature/17-staff-ticket-queue
+```
+## Scope
+
+* IT Staff ticket queue.
+* Search, filtering, sorting, and pagination.
+* Empty, no-results, forbidden, loading, and failure states.
+* Responsive desktop, tablet, and mobile layouts.
 ```
 > **bravefe** approved these changes
 
-**SaintCrois:** Thank you! Please proceed to merge this PR.
+> **bravefe** merged commit 598d082 into lab3-staging
 
-> **bravefe** merged commit d08016e into lab2-staging
-
-### #19 feature/7-my-tickets
+### #42 feature/18-staff-ticket-operations
 ```
-## Summary
+## Scope
 
-Implemented Issue 8: My Tickets paginated list, search, filtering, sorting, and tests.
-
-## Changes
-
-### My Tickets API
-
-Added My Tickets functionality for the currently selected Development Requester.
-
-Added `GET /api/tickets` with:
-
-- Pagination
-- Search
-- Status filtering
-- Priority filtering
-- Category filtering
-- Related System filtering
-- Sorting
-- Pagination metadata
-
-Enforced server-side requester ownership so Requesters only see their own tickets.
-
-Added requester-context handling through `X-Requester-Id`.
-
-### My Tickets React Screen
-
-Added the My Tickets React screen with:
-
-- Ticket list
-- Search
-- Filters
-- Sorting
-- Clear Filters
-- Pagination controls
-- Loading state
-- Empty state
-- No-results state
-
-Added ticket selection/navigation from the My Tickets list.
-
-Added a responsive ticket-list layout for desktop and mobile views.
-
-### Automated API Tests
-
-Added automated API tests covering:
-
-- Requester ownership
-- Search
-- Filtering
-- Sorting
-- Pagination
-- Multiple Requester data isolation
-
-### Automated UI Tests
-
-Added/updated automated UI tests covering:
-
-- Ticket list rendering
-- Search/filter behavior
-- Clear Filters
-- Pagination
-- Loading state
-- Empty/no-results states
-- Requester-specific ticket visibility
-
-### Regression Verification
-
-Verified existing Create Ticket and Requester Selection functionality remains passing.
-
-## Related Issue
-
-Related to #13
+* Staff ticket detail.
+* Ticket ownership assignment.
+* Priority and status updates.
+* Resolution summary.
+* Public comments and internal notes.
+* Attachments and service actions placeholder.
 ```
-
 > **bravefe** approved these changes
 
-**bravefe:** I've seen that the my-ticket page have been add. There is nothing to be change.
+> **bravefe** merged commit e16ac57 into lab3-staging
 
-**SaintCrois:** I'll assume you said there is no problem. If there is please comment. Else, please proceed to merge.
-
-> **bravefe** bravefe merged commit 2a1edb6 into lab2-staging
-
-
-### #20 feature/8-ticket-detail-attachments
+### #43 feature/19-admin-user-management
 ```
-## Summary
+## Scope
 
-Implemented Issue 8: Ticket Detail read-only view and attachment lifecycle.
-
-## Changes
-
-### Ticket Detail API
-
-Added ticket detail functionality for the currently selected Development Requester.
-
-Added `GET /api/tickets/:id` with:
-
-- Ticket number
-- Summary
-- Description
-- Category
-- Related System
-- Requested Priority
-- Current Status
-- Created/updated timestamps
-- Attachment metadata
-
-Enforced server-side requester ownership so Requesters can only view tickets they own.
-
-### Ticket Detail React Screen
-
-Added the Ticket Detail navigation flow from My Tickets.
-
-Added support for opening a selected ticket from the My Tickets list.
-
-Kept the Ticket Detail view Requester-facing and read-only.
-
-No IT Staff controls, comments, internal notes, or status-change controls were added.
-
-### Attachment Lifecycle
-
-Implemented attachment storage and lifecycle handling for existing tickets.
-
-Added:
-
-- Supporting attachment upload
-- JPG/PNG/WEBP/PDF validation
-- 5 MiB per-file limit
-- Maximum 5 attachments per ticket
-- Unique stored filenames
-- Attachment download for active attachments
-- Requester ownership enforcement
-- Soft removal of attachments
-- Required removal reason
-- Removal metadata retention
-- Download blocking after removal
-
-Uploaded files are stored using generated filenames rather than the original filename.
-
-### Automated API Tests
-
-Added automated API tests covering:
-
-- Ticket detail retrieval
-- Requester ownership enforcement
-- Attachment download
-- Attachment ownership enforcement
-- Required removal reason
-- Soft removal
-- Removal metadata
-- Blocked downloads after removal
-
-## Regression Verification
-
-Verified the complete server test suite:
-
-- 9 test files passed
-- 31 tests passed
-
-Verified the client production build successfully completes with TypeScript and Vite.
-
-Existing Create Ticket, My Tickets, and Requester Selection functionality remains passing.
-
-## Related Issue
-
-Related to #14 
+* Administrator user management.
+* User list, search, and role filtering.
+* User creation and editing.
+* Duplicate-email detection.
+* Self-deactivation and last-Administrator protection.
+* Password reset and active/inactive state management.
 ```
-> **bravefe** requested changes
+> **bravefe** approved these changes
 
+> **bravefe** merged commit 480d046 into lab3-staging
+
+### #44 feature/20-lab3-test-implementation
+```
+## Scope
+
+* API tests.
+* UI tests.
+* Authorization tests.
+* End-to-end tests.
+* Regression coverage for the integrated Lab 3 workflow.
+```
+> **bravefe** approved these changes
+
+> **bravefe** merged commit b5db70e into lab3-staging
+
+### #45 feature/21-ui-responsive-verification
+```
+## Scope
+
+* Zen Green UI verification.
+* Responsive verification across desktop, tablet, and mobile.
+* Accessibility verification.
+* Screenshot evidence.
+```
 **bravefe:**
 ```
-I’ve seen that the attachments have been implemented and that the API for reviewing tickets has also been added.
-
-Before I merge the PR, I have a few confirmation questions. Some of these are also related to issues from the past that I noticed while testing this branch myself.
-
-For the **My Tickets** page, should each ticket display additional information, considering that the API already provides fields such as **status** and **createdAt**? For example, should the ticket card/list item also show the current status and creation date?
-
-**Recommendation / Thought:**
-Would it be better for each major page to have its own dedicated route/address? For example:
-
-* `/create` — Create Ticket
-* `/tickets` — My Tickets
-* `/ticket/:id` — Ticket Details
-
-I think having separate routes would make the pages easier to navigate, bookmark, and maintain as the application grows.
+The UI verification, responsive screenshots, and documentation are complete and ready for merge.
 ```
-**SaintCrois:** Thank you for your comments. The three suggestions will be implement in next issue as planned. If there are more suggestions you would like to make, please do so. If not, then please proceed to merge this request.
+**Me:** Thank you! Please merge.
 
-**bravefe:** Ok, very nice. I shall now merge this PR.
-
-> **bravefe** merged commit a91306c into lab2-staging
-
-### #21 feature/9-e2e-release
-```
-## Summary of Changes
-
-This Pull Request completes **Issue 10: E2E tests, visual inspection, and release integration** for Lab 2 (TokTickIT Requester Ticketing MVP).
-
-Key highlights:
-1. **Full Playwright E2E Coverage**: Implemented end-to-end test suites in `e2e/lab-02/requester-ticket-flow.spec.ts` covering:
-   - Development Requester selection and context switching.
-   - Ticket creation, category/system/priority dropdown loading, and field-level validation errors.
-   - Attachment lifecycle: file format/size checks, uploading on creation and in detail view, active attachment downloading, and soft removal with reason.
-   - My Tickets search by ticket number, filtering (category, priority, status), sorting, and empty/no-results  @states.
-   - Requester data isolation and cross-requester unauthorized access rejection (403).
-   - API failure simulation with entered form data preserved.
-2. **Multi-Viewport & Responsive Testing**:
-   - Configured and verified tests across **Desktop (1280x720)**, **Tablet (800x1000)**, and **Mobile (390x844)** viewports.
-3. **Automated Screenshot Artifacts**:
-   - Automated generation of all 23 required PNG screenshots under `artifacts/lab-02/screenshots/` across `create-ticket/`, `my-tickets/`, and `ticket-detail/`.
-4. **Accessible Form Controls**:
-   - Added accessible `id` and `htmlFor` attributes to read-only fields on `TicketDetail.tsx` conforming to the UI specification.
-5. **Lab 2 Documentation Deliverables**:
-   - `docs/lab-02/ui-spec.md`: Completed Zen Green design tokens and full visual inspection checklist.
-   - `docs/lab-02/tests.md`: Updated test plan, commands, and passing traceability matrix.
-   - `docs/lab-02/reviewer.md`: Documented peer review records for PRs #10 through #15.
-   - `docs/lab-02/ai-use.md`: Recorded selected AI prompt logs (1–9) and reflection.
-
----
-
-## Acceptance Criteria Checklist
-
-- [x] **Playwright E2E Multi-Viewport**: Tests execute complete lifecycle across desktop, tablet, and mobile projects.
-- [x] **Screenshots Captured**: All required screenshots generated and saved in `artifacts/lab-02/screenshots/`.
-- [x] **Visual Inspection Checklist**: Completed checklist in `ui-spec.md` confirming Zen Green theme alignment, no clipping, and responsive behavior.
-- [x] **Reviewer Record**: Complete review logs, PR links, comments, and approvals in `docs/lab-02/reviewer.md`.
-- [x] **AI Use & Reflection**: 6–10 selected prompts and reflection in `docs/lab-02/ai-use.md`.
-- [x] **All Automated Tests Pass**: All unit, API, UI, and E2E tests pass from documented commands.
-
-## Related Issue
-Related to #15 
-
----
-
-## Verification & Test Results
-
-### 1. Playwright E2E Suite (9/9 passed)
-```bash
-npx playwright test e2e/lab-02/requester-ticket-flow.spec.ts --config=client/playwright.config.ts --workers=1
-```
 > **bravefe** approved these changes
 
-**bravefe:** 
-```
-Everything is included according to the lab sheet. The website artifact and the E2E testing are also included. It seems you decided to include the page route/address as well, which is fine since it isn’t required for the lab.
+> **bravefe** merged commit d610341 into lab3-staging
 
-The document is complete. In my opinion, I would have included a bit more back-and-forth communication regarding some of the issues in reviewer.md, but apart from that, your project is ready to be submitted.
+## Final Verification Approval Record
 
-Please let me know when you’re ready to merge.
-```
+The final release verification was prepared on `feature/22-final-lab3-integration`. It records the evidence ready for maintainer review before the final merge to `lab3-staging` and `main`.
 
-**SaintCrois:** Thank you! Please proceed to merge.
+| Check | Result | Approval / response |
+|---|---|---|
+| Database migration status | 3 migrations; schema up to date | Ready for maintainer approval. |
+| Seed data | Idempotent seed completed; required active/inactive users and varied tickets verified | Ready for maintainer approval. |
+| Server API, security, and Lab 2 regression tests | 149 passed, 0 failed | Ready for maintainer approval. |
+| Client component and regression tests | 36 passed, 0 failed | Ready for maintainer approval. |
+| Playwright E2E | 12 passed, 0 failed across desktop, tablet, and mobile | Ready for maintainer approval. |
+| Acceptance-criterion traceability | AC-01 through AC-15 mapped in `tests.md` | Ready for maintainer approval. |
+| UI screenshot evidence | 18 screenshots under `artifacts/lab-03/screenshots/` | Ready for maintainer approval. |
 
-> **bravefe** merged commit 6c6e69f into lab2-staging
+## Final-PDF Evidence Checklist
+
+- [x] Part 1 — Engineering specification: `docs/lab-03/specification.md`.
+- [x] Part 2 — API contract: `docs/lab-03/api-spec.md`.
+- [x] Part 3 — UI design and responsive/accessibility record: `docs/lab-03/ui-spec.md`.
+- [x] Part 4 — Test strategy and acceptance-criterion traceability: `docs/lab-03/tests.md`.
+- [x] Part 5 — Authentication, roles, authorization, and requester-regression evidence: server/client/E2E tests.
+- [x] Part 6 — IT Staff queue/detail workflow evidence: server/client/E2E tests and screenshots.
+- [x] Part 7 — Administrator user-management evidence: server/client/E2E tests and screenshots.
+- [x] Part 8 — Desktop, tablet, and mobile screenshot evidence: `artifacts/lab-03/screenshots/`.
+- [x] Part 9 — Review, AI-use, seed, migration, and final release verification: this file and `ai-use.md`.
+

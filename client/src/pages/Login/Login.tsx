@@ -76,8 +76,8 @@ export default function Login({
           {emailError && <small role="alert">{emailError}</small>}
         </label>
 
-        <label htmlFor="password">
-          Password
+        <div className="login-field">
+          <label htmlFor="password">Password</label>
           <div className="password-input">
             <input
               id="password"
@@ -86,9 +86,17 @@ export default function Login({
               onChange={(event) => setPassword(event.target.value)}
               autoComplete="current-password"
             />
+            <button
+              className="show-password"
+              type="button"
+              aria-label={showPassword ? "Hide" : "Show"}
+              onClick={() => setShowPassword((visible) => !visible)}
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
           </div>
           {passwordError && <small role="alert">{passwordError}</small>}
-        </label>
+        </div>
 
         <button className="primary wide" disabled={busy}>
           {busy ? "Signing In…" : "Sign in"}

@@ -34,7 +34,8 @@
     sans-serif;
 }
 
-.login-card label {
+.login-card label,
+.login-card .login-field {
   display: grid;
   gap: 8px;
   margin-top: 18px;
@@ -61,7 +62,8 @@
   outline-offset: 2px;
 }
 
-.login-card label small {
+.login-card label small,
+.login-card .login-field small {
   color: var(--error);
   font-weight: 500;
 }

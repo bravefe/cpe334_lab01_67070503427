@@ -11,6 +11,7 @@ export default function ChangePassword({
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [showPasswords, setShowPasswords] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const rules = passwordRules(newPassword);
@@ -53,19 +54,39 @@ export default function ChangePassword({
         )}
         <label>
           Current password
-          <input
-            type="password"
-            value={currentPassword}
-            onChange={(event) => setCurrentPassword(event.target.value)}
-          />
+          <div className="password-input">
+            <input
+              type={showPasswords ? "text" : "password"}
+              value={currentPassword}
+              onChange={(event) => setCurrentPassword(event.target.value)}
+            />
+            <button
+              className="show-password"
+              type="button"
+              aria-label={showPasswords ? "Hide passwords" : "Show passwords"}
+              onClick={() => setShowPasswords((visible) => !visible)}
+            >
+              {showPasswords ? "Hide" : "Show"}
+            </button>
+          </div>
         </label>
         <label>
           New password
-          <input
-            type="password"
-            value={newPassword}
-            onChange={(event) => setNewPassword(event.target.value)}
-          />
+          <div className="password-input">
+            <input
+              type={showPasswords ? "text" : "password"}
+              value={newPassword}
+              onChange={(event) => setNewPassword(event.target.value)}
+            />
+            <button
+              className="show-password"
+              type="button"
+              aria-label={showPasswords ? "Hide passwords" : "Show passwords"}
+              onClick={() => setShowPasswords((visible) => !visible)}
+            >
+              {showPasswords ? "Hide" : "Show"}
+            </button>
+          </div>
         </label>
         <ul>
           {Object.entries(rules).map(([rule, valid]) => (
@@ -76,11 +97,21 @@ export default function ChangePassword({
         </ul>
         <label>
           Confirm password
-          <input
-            type="password"
-            value={confirm}
-            onChange={(event) => setConfirm(event.target.value)}
-          />
+          <div className="password-input">
+            <input
+              type={showPasswords ? "text" : "password"}
+              value={confirm}
+              onChange={(event) => setConfirm(event.target.value)}
+            />
+            <button
+              className="show-password"
+              type="button"
+              aria-label={showPasswords ? "Hide passwords" : "Show passwords"}
+              onClick={() => setShowPasswords((visible) => !visible)}
+            >
+              {showPasswords ? "Hide" : "Show"}
+            </button>
+          </div>
         </label>
         {confirm && !passwordsMatch && (
           <small role="alert">Passwords do not match.</small>
