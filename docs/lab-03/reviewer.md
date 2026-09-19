@@ -658,7 +658,14 @@ Include:
 * All required submission evidence can be assembled from main.
 * Issue #42 is closed after the final release merge.
 ```
-> **SaintCrois** review is pending
+**SaintCrois:**
+```
+Great work! Please let me know when you would like it merged.
+```
+
+> **SaintCrois** approved these changes
+
+**Me:** Thanks.
 
 ## Pull Requests I reviewed
 
