@@ -55,3 +55,14 @@ export async function getStatusesService() {
     },
   });
 }
+
+export async function getActionResultsService() {
+  return getPrisma().actionResult.findMany({
+    where: {
+      isActive: true,
+    },
+    orderBy: {
+      id: "asc",
+    },
+  });
+}

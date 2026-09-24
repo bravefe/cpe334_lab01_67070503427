@@ -9,6 +9,18 @@ import {
   TicketValidationError,
 } from "../services/ticketService.js";
 
+import {
+  createActionTaken,
+  listActionsTaken,
+  resolveActionTicketAccess,
+  updateActionTaken,
+} from "../services/actionTakenService.js";
+
+import {
+  parseActionTakenCreateInput,
+  parseActionTakenUpdateInput,
+} from "../lib/actionTaken.js";
+
 function sendError(
   res: Response,
   status: number,
@@ -271,6 +283,217 @@ export async function createTicketComment(
     authorRole: created.author.role,
     content: created.content,
     createdAt: created.createdAt.toISOString(),
+  });
+}
+
+export async function createAction(req: Request, res: Response): Promise<void> {
+  const ticketId = Number(req.params.ticketId);
+
+  if (!Number.isInteger(ticketId) || ticketId <= 0) {
+    sendError(res, 400, "VALIDATION_ERROR", "Invalid ticket ID.");
+    return;
+  }
+
+  const parsed = parseActionTakenCreateInput(req.body);
+
+  if (!parsed.ok) {
+    sendError(res, 400, "VALIDATION_ERROR", "Action Taken validation failed.", {
+      fieldErrors: parsed.fieldErrors,
+    });
+    return;
+  }
+
+  const access = await resolveActionTicketAccess(
+    ticketId,
+    req.user!.id,
+    req.user!.role,
+  );
+
+  if (access.kind === "not_found") {
+    sendError(res, 404, "NOT_FOUND", "Ticket not found.");
+    return;
+  }
+
+  if (access.kind === "forbidden") {
+    sendError(
+      res,
+      403,
+      "FORBIDDEN",
+      "You are not allowed to access this ticket.",
+    );
+    return;
+  }
+
+  const result = await createActionTaken({
+    ticketId,
+    performedByUserId: req.user!.id,
+    ...parsed.data,
+  });
+
+  if (result.kind === "not_found") {
+    sendError(res, 404, "NOT_FOUND", "Ticket not found.");
+    return;
+  }
+
+  if (result.kind === "closed") {
+    sendError(
+      res,
+      409,
+      "INVALID_STATUS",
+      "Actions Taken cannot be created for Closed or Cancelled tickets.",
+    );
+    return;
+  }
+
+  if (result.kind === "invalid_action_time") {
+    sendError(
+      res,
+      422,
+      "INVALID_ACTION_TIME",
+      "Action date/time must be on or after the Ticket creation time and not later than the current server time.",
+    );
+    return;
+  }
+
+  if (result.kind === "invalid_result") {
+    sendError(res, 400, "VALIDATION_ERROR", "Result is invalid or inactive.");
+    return;
+  }
+
+  res.status(201).json({
+    data: result.data,
+  });
+}
+
+export async function getActions(req: Request, res: Response): Promise<void> {
+  const ticketId = Number(req.params.ticketId);
+
+  if (!Number.isInteger(ticketId) || ticketId <= 0) {
+    sendError(res, 400, "VALIDATION_ERROR", "Invalid ticket ID.");
+    return;
+  }
+
+  const access = await resolveActionTicketAccess(
+    ticketId,
+    req.user!.id,
+    req.user!.role,
+  );
+
+  if (access.kind === "not_found") {
+    sendError(res, 404, "NOT_FOUND", "Ticket not found.");
+    return;
+  }
+
+  if (access.kind === "forbidden") {
+    sendError(
+      res,
+      403,
+      "FORBIDDEN",
+      "You are not allowed to access this ticket.",
+    );
+    return;
+  }
+
+  const actions = await listActionsTaken(ticketId);
+
+  res.status(200).json({
+    data: actions,
+  });
+}
+
+export async function updateAction(req: Request, res: Response): Promise<void> {
+  const ticketId = Number(req.params.ticketId);
+  const actionId = Number(req.params.actionId);
+
+  if (
+    !Number.isInteger(ticketId) ||
+    ticketId <= 0 ||
+    !Number.isInteger(actionId) ||
+    actionId <= 0
+  ) {
+    sendError(res, 400, "VALIDATION_ERROR", "Invalid ticket or action ID.");
+    return;
+  }
+
+  const access = await resolveActionTicketAccess(
+    ticketId,
+    req.user!.id,
+    req.user!.role,
+  );
+
+  if (access.kind === "not_found") {
+    sendError(res, 404, "NOT_FOUND", "Ticket not found.");
+    return;
+  }
+
+  if (access.kind === "forbidden") {
+    sendError(
+      res,
+      403,
+      "FORBIDDEN",
+      "You are not allowed to access this ticket.",
+    );
+    return;
+  }
+
+  const parsed = parseActionTakenUpdateInput(req.body);
+
+  if (!parsed.ok) {
+    sendError(res, 400, "VALIDATION_ERROR", "Action Taken validation failed.", {
+      fieldErrors: parsed.fieldErrors,
+    });
+    return;
+  }
+
+  const result = await updateActionTaken({
+    ticketId,
+    actionId,
+    updatedAt: parsed.updatedAt,
+    data: parsed.data,
+  });
+
+  if (result.kind === "not_found") {
+    sendError(res, 404, "NOT_FOUND", "Action Taken not found.");
+    return;
+  }
+
+  if (result.kind === "conflict") {
+    sendError(
+      res,
+      409,
+      "CONFLICT",
+      "The Action Taken was modified by another user.",
+      { current: result.current },
+    );
+    return;
+  }
+
+  if (result.kind === "invalid_result") {
+    sendError(res, 400, "VALIDATION_ERROR", "Result is invalid or inactive.");
+    return;
+  }
+
+  if (result.kind === "missing_follow_up_note") {
+    sendError(
+      res,
+      422,
+      "VALIDATION_ERROR",
+      "Follow-up Note is required when Follow-up Required is true.",
+      {
+        fieldErrors: [
+          {
+            field: "followUpNote",
+            message:
+              "Follow-up Note is required when Follow-up Required is true.",
+          },
+        ],
+      },
+    );
+    return;
+  }
+
+  res.status(200).json({
+    data: result.data,
   });
 }
 
