@@ -1,4 +1,4 @@
-# TokTickIT — Sprint 4 Test Plan and Traceability
+# TokTickIT - Sprint 4 Test Plan and Traceability
 
 Written alongside the Sprint 4 contract, before the implementation PRs (Test DD/TDD). Every
 Acceptance Criterion in `specification.md` maps to at least one row below. The **Final** column is

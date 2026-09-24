@@ -1,4 +1,4 @@
-# TokTickIT — Sprint 4 Engineering Specification
+# TokTickIT - Sprint 4 Engineering Specification
 
 **Course:** CPE 334, Sections 1, 2, HS, 31, 32 — Semester 1/2026
 **Sprint:** Lab 4 — Actions Taken, Dashboards, and Final Regression

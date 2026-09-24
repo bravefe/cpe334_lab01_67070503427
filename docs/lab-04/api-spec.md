@@ -1,4 +1,4 @@
-# TokTickIT — Sprint 4 API Specification
+# TokTickIT - Sprint 4 API Specification
 
 Conventions carried over unchanged from Labs 2–3: session auth via the `tt_session` cookie,
 `requireCsrf` on all state-changing requests, `requireRole(...roles)` for authorization,

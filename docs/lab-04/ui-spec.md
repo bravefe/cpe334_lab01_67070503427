@@ -1,4 +1,4 @@
-# TokTickIT — Sprint 4 UI Specification
+# TokTickIT - Sprint 4 UI Specification
 
 Extends the Lab 2/3 Zen Green system. Reuses existing card, table, badge, button, form, tab,
 loading, empty, error, and modal conventions — no new visual language is introduced.

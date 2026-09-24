@@ -1,4 +1,4 @@
-# Lab 2 — AI Use 
+# Lab 3 - AI Use 
  
 ### **LLM/Agent Used: ChatGPT 5.6 Luna/Tera (Codex/Copilot)**
 
