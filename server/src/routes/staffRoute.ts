@@ -15,9 +15,11 @@ const router = Router();
 router.use(requireRole("IT_STAFF", "ADMINISTRATOR"));
 router.get("/staff/tickets", listStaffTickets);
 router.get("/staff/tickets/:id", getStaffTicket);
+
 router.patch("/staff/tickets/:id/owner", updateOwner);
 router.patch("/staff/tickets/:id/priority", updatePriority);
 router.patch("/staff/tickets/:id/status", updateStatus);
+
 router.get("/staff/tickets/:id/comments", listStaffComments);
 router.post("/staff/tickets/:id/comments", createStaffComment);
 router.get("/staff/tickets/:id/notes", listNotes);
