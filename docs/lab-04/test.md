@@ -33,26 +33,26 @@ updated to `Pass`/`Fail` for submission (Part 3 requires the actual passing outp
 
 | Test ID | Type | Req/AC | What It Tests | Expected Result | Automated Test File | Final |
 |---|---|---|---|---|---|---|
-| UI-01 | UI | FR-04 | `ActionsTaken` renders for a Requester session | List is read-only; no Add/Edit controls present in the DOM | `client/.../lab-04 tests/ActionsTaken.test.tsx` | Planned |
-| UI-02 | UI | AC-11 | `ActionsTaken` with zero records | Renders the defined empty state, no error | `client/.../lab-04 tests/ActionsTaken.test.tsx` | Planned |
-| UI-03 | UI | AC-13 | Rapid double-click on Save in the create form | Submit button disables after first click; only one request fires | `client/.../lab-04 tests/ActionsTaken.test.tsx` | Planned |
-| UI-04 | UI | FR-06 | `TicketWorkflow` control on a Ticket without a Resolved-gate action | `Resolved` option shown disabled with the explanatory reason | `client/.../lab-04 tests/TicketWorkflow.test.tsx` | Planned |
-| UI-05 | UI | AC-09 | `RequesterDashboard` with zero Tickets | All four cards show `0`, no error state | `client/.../lab-04 tests/RequesterDashboard.test.tsx` | Planned |
-| UI-06 | UI | FR-12, AC-10 | Clicking a `StaffDashboard` metric card | Navigates to Ticket Queue pre-filtered to match that metric | `client/.../lab-04 tests/StaffDashboard.test.tsx` | Planned |
+| UI-01 | UI | FR-04 | `ActionsTaken` renders for a Requester session | List is read-only; no Add/Edit controls present in the DOM | `client/tests/lab-04/ActionsTaken.test.tsx` | Planned |
+| UI-02 | UI | AC-11 | `ActionsTaken` with zero records | Renders the defined empty state, no error | `client/tests/lab-04/ActionsTaken.test.tsx` | Planned |
+| UI-03 | UI | AC-13 | Rapid double-click on Save in the create form | Submit button disables after first click; only one request fires | `client/tests/lab-04/ActionsTaken.test.tsx` | Planned |
+| UI-04 | UI | FR-06 | `TicketWorkflow` control on a Ticket without a Resolved-gate action | `Resolved` option shown disabled with the explanatory reason | `client/tests/lab-04/TicketWorkflow.test.tsx` | Planned |
+| UI-05 | UI | AC-09 | `RequesterDashboard` with zero Tickets | All four cards show `0`, no error state | `client/tests/lab-04/RequesterDashboard.test.tsx` | Planned |
+| UI-06 | UI | FR-12, AC-10 | Clicking a `StaffDashboard` metric card | Navigates to Ticket Queue pre-filtered to match that metric | `client/tests/lab-04/StaffDashboard.test.tsx` | Planned |
 
 ## 4. UI Style / Visual Consistency
 
 | Test ID | Type | Req/AC | What It Tests | Expected Result | Automated Test File | Final |
 |---|---|---|---|---|---|---|
-| STYLE-01 | UI style | §7 (handout) | New screens against the Zen Green token set (color, spacing, type scale) | No ad-hoc colors/spacing outside the existing tokens | `client/.../lab-04 tests/ActionsTaken.test.tsx` (snapshot) | Planned |
-| STYLE-02 | UI style | Accessibility checklist | Result/status badges | Every badge pairs color with a text label or icon (non-color cue) | `client/.../lab-04 tests/ActionsTaken.test.tsx` | Planned |
+| STYLE-01 | UI style | §7 (handout) | New screens against the Zen Green token set (color, spacing, type scale) | No ad-hoc colors/spacing outside the existing tokens | `client/tests/lab-04/ActionsTaken.test.tsx` (snapshot) | Planned |
+| STYLE-02 | UI style | Accessibility checklist | Result/status badges | Every badge pairs color with a text label or icon (non-color cue) | `client/tests/lab-04/ActionsTaken.test.tsx` | Planned |
 
 ## 5. Responsive
 
 | Test ID | Type | Req/AC | What It Tests | Expected Result | Automated Test File | Final |
 |---|---|---|---|---|---|---|
-| RESP-01 | Responsive | ui-spec.md §6 | Dashboard card grids at desktop/tablet/mobile widths | Cards reflow per breakpoint; no clipping or overlap | `client/.../lab-04 tests/StaffDashboard.test.tsx` | Planned |
-| RESP-02 | Responsive | ui-spec.md §6 | Actions Taken table at mobile width | Table collapses to stacked cards; no horizontal page scroll | `client/.../lab-04 tests/ActionsTaken.test.tsx` | Planned |
+| RESP-01 | Responsive | ui-spec.md §6 | Dashboard card grids at desktop/tablet/mobile widths | Cards reflow per breakpoint; no clipping or overlap | `client/tests/lab-04/StaffDashboard.test.tsx` | Planned |
+| RESP-02 | Responsive | ui-spec.md §6 | Actions Taken table at mobile width | Table collapses to stacked cards; no horizontal page scroll | `client/tests/lab-04/ActionsTaken.test.tsx` | Planned |
 
 ## 6. Authorization
 
