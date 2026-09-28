@@ -5,7 +5,11 @@ export async function get<T>(path: string): Promise<T> {
 
   if (!response.ok) {
     const payload = await response.json().catch(() => undefined);
-    throw apiError(payload, "Unable to load data. Please try again.");
+    throw apiError(
+      payload,
+      "Unable to load data. Please try again.",
+      response.status,
+    );
   }
 
   return response.json() as Promise<T>;
@@ -25,7 +29,11 @@ export async function post<T>(path: string, body: unknown): Promise<T> {
   const payload = await response.json().catch(() => undefined);
 
   if (!response.ok) {
-    throw apiError(payload, "Unable to save data. Please try again.");
+    throw apiError(
+      payload,
+      "Unable to save data. Please try again.",
+      response.status,
+    );
   }
 
   return payload as T;
@@ -45,21 +53,40 @@ export async function patch<T>(path: string, body: unknown): Promise<T> {
   const payload = await response.json().catch(() => undefined);
 
   if (!response.ok) {
-    throw apiError(payload, "Unable to update data. Please try again.");
+    throw apiError(
+      payload,
+      "Unable to update data. Please try again.",
+      response.status,
+    );
   }
 
   return payload as T;
 }
 
 export class ApiError extends Error {
-  constructor(message: string, public readonly code?: string) {
+  constructor(
+    message: string,
+    public readonly code?: string,
+    public readonly status?: number,
+    public readonly field?: string,
+    public readonly fieldErrors?: Array<{ field: string; message: string }>,
+    public readonly current?: unknown,
+  ) {
     super(message);
     this.name = "ApiError";
   }
 }
 
-function apiError(payload: any, fallback: string): ApiError {
-  return new ApiError(payload?.error?.message ?? fallback, payload?.error?.code);
+function apiError(payload: any, fallback: string, status?: number): ApiError {
+  const error = payload?.error;
+  return new ApiError(
+    error?.message ?? fallback,
+    error?.code,
+    status,
+    error?.field,
+    error?.fieldErrors,
+    error?.current,
+  );
 }
 
 export async function list<T>(path: string): Promise<{ data: T[] }> {

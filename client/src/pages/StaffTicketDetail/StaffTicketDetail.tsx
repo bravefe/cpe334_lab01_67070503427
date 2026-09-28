@@ -8,6 +8,7 @@ import {
 import { StaffTicket } from "../../lib/ticket";
 import TopBar from "../TopBar";
 import AttachmentTicketDetail from "../TicketDetail/AttachmentTicketDetail";
+import ActionsTakenPanel from "../TicketDetail/ActionsTakenPanel";
 import ConversationPanel from "../TicketDetail/ConversationPanel";
 import "../TicketDetail/ConversationPanel.css";
 import "./StaffTicketDetail.css";
@@ -42,7 +43,7 @@ export default function StaffTicketDetail({
   const [summary, setSummary] = useState("");
   const [busy, setBusy] = useState("");
   const [conversationTab, setConversationTab] = useState<
-    "comments" | "notes" | "attachments"
+    "comments" | "notes" | "attachments" | "service-actions"
   >("comments");
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const resolutionRef = useRef<HTMLTextAreaElement>(null);
@@ -341,8 +342,25 @@ export default function StaffTicketDetail({
               >
                 Attachments
               </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={conversationTab === "service-actions"}
+                className={`attachment-tab${conversationTab === "service-actions" ? " active" : ""}`}
+                onClick={() => setConversationTab("service-actions")}
+              >
+                Service Actions
+              </button>
             </div>
-            {conversationTab === "comments" || conversationTab === "notes" ? (
+            {conversationTab === "service-actions" ? (
+              <ActionsTakenPanel
+                ticketRef={ticketRef}
+                ticketCreatedAt={ticket.createdAt}
+                ticketStatus={ticket.status ?? ""}
+                role="IT_STAFF"
+              />
+            ) : conversationTab === "comments" ||
+              conversationTab === "notes" ? (
               <ConversationPanel
                 ticketRef={ticketRef}
                 staff

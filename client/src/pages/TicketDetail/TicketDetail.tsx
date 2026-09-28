@@ -10,6 +10,7 @@ import ConversationPanel from "./ConversationPanel";
 import "./ConversationPanel.css";
 
 import { formatDate } from "../../lib/formatDate";
+import ActionsTakenPanel from "./ActionsTakenPanel";
 
 interface TicketDetailProps {
   requester?: Requester;
@@ -293,7 +294,7 @@ export default function TicketDetail({
               {[
                 "Public Comments",
                 "Attachments",
-                // "Service Actions",
+                "Service Actions",
                 // "Event Log",
               ].map((tab) => {
                 const key = tab.toLowerCase().replace(" ", "-");
@@ -302,6 +303,7 @@ export default function TicketDetail({
                     key={tab}
                     type="button"
                     role="tab"
+                    aria-selected={activeTab === key}
                     className={`attachment-tab${activeTab === key ? " active" : ""}`}
                     onClick={() => setActiveTab(key)}
                   >
@@ -314,6 +316,13 @@ export default function TicketDetail({
               <AttachmentTicketDetail ticketNumber={ticketNumber} />
             ) : activeTab === "public-comments" ? (
               <ConversationPanel ticketRef={ticketNumber} />
+            ) : activeTab === "service-actions" ? (
+              <ActionsTakenPanel
+                ticketRef={ticketNumber}
+                ticketCreatedAt={ticket.createdAt}
+                ticketStatus={ticket.currentStatus?.name ?? ""}
+                role="REQUESTER"
+              />
             ) : (
               <div className="attachment-empty">
                 This section will be implemented later.
