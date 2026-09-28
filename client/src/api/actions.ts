@@ -6,15 +6,24 @@ import {
 } from "../lib/actionTaken";
 import { get, list, patch, post } from "./client";
 
+const ticketPath = (ticketRef: string | number) =>
+  `/api/tickets/${encodeURIComponent(String(ticketRef))}/actions`;
+
+const staffTicketPath = (ticketRef: string | number) =>
+  `/api/staff/tickets/${encodeURIComponent(String(ticketRef))}/actions`;
+
 function unwrapAction(
   result: ActionTaken | { data: ActionTaken },
 ): ActionTaken {
   return "data" in result ? result.data : result;
 }
 
-export async function fetchActionsTaken(ticketRef: string | number) {
+export async function fetchActionsTaken(
+  ticketRef: string | number,
+  asStaff = false,
+) {
   const result = await get<ActionTaken[] | { data: ActionTaken[] }>(
-    `/api/tickets/${encodeURIComponent(String(ticketRef))}/actions`,
+    asStaff ? staffTicketPath(ticketRef) : ticketPath(ticketRef),
   );
   return Array.isArray(result) ? result : result.data;
 }
@@ -28,7 +37,7 @@ export async function createActionTaken(
   payload: CreateActionTakenInput,
 ) {
   const result = await post<ActionTaken | { data: ActionTaken }>(
-    `/api/tickets/${encodeURIComponent(String(ticketRef))}/actions`,
+    staffTicketPath(ticketRef),
     payload,
   );
   return unwrapAction(result);
@@ -40,7 +49,7 @@ export async function updateActionTaken(
   payload: UpdateActionTakenInput,
 ) {
   const result = await patch<ActionTaken | { data: ActionTaken }>(
-    `/api/tickets/${encodeURIComponent(String(ticketRef))}/actions/${actionId}`,
+    `${staffTicketPath(ticketRef)}/${actionId}`,
     payload,
   );
   return unwrapAction(result);

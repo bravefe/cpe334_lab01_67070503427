@@ -25,15 +25,4 @@ router.post("/tickets/:ticketNumber/comments", createTicketComment);
 router.patch("/tickets/:ticketNumber/resolution", updateTicketResolution);
 
 router.get("/tickets/:ticketId/actions", getActions);
-router.post(
-  "/tickets/:ticketId/actions",
-  requireRole("IT_STAFF", "ADMINISTRATOR"),
-  createAction,
-);
-router.patch(
-  "/tickets/:ticketId/actions/:actionId",
-  requireRole("IT_STAFF", "ADMINISTRATOR"),
-  updateAction,
-);
-
 export default router;

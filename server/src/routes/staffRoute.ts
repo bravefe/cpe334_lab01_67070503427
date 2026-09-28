@@ -30,6 +30,7 @@ router.post("/staff/tickets/:id/comments", createStaffComment);
 router.get("/staff/tickets/:id/notes", listNotes);
 router.post("/staff/tickets/:id/notes", createNote);
 
+// LAB4
 router.get("/staff/tickets/:id/actions", getActions);
 router.post("/staff/tickets/:id/actions", createAction);
 router.patch("/staff/tickets/:id/actions/:actionId", updateAction);
