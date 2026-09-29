@@ -84,10 +84,9 @@
 
 .actions-row {
   display: grid;
-  grid-template-columns: minmax(140px, 1.1fr) minmax(180px, 2fr) minmax(
-      120px,
-      1fr
-    ) minmax(100px, 0.8fr) minmax(120px, 1fr) auto;
+  grid-template-columns:
+    minmax(140px, 1.1fr) minmax(180px, 2fr) minmax(120px, 1fr)
+    minmax(100px, 0.8fr) minmax(120px, 1fr) auto;
   gap: 12px;
   align-items: start;
   padding: 14px;
@@ -266,7 +265,7 @@
   padding-top: 6px;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 991px) {
   .actions-heading {
     align-items: flex-start;
   }

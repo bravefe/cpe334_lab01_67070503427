@@ -29,7 +29,7 @@ export async function fetchActionsTaken(
 }
 
 export function fetchActionResults() {
-  return list<ActionResult>("/api/reference/action-results");
+  return list<ActionResult>("/api/action-results");
 }
 
 export async function createActionTaken(
