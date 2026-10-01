@@ -5,12 +5,14 @@ on:
     branches:
       - lab4-stagging
     types:
-      - closed
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
 
 jobs:
   test:
-    name: Run Lab 4 Tests
-    if: github.event.pull_request.merged == true
+    name: Test ${{ matrix.folder }}
     runs-on: ubuntu-latest
 
     strategy:
