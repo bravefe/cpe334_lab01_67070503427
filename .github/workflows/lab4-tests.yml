@@ -37,8 +37,23 @@ jobs:
           cache: npm
           cache-dependency-path: ${{ matrix.folder }}/package-lock.json
 
+      - name: Start PostgreSQL
+        if: matrix.folder == 'server'
+        working-directory: database
+        run: docker compose up -d postgres
+
       - name: Install dependencies
         run: npm ci
 
+      - name: Setup Prisma database
+        if: matrix.folder == 'server'
+        env:
+          DATABASE_URL: postgresql://toktickit:toktickit@localhost:5432/toktickit
+        run: |
+          npx prisma migrate deploy
+          npx prisma db seed
+
       - name: Run Lab 4 tests
+        env:
+          DATABASE_URL: postgresql://toktickit:toktickit@localhost:5432/toktickit
         run: npm run test -- tests/lab-04
