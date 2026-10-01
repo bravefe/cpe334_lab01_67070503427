@@ -560,6 +560,29 @@ export async function seed() {
   await prisma.$executeRawUnsafe(
     `SELECT setval(pg_get_serial_sequence('"InternalNote"', 'id'), coalesce(max(id), 0) + 1, false) FROM "InternalNote"`
   );
+
+
+  const actionResults = [
+    "In Progress",
+    "Resolved",
+    "Escalated",
+    "No Fault Found",
+    "Awaiting Parts / Access",
+    "Duplicate / No Action Needed",
+  ];
+
+  for (const name of actionResults) {
+    await prisma.actionResult.upsert({
+      where: { name },
+      update: {
+        isActive: true,
+      },
+      create: {
+        name,
+        isActive: true,
+      },
+    });
+  }
 }
 
 async function main() {

@@ -14,13 +14,26 @@ import {
   updateStaffTicketStatus,
 } from "../services/staffService.js";
 
+export {
+  createAction,
+  getActions,
+  updateAction,
+} from "./actionTakenController.js";
+
 function sendError(
   res: Response,
   status: number,
   code: string,
   message: string,
+  extra?: Record<string, unknown>,
 ) {
-  return res.status(status).json({ error: { code, message } });
+  return res.status(status).json({
+    error: {
+      code,
+      message,
+      ...extra,
+    },
+  });
 }
 
 function parsePositiveId(value: unknown): number | null {
@@ -414,3 +427,5 @@ export const listNotes = (req: Request, res: Response) =>
 
 export const createNote = (req: Request, res: Response) =>
   handleCommentsOrNotes(req, res, true);
+
+

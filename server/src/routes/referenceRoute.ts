@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  getActionResults,
   getCategories,
   getPriorities,
   getRelatedSystems,
@@ -8,6 +9,7 @@ import {
 
 const router = Router();
 
+router.get("/action-results", getActionResults);
 router.get("/categories", getCategories);
 router.get("/related-systems", getRelatedSystems);
 router.get("/priorities", getPriorities);

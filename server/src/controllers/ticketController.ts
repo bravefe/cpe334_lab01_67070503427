@@ -9,6 +9,12 @@ import {
   TicketValidationError,
 } from "../services/ticketService.js";
 
+export {
+  createAction,
+  getActions,
+  updateAction,
+} from "./actionTakenController.js";
+
 function sendError(
   res: Response,
   status: number,
@@ -165,13 +171,13 @@ async function resolveTicketAccess(req: Request) {
   const ticket =
     Number.isInteger(numericId) && numericId > 0
       ? await getPrisma().ticket.findUnique({
-          where: { id: numericId },
-          include: { requester: true, currentStatus: true },
-        })
+        where: { id: numericId },
+        include: { requester: true, currentStatus: true },
+      })
       : await getPrisma().ticket.findUnique({
-          where: { ticketNumber: ref },
-          include: { requester: true, currentStatus: true },
-        });
+        where: { ticketNumber: ref },
+        include: { requester: true, currentStatus: true },
+      });
 
   if (!ticket) return null;
 
@@ -341,3 +347,4 @@ export async function updateTicketResolution(
     currentStatusId: undefined,
   });
 }
+

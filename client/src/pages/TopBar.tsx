@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { Requester } from "../lib/requester";
 import "./TopBar.css";
 import logo from "../icon/logo.png";
@@ -21,10 +22,32 @@ export default function TopBar({
   onQueue,
   onAdmin,
 }: TopBarProps) {
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
   const currentPage = window.location.pathname;
   const isMyTicketsPage = currentPage === "/my-tickets";
   const isCreateTicketPage = currentPage === "/create-ticket";
   const isQueuePage = currentPage === "/queue";
+
+  useEffect(() => {
+    if (!isProfileMenuOpen) return;
+
+    const closeOnOutsideClick = (event: MouseEvent) => {
+      if (!profileMenuRef.current?.contains(event.target as Node)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsProfileMenuOpen(false);
+    };
+
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("mousedown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [isProfileMenuOpen]);
 
   return (
     <nav className="topbar">
@@ -83,17 +106,37 @@ export default function TopBar({
           <span className="nav-label">Admin</span>
         </a>
       )}
-      <a className="profile" onClick={onChange}>
-        <span className="profile-name">
-          {(requester?.name ?? "Profile").split(/\s+/).map((part) => (
-            <span key={part}>{part}</span>
-          ))}
-        </span>
-        <span className="role-badge">{role.replaceAll("_", " ")}</span>
-      </a>
-      {/* <button type="button" onClick={onChange} aria-label="Log out">
-        Log out
-      </button> */}
+      <div className="profile-menu" ref={profileMenuRef}>
+        <button
+          type="button"
+          className="profile"
+          aria-haspopup="menu"
+          aria-expanded={isProfileMenuOpen}
+          aria-label={`Profile menu for ${requester?.name ?? "Profile"}`}
+          onClick={() => setIsProfileMenuOpen((open) => !open)}
+        >
+          <span className="profile-name">
+            {(requester?.name ?? "Profile").split(/\s+/).map((part) => (
+              <span key={part}>{part}</span>
+            ))}
+          </span>
+          <span className="role-badge">{role.replaceAll("_", " ")}</span>
+        </button>
+        {isProfileMenuOpen && (
+          <div className="profile-dropdown" role="menu" aria-label="Profile">
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setIsProfileMenuOpen(false);
+                onChange();
+              }}
+            >
+              Log out
+            </button>
+          </div>
+        )}
+      </div>
     </nav>
   );
 }

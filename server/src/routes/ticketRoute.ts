@@ -7,6 +7,11 @@ import {
   getTickets,
   updateTicketResolution,
 } from "../controllers/ticketController.js";
+import {
+  createAction,
+  getActions,
+  updateAction,
+} from "../controllers/actionTakenController.js";
 import { requireRole } from "../middleware/authentication.js";
 
 const router = Router();
@@ -19,4 +24,5 @@ router.get("/tickets/:ticketNumber/comments", getTicketComments);
 router.post("/tickets/:ticketNumber/comments", createTicketComment);
 router.patch("/tickets/:ticketNumber/resolution", updateTicketResolution);
 
+router.get("/tickets/:ticketId/actions", getActions);
 export default router;
