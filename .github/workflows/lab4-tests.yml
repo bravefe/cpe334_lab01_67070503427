@@ -1,0 +1,42 @@
+name: Lab 4 Tests
+
+on:
+  pull_request:
+    branches:
+      - lab4-stagging
+    types:
+      - closed
+
+jobs:
+  test:
+    name: Run Lab 4 Tests
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        folder:
+          - client
+          - server
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.folder }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ${{ matrix.folder }}/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Lab 4 tests
+        run: npm run test -- tests/lab-04
