@@ -163,5 +163,15 @@ client is never treated as authorization.
 
 ## 6. Status codes used
 
-`200` OK · `201` Created · `400` malformed request · `403` forbidden · `404` not found ·
-`409` conflict (invalid transition or stale concurrency token) · `422` validation failure.
+Lab 4 follows the Lab 3 status-code conventions unchanged. Only the rows below are extended.
+
+| Status | Lab 4 usage |
+|---|---|
+| `200` | Action Taken listed or edited; status transition succeeded; dashboard retrieved |
+| `201` | Action Taken created (added to the Lab 3 "created" list) |
+| `400` | Any validation failure, including: Description too short (BR-05), Follow-up Note missing when Follow-Up Required is `true` (BR-04), Action Date/Time out of range (BR-06, `code: INVALID_ACTION_TIME`), invalid or inactive `resultId`, invalid `actionId`. Field-level errors return `error.field` and `error.fieldErrors`. |
+| `403` | Requester calls a create/edit Action Taken endpoint; IT Staff attempts to reopen a `Cancelled`/`Closed` Ticket (BR-10); missing CSRF header |
+| `404` | Ticket or Action Taken not found, or Ticket not accessible to the caller |
+| `409` | Create on a `Closed`/`Cancelled` Ticket (BR-16, `INVALID_STATUS`); stale `updatedAt` (BR-11, `CONFLICT`, current record returned); transition not in the matrix or Resolved gate unmet (BR-07/BR-09) |
+| `422` | Not used by Lab 4. Remains reserved for the Lab 3 Attachment-limit rule. |
+| `500` | Unexpected server error; generic safe message only |

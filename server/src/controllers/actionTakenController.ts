@@ -27,6 +27,36 @@ function sendError(
   });
 }
 
+const VALIDATION_FIELD_PRIORITY = [
+  "followUpNote",
+  "description",
+  "actionAt",
+] as const;
+
+function sendValidationFailure(
+  res: Response,
+  fieldErrors: Array<{ field: string; message: string }>,
+) {
+  const first = VALIDATION_FIELD_PRIORITY.map((f) =>
+    fieldErrors.find((e) => e.field === f),
+  ).find(Boolean);
+
+  if (!first) {
+    sendError(res, 400, "VALIDATION_ERROR", "Action Taken validation failed.", {
+      fieldErrors,
+    });
+    return;
+  }
+
+  sendError(
+    res,
+    400,
+    first.field === "actionAt" ? "INVALID_ACTION_TIME" : "VALIDATION_ERROR",
+    first.message,
+    { field: first.field, fieldErrors },
+  );
+}
+
 function resolveTicketParam(req: Request): string {
   return String(
     req.params.ticketId ?? req.params.ticketNumber ?? req.params.id ?? "",
@@ -70,37 +100,7 @@ export async function createAction(req: Request, res: Response): Promise<void> {
   const parsed = parseActionTakenCreateInput(req.body);
 
   if (!parsed.ok) {
-    const followUpErr = parsed.fieldErrors.find((e) => e.field === "followUpNote");
-    const descErr = parsed.fieldErrors.find((e) => e.field === "description");
-    const actionAtErr = parsed.fieldErrors.find((e) => e.field === "actionAt");
-
-    if (followUpErr) {
-      sendError(res, 422, "VALIDATION_ERROR", followUpErr.message, {
-        field: "followUpNote",
-        fieldErrors: parsed.fieldErrors,
-      });
-      return;
-    }
-
-    if (descErr) {
-      sendError(res, 422, "VALIDATION_ERROR", descErr.message, {
-        field: "description",
-        fieldErrors: parsed.fieldErrors,
-      });
-      return;
-    }
-
-    if (actionAtErr) {
-      sendError(res, 422, "INVALID_ACTION_TIME", actionAtErr.message, {
-        field: "actionAt",
-        fieldErrors: parsed.fieldErrors,
-      });
-      return;
-    }
-
-    sendError(res, 400, "VALIDATION_ERROR", "Action Taken validation failed.", {
-      fieldErrors: parsed.fieldErrors,
-    });
+    sendValidationFailure(res, parsed.fieldErrors);
     return;
   }
 
@@ -128,7 +128,7 @@ export async function createAction(req: Request, res: Response): Promise<void> {
   if (result.kind === "invalid_action_time") {
     sendError(
       res,
-      422,
+      400,
       "INVALID_ACTION_TIME",
       "Action date/time must be on or after the Ticket creation time and not later than the current server time.",
       { field: "actionAt" },
@@ -234,7 +234,9 @@ export async function updateAction(req: Request, res: Response): Promise<void> {
   const parsed = parseActionTakenUpdateInput(req.body);
 
   if (!parsed.ok) {
-    const followUpErr = parsed.fieldErrors.find((e) => e.field === "followUpNote");
+    const followUpErr = parsed.fieldErrors.find(
+      (e) => e.field === "followUpNote",
+    );
     const descErr = parsed.fieldErrors.find((e) => e.field === "description");
 
     if (followUpErr) {
@@ -292,7 +294,7 @@ export async function updateAction(req: Request, res: Response): Promise<void> {
   if (result.kind === "missing_follow_up_note") {
     sendError(
       res,
-      422,
+      400,
       "VALIDATION_ERROR",
       "Follow-up Note is required when Follow-up Required is true.",
       {

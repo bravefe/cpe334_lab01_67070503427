@@ -218,7 +218,7 @@ describe("Lab 4 Actions Taken API", () => {
     expect(created.updatedAt).toBeDefined();
   });
 
-  it("API-04: rejects create with followUpRequired=true and empty note with 422 and field: 'followUpNote'", async () => {
+  it("API-04: rejects create with followUpRequired=true and empty note with 400 and field: 'followUpNote'", async () => {
     const actionPayload = {
       actionAt: new Date().toISOString(),
       description: "Follow-up required test description",
@@ -232,7 +232,7 @@ describe("Lab 4 Actions Taken API", () => {
       .set(csrf)
       .send(actionPayload);
 
-    expect(response.status).toBe(422);
+    expect(response.status).toBe(400);
     expect(response.body.error).toBeDefined();
     expect(response.body.error.field).toBe("followUpNote");
   });
