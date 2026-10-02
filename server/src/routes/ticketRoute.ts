@@ -26,3 +26,4 @@ router.patch("/tickets/:ticketNumber/resolution", updateTicketResolution);
 
 router.get("/tickets/:ticketId/actions", getActions);
 export default router;
+

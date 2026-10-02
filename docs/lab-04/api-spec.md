@@ -80,9 +80,7 @@ review/audit behavior is preserved.
   specific `from → to` pair regardless of what the client requested.
 - **Body:** `{ "toStatus": "In Progress", "updatedAt": "2026-09-24T10:15:00Z" }`
 - **200 Response:** updated Ticket summary (id, status, owner, timestamps).
-- **Errors:** `400` unknown status value; `403` role not permitted for this transition (e.g.
-  non-Administrator attempting to exit `Cancelled`/`Closed`); `409` transition not in the matrix,
-  or stale `updatedAt`.
+- **Errors:** `400` unknown status value; `403` role not permitted for this transition (e.g. non-Administrator attempting to exit `Cancelled`/`Closed`); `409` transition not in the matrix, or stale `updatedAt`.
 
 ### `PATCH /api/tickets/:ticketId/resolution` (existing, Lab 3 — extended)
 Unchanged request/response shape from Lab 3. Now additionally enforces BR-07: rejects with `409`
