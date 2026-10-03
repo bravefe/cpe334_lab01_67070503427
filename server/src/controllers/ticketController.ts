@@ -171,17 +171,22 @@ async function resolveTicketAccess(req: Request) {
   const ticket =
     Number.isInteger(numericId) && numericId > 0
       ? await getPrisma().ticket.findUnique({
-        where: { id: numericId },
-        include: { requester: true, currentStatus: true },
-      })
+          where: { id: numericId },
+          include: { requester: true, currentStatus: true },
+        })
       : await getPrisma().ticket.findUnique({
-        where: { ticketNumber: ref },
-        include: { requester: true, currentStatus: true },
-      });
+          where: { ticketNumber: ref },
+          include: { requester: true, currentStatus: true },
+        });
 
   if (!ticket) return null;
 
-  if (req.user!.role === "REQUESTER" && ticket.requesterId !== req.user!.id) {
+  const normalizedRole = req
+    .user!.role.trim()
+    .replace(/\s+/g, "_")
+    .toUpperCase();
+
+  if (normalizedRole === "REQUESTER" && ticket.requesterId !== req.user!.id) {
     return "forbidden" as const;
   }
 
@@ -347,4 +352,3 @@ export async function updateTicketResolution(
     currentStatusId: undefined,
   });
 }
-
