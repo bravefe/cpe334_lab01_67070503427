@@ -22,7 +22,7 @@ updated to `Pass`/`Fail` for submission (Part 3 requires the actual passing outp
 | API-01 | API | FR-05, BR-03 | `performedById` sent by client on create | Ignored; server sets it from session regardless of body content | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
 | API-02 | API | BR-16 | Create Action Taken on a `Closed` Ticket | `409 Conflict` | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
 | API-03 | API | AC-01 | Create a valid Actions Taken | Created under the correct Ticket and actor | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
-| API-04 | API | AC-03 | Create with `followUpRequired=true` and empty note | `422` with `field: "followUpNote"` | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
+| API-04 | API | AC-03 | Create with `followUpRequired=true` and empty note | `400` with `field: "followUpNote"` | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
 | API-05 | API | AC-07, BR-11 | Edit Action Taken with stale `updatedAt` | `409 Conflict`, current record returned, no data overwritten | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
 | API-06 | API | AC-05, AC-06 | Transition to `Resolved` with/without a `Resolved`-result Action Taken | Rejected without one; succeeds with one | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned |
 | API-07 | API | BR-09 | Transition not in the matrix (e.g. `New` → `Resolved`) | `409 Conflict` | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned |

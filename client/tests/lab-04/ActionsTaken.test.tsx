@@ -55,7 +55,7 @@ function setupFetchMock(actions = sampleActions, results = sampleResults) {
       const url = String(input);
       const method = (init?.method ?? "GET").toUpperCase();
 
-      if (url.includes("/api/reference/action-results")) {
+      if (url.includes("/api/action-results")) {
         return Promise.resolve(response(results));
       }
       if (url.includes("/actions") && method === "GET") {
@@ -136,7 +136,7 @@ describe("Lab 4 Actions Taken UI Component", () => {
         const url = String(input);
         const method = (init?.method ?? "GET").toUpperCase();
 
-        if (url.includes("/api/reference/action-results")) {
+        if (url.includes("/api/action-results")) {
           return Promise.resolve(response(sampleResults));
         }
         if (url.includes("/actions") && method === "GET") {
@@ -160,6 +160,8 @@ describe("Lab 4 Actions Taken UI Component", () => {
       />,
     );
 
+    console.log("sampleResults:", sampleResults);
+
     // Open Add Action modal
     const addBtn = await screen.findByRole("button", { name: /Add Action/i });
     await user.click(addBtn);
@@ -175,6 +177,7 @@ describe("Lab 4 Actions Taken UI Component", () => {
     const resultSelect = screen.getByLabelText(/Result/i);
     await user.selectOptions(resultSelect, "1");
 
+    console.log("result select:", resultSelect.innerHTML);
     const saveButton = screen.getByRole("button", { name: "Save" });
     expect(saveButton).toBeEnabled();
 

@@ -70,7 +70,8 @@ describe("Lab 4 Actions Taken API", () => {
         data: {
           ticketNumber: "TKT-TEST-000001",
           summary: "Test Ticket for Actions Taken",
-          description: "This is a detailed description for testing actions taken API.",
+          description:
+            "This is a detailed description for testing actions taken API.",
           categoryId: category!.id,
           relatedSystemId: system!.id,
           requestedPriorityId: priority!.id,
@@ -112,7 +113,8 @@ describe("Lab 4 Actions Taken API", () => {
         data: {
           ticketNumber: "TKT-TEST-CLOSED-01",
           summary: "Closed Test Ticket",
-          description: "This is a closed ticket created for testing action rejection.",
+          description:
+            "This is a closed ticket created for testing action rejection.",
           categoryId: category!.id,
           relatedSystemId: system!.id,
           requestedPriorityId: priority!.id,
@@ -137,7 +139,8 @@ describe("Lab 4 Actions Taken API", () => {
       performedById: spoofedUserId,
       performedByUserId: spoofedUserId,
       actionAt: new Date().toISOString(),
-      description: "Diagnostic check completed with spoofed performedById attempt",
+      description:
+        "Diagnostic check completed with spoofed performedById attempt",
       resultId: activeResult.id,
       followUpRequired: false,
       followUpNote: null,
@@ -145,7 +148,7 @@ describe("Lab 4 Actions Taken API", () => {
     };
 
     const response = await staff
-      .post(`/api/tickets/${testTicket.id}/actions`)
+      .post(`/api/staff/tickets/${testTicket.id}/actions`)
       .set(csrf)
       .send(actionPayload);
 
@@ -174,7 +177,7 @@ describe("Lab 4 Actions Taken API", () => {
     };
 
     const response = await staff
-      .post(`/api/tickets/${closedTicket.id}/actions`)
+      .post(`/api/staff/tickets/${closedTicket.id}/actions`)
       .set(csrf)
       .send(actionPayload);
 
@@ -195,7 +198,7 @@ describe("Lab 4 Actions Taken API", () => {
     };
 
     const response = await staff
-      .post(`/api/tickets/${testTicket.id}/actions`)
+      .post(`/api/staff/tickets/${testTicket.id}/actions`)
       .set(csrf)
       .send(actionPayload);
 
@@ -218,7 +221,7 @@ describe("Lab 4 Actions Taken API", () => {
     expect(created.updatedAt).toBeDefined();
   });
 
-  it("API-04: rejects create with followUpRequired=true and empty note with 422 and field: 'followUpNote'", async () => {
+  it("API-04: rejects create with followUpRequired=true and empty note with 400 and field: 'followUpNote'", async () => {
     const actionPayload = {
       actionAt: new Date().toISOString(),
       description: "Follow-up required test description",
@@ -228,11 +231,11 @@ describe("Lab 4 Actions Taken API", () => {
     };
 
     const response = await staff
-      .post(`/api/tickets/${testTicket.id}/actions`)
+      .post(`/api/staff/tickets/${testTicket.id}/actions`)
       .set(csrf)
       .send(actionPayload);
 
-    expect(response.status).toBe(422);
+    expect(response.status).toBe(400);
     expect(response.body.error).toBeDefined();
     expect(response.body.error.field).toBe("followUpNote");
   });
@@ -240,7 +243,7 @@ describe("Lab 4 Actions Taken API", () => {
   it("API-05: rejects edit with stale updatedAt with 409 Conflict, returning current record without overwriting data", async () => {
     // First, create an action to edit
     const createRes = await staff
-      .post(`/api/tickets/${testTicket.id}/actions`)
+      .post(`/api/staff/tickets/${testTicket.id}/actions`)
       .set(csrf)
       .send({
         actionAt: new Date().toISOString(),
@@ -257,7 +260,7 @@ describe("Lab 4 Actions Taken API", () => {
 
     // Simulate another update that advances updatedAt
     const intermediateRes = await staff
-      .patch(`/api/tickets/${testTicket.id}/actions/${actionId}`)
+      .patch(`/api/staff/tickets/${testTicket.id}/actions/${actionId}`)
       .set(csrf)
       .send({
         description: "Intermediate valid update",
@@ -270,7 +273,7 @@ describe("Lab 4 Actions Taken API", () => {
 
     // Now try to update using the stale initialUpdatedAt
     const staleUpdateRes = await staff
-      .patch(`/api/tickets/${testTicket.id}/actions/${actionId}`)
+      .patch(`/api/staff/tickets/${testTicket.id}/actions/${actionId}`)
       .set(csrf)
       .send({
         description: "Overwriting update with stale token",
