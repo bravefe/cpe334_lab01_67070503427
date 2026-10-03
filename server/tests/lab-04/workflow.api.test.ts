@@ -335,11 +335,11 @@ describe("Lab 4 Ticket Workflow API", () => {
         },
       },
       {
-        name: "POST /api/tickets/:id/actions",
+        name: "POST /api/staff/tickets/:id/actions",
         run: async (agent) => {
           const t = await makeTicket("Open");
           return (agent ?? request(app))
-            .post(`/api/tickets/${t.id}/actions`)
+            .post(`/api/staff/tickets/${t.id}/actions`)
             .set(csrf)
             .send({
               actionAt: new Date().toISOString(),
