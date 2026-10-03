@@ -89,11 +89,12 @@ export function updateStaffPriority(ticketRef: string, itPriority: string) {
 export function updateStaffStatus(
   ticketRef: string,
   status: string,
+  updatedAt: string,
   resolutionSummary?: string,
 ) {
   return patch<StaffTicket>(
     `/api/staff/tickets/${encodeURIComponent(ticketRef)}/status`,
-    { status, resolutionSummary },
+    { toStatus: status, updatedAt, resolutionSummary },
   );
 }
 

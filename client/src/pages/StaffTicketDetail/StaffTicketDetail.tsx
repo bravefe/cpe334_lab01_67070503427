@@ -141,6 +141,7 @@ export default function StaffTicketDetail({
   ].includes(ticket?.status ?? "");
 
   const saveStatus = async (value: string) => {
+    if (!ticket) return;
     if (value === "Resolved" && !summary.trim()) {
       setError("Resolution Summary is required when resolving a ticket.");
       setMessage("");
@@ -156,7 +157,9 @@ export default function StaffTicketDetail({
     setBusy("status");
     setError("");
     try {
-      setTicket(await updateStaffStatus(ticketRef, value, summary));
+      setTicket(
+        await updateStaffStatus(ticketRef, value, ticket.updatedAt, summary),
+      );
       setMessage(`Status updated to ${value}.`);
     } catch (requestError) {
       setError(
