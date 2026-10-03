@@ -17,6 +17,7 @@ import {
   updateAction,
 } from "../controllers/actionTakenController.js";
 const router = Router();
+
 router.use(requireRole("IT_STAFF", "ADMINISTRATOR"));
 router.get("/staff/tickets", listStaffTickets);
 router.get("/staff/tickets/:id", getStaffTicket);
