@@ -342,7 +342,7 @@ describe("Lab 4 Ticket Workflow API", () => {
             .post(`/api/staff/tickets/${t.id}/actions`)
             .set(csrf)
             .send({
-              actionAt: new Date().toISOString(),
+              actionAt: t.createdAt.toISOString(),
               description: "Authorization sweep action description",
               resultId: resolvedResult.id,
               followUpRequired: false,
