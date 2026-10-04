@@ -5,6 +5,7 @@ import {
   updateStaffPriority,
   updateStaffStatus,
 } from "../../api/tickets";
+import { fetchActionsTaken } from "../../api/actions";
 import { StaffTicket } from "../../lib/ticket";
 import TopBar from "../TopBar";
 import AttachmentTicketDetail from "../TicketDetail/AttachmentTicketDetail";
@@ -42,6 +43,7 @@ export default function StaffTicketDetail({
   const [message, setMessage] = useState("");
   const [summary, setSummary] = useState("");
   const [busy, setBusy] = useState("");
+  const [hasResolvedAction, setHasResolvedAction] = useState(false);
   const [conversationTab, setConversationTab] = useState<
     "comments" | "notes" | "attachments" | "service-actions"
   >("comments");
@@ -56,24 +58,63 @@ export default function StaffTicketDetail({
     }
   };
 
-  const load = () => {
+  // const load = () => {
+  //   setLoading(true);
+  //   setError("");
+  //   fetchStaffTicketDetail(ticketRef)
+  //     .then((result) => {
+  //       setTicket(result);
+  //       setSummary(result.resolutionSummary ?? "");
+  //     })
+  //     .catch((requestError) =>
+  //       setError(
+  //         requestError instanceof Error
+  //           ? requestError.message
+  //           : "Unable to load ticket.",
+  //       ),
+  //     )
+  //     .finally(() => setLoading(false));
+  // };
+  // useEffect(load, [ticketRef]);
+
+  // LAB 4: Issue 19
+  const load = async () => {
     setLoading(true);
     setError("");
-    fetchStaffTicketDetail(ticketRef)
-      .then((result) => {
-        setTicket(result);
-        setSummary(result.resolutionSummary ?? "");
-      })
-      .catch((requestError) =>
-        setError(
-          requestError instanceof Error
-            ? requestError.message
-            : "Unable to load ticket.",
-        ),
-      )
-      .finally(() => setLoading(false));
+
+    try {
+      const result = await fetchStaffTicketDetail(ticketRef);
+
+      setTicket(result);
+      setSummary(result.resolutionSummary ?? "");
+
+      try {
+        const actions = await fetchActionsTaken(ticketRef, true);
+
+        const resolvedActionExists = actions.some(
+          (action) => action.result?.name === "Resolved",
+        );
+
+        setHasResolvedAction(resolvedActionExists);
+      } catch {
+        // If Actions Taken cannot be loaded, don't prevent the ticket
+        // detail page from loading.
+        setHasResolvedAction(false);
+      }
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Unable to load ticket.",
+      );
+    } finally {
+      setLoading(false);
+    }
   };
-  useEffect(load, [ticketRef]);
+
+  useEffect(() => {
+    void load();
+  }, [ticketRef]);
 
   useLayoutEffect(() => {
     resizeTextareas();
@@ -242,7 +283,7 @@ export default function StaffTicketDetail({
                   ))}
                 </select>
               </label>
-              <label className="field">
+              {/* <label className="field">
                 <span>Current Status</span>
                 <select
                   disabled={busy === "status"}
@@ -254,6 +295,50 @@ export default function StaffTicketDetail({
                     <option key={value}>{value}</option>
                   ))}
                 </select>
+              </label> */}
+              <label className="field">
+                <span>Current Status</span>
+
+                <select
+                  disabled={busy === "status"}
+                  value={ticket.status ?? ""}
+                  onChange={(event) => void saveStatus(event.target.value)}
+                  aria-describedby={
+                    !hasResolvedAction &&
+                    ["In Progress", "Waiting for Requester"].includes(
+                      ticket.status ?? "",
+                    )
+                      ? "resolved-status-reason"
+                      : undefined
+                  }
+                >
+                  <option value={ticket.status}>{ticket.status}</option>
+
+                  {(transitions[ticket.status ?? ""] ?? []).map((value) => {
+                    const resolvedBlocked =
+                      value === "Resolved" && !hasResolvedAction;
+
+                    return (
+                      <option
+                        key={value}
+                        value={value}
+                        disabled={resolvedBlocked}
+                      >
+                        {value}
+                      </option>
+                    );
+                  })}
+                </select>
+
+                {!hasResolvedAction &&
+                  ["In Progress", "Waiting for Requester"].includes(
+                    ticket.status ?? "",
+                  ) && (
+                    <small id="resolved-status-reason" className="muted">
+                      Resolved is unavailable until a Service Action with the
+                      result "Resolved" has been recorded.
+                    </small>
+                  )}
               </label>
             </div>
             {ticket.problemAppearsResolved && (
