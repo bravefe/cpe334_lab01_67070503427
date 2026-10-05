@@ -2,18 +2,16 @@ import { getPrisma } from "../src/prisma.js";
 import { Role } from "@prisma/client";
 
 // Standard development bcrypt hash for password "Password123!"
-const DEV_PASSWORD_HASH = "$2b$12$1TtvDmSubNdB6a6rJ7A7COpXVk26a55cs6QoiQlymdg2yV.1pmnSC";
+const DEV_PASSWORD_HASH =
+  "$2b$12$1TtvDmSubNdB6a6rJ7A7COpXVk26a55cs6QoiQlymdg2yV.1pmnSC";
+// Fixed creation time so date-based validation and E2E tests are deterministic.
+const SEED_TICKET_CREATED_AT = new Date("2026-01-01T00:00:00Z");
 
 export async function seed() {
   const prisma = getPrisma();
 
   // 1. Categories
-  const categories = [
-    "Account and Access",
-    "Hardware",
-    "Software",
-    "Network",
-  ];
+  const categories = ["Account and Access", "Hardware", "Software", "Network"];
   for (const name of categories) {
     await prisma.category.upsert({
       where: { name },
@@ -73,7 +71,6 @@ export async function seed() {
       create: status,
     });
   }
-
 
   // 6. Users (meets §5.3 handout requirements: >=4 active Requesters, >=1 inactive Requester,
   //    >=3 active IT Staff, >=1 inactive IT Staff, >=1 active Administrator).
@@ -234,13 +231,24 @@ export async function seed() {
   }
 
   // Pre-fetch references
-  const [categoriesMap, systemsMap, prioritiesMap, statusesMap, usersMap] = await Promise.all([
-    prisma.category.findMany().then((rows) => new Map(rows.map((r) => [r.name, r.id]))),
-    prisma.relatedSystem.findMany().then((rows) => new Map(rows.map((r) => [r.name, r.id]))),
-    prisma.priority.findMany().then((rows) => new Map(rows.map((r) => [r.name, r.id]))),
-    prisma.status.findMany().then((rows) => new Map(rows.map((r) => [r.name, r.id]))),
-    prisma.user.findMany().then((rows) => new Map(rows.map((r) => [r.email, r.id]))),
-  ]);
+  const [categoriesMap, systemsMap, prioritiesMap, statusesMap, usersMap] =
+    await Promise.all([
+      prisma.category
+        .findMany()
+        .then((rows) => new Map(rows.map((r) => [r.name, r.id]))),
+      prisma.relatedSystem
+        .findMany()
+        .then((rows) => new Map(rows.map((r) => [r.name, r.id]))),
+      prisma.priority
+        .findMany()
+        .then((rows) => new Map(rows.map((r) => [r.name, r.id]))),
+      prisma.status
+        .findMany()
+        .then((rows) => new Map(rows.map((r) => [r.name, r.id]))),
+      prisma.user
+        .findMany()
+        .then((rows) => new Map(rows.map((r) => [r.email, r.id]))),
+    ]);
 
   // 7. Seed Tickets (fixed tickets for Lab 2 test compatibility + deterministic realistic distribution)
   const ticketsToSeed = [
@@ -280,7 +288,8 @@ export async function seed() {
       categoryName: "Software",
       systemName: "LEB2 App",
       summary: "LEB2 App crashes on assignment upload",
-      description: "App crashes when attempting to submit PDF assignments larger than 10MB.",
+      description:
+        "App crashes when attempting to submit PDF assignments larger than 10MB.",
       requestedPriorityName: "High",
       itPriorityName: "High",
       statusName: "In Progress",
@@ -294,7 +303,8 @@ export async function seed() {
       categoryName: "Network",
       systemName: "VPN",
       summary: "Cannot connect to campus VPN from off-campus",
-      description: "Receiving TLS handshake timeout when connecting to vpn.campus.example.com.",
+      description:
+        "Receiving TLS handshake timeout when connecting to vpn.campus.example.com.",
       requestedPriorityName: "Medium",
       itPriorityName: "Medium",
       statusName: "Waiting for Requester",
@@ -322,7 +332,8 @@ export async function seed() {
       categoryName: "Account and Access",
       systemName: "Grade Submission App",
       summary: "Instructor permissions missing for grading portal",
-      description: "Cannot view assigned sections for the current academic semester.",
+      description:
+        "Cannot view assigned sections for the current academic semester.",
       requestedPriorityName: "High",
       itPriorityName: "High",
       statusName: "Closed",
@@ -336,7 +347,8 @@ export async function seed() {
       categoryName: "Hardware",
       systemName: "Corporate Laptop",
       summary: "Laptop battery drains rapidly while sleeping",
-      description: "Device loses 80% battery overnight when closed and disconnected.",
+      description:
+        "Device loses 80% battery overnight when closed and disconnected.",
       requestedPriorityName: "Medium",
       itPriorityName: "Medium",
       statusName: "New",
@@ -364,7 +376,8 @@ export async function seed() {
       categoryName: "Software",
       systemName: "Email",
       summary: "Spam filter test request",
-      description: "Requester accidentally submitted duplicate ticket for spam report.",
+      description:
+        "Requester accidentally submitted duplicate ticket for spam report.",
       requestedPriorityName: "Low",
       itPriorityName: "Low",
       statusName: "Cancelled",
@@ -378,7 +391,8 @@ export async function seed() {
       categoryName: "Account and Access",
       systemName: "VPN",
       summary: "Password reset for remote VPN account",
-      description: "Locked out after 3 failed login attempts during overseas travel.",
+      description:
+        "Locked out after 3 failed login attempts during overseas travel.",
       requestedPriorityName: "High",
       itPriorityName: "High",
       statusName: "In Progress",
@@ -406,7 +420,8 @@ export async function seed() {
       categoryName: "Software",
       systemName: "LEB2 App",
       summary: "Unable to view course announcements",
-      description: "Blank white screen displayed when clicking course bulletin tab.",
+      description:
+        "Blank white screen displayed when clicking course bulletin tab.",
       requestedPriorityName: "Low",
       itPriorityName: "Low",
       statusName: "New",
@@ -421,12 +436,22 @@ export async function seed() {
     const categoryId = categoriesMap.get(t.categoryName);
     const relatedSystemId = systemsMap.get(t.systemName);
     const requestedPriorityId = prioritiesMap.get(t.requestedPriorityName);
-    const itPriorityId = t.itPriorityName ? prioritiesMap.get(t.itPriorityName) : requestedPriorityId;
+    const itPriorityId = t.itPriorityName
+      ? prioritiesMap.get(t.itPriorityName)
+      : requestedPriorityId;
     const currentStatusId = statusesMap.get(t.statusName);
     const ticketOwnerId = t.ownerEmail ? usersMap.get(t.ownerEmail) : null;
 
-    if (!requesterId || !categoryId || !relatedSystemId || !requestedPriorityId || !currentStatusId) {
-      throw new Error(`Invalid reference in ticket seed definition for ${t.ticketNumber}`);
+    if (
+      !requesterId ||
+      !categoryId ||
+      !relatedSystemId ||
+      !requestedPriorityId ||
+      !currentStatusId
+    ) {
+      throw new Error(
+        `Invalid reference in ticket seed definition for ${t.ticketNumber}`,
+      );
     }
 
     const ticketData = {
@@ -441,6 +466,7 @@ export async function seed() {
       ticketOwnerId,
       problemAppearsResolved: t.problemAppearsResolved,
       resolutionSummary: t.resolutionSummary,
+      createdAt: SEED_TICKET_CREATED_AT,
     };
 
     await prisma.ticket.upsert({
@@ -452,14 +478,14 @@ export async function seed() {
       },
     });
   }
-
   // 8. Public Comments & Internal Notes (deterministic sample data)
   const sampleComments = [
     {
       id: 1,
       ticketNumber: "TKT-2026-000001",
       authorEmail: "frodo.b@shiremail.example.com",
-      content: "I have tried resetting via self-service portal but received error 502.",
+      content:
+        "I have tried resetting via self-service portal but received error 502.",
     },
     {
       id: 2,
@@ -482,8 +508,12 @@ export async function seed() {
   ];
 
   for (const c of sampleComments) {
-    const ticket = await prisma.ticket.findUniqueOrThrow({ where: { ticketNumber: c.ticketNumber } });
-    const author = await prisma.user.findUniqueOrThrow({ where: { email: c.authorEmail } });
+    const ticket = await prisma.ticket.findUniqueOrThrow({
+      where: { ticketNumber: c.ticketNumber },
+    });
+    const author = await prisma.user.findUniqueOrThrow({
+      where: { email: c.authorEmail },
+    });
 
     await prisma.publicComment.upsert({
       where: { id: c.id },
@@ -506,25 +536,32 @@ export async function seed() {
       id: 1,
       ticketNumber: "TKT-2026-000001",
       authorEmail: "arwen@rivendell.example.com",
-      content: "Active Directory user object had flag 'lockout' set. Unlocked manually.",
+      content:
+        "Active Directory user object had flag 'lockout' set. Unlocked manually.",
     },
     {
       id: 2,
       ticketNumber: "TKT-2026-000003",
       authorEmail: "faramir@gondor.example.com",
-      content: "Issue reproduced on staging. Nginx client_max_body_size was set too low.",
+      content:
+        "Issue reproduced on staging. Nginx client_max_body_size was set too low.",
     },
     {
       id: 3,
       ticketNumber: "TKT-2026-000004",
       authorEmail: "haldir@lothlorien.example.com",
-      content: "Called user; suggested switching to alternative gateway gateway2.campus.example.com.",
+      content:
+        "Called user; suggested switching to alternative gateway gateway2.campus.example.com.",
     },
   ];
 
   for (const n of sampleNotes) {
-    const ticket = await prisma.ticket.findUniqueOrThrow({ where: { ticketNumber: n.ticketNumber } });
-    const author = await prisma.user.findUniqueOrThrow({ where: { email: n.authorEmail } });
+    const ticket = await prisma.ticket.findUniqueOrThrow({
+      where: { ticketNumber: n.ticketNumber },
+    });
+    const author = await prisma.user.findUniqueOrThrow({
+      where: { email: n.authorEmail },
+    });
 
     await prisma.internalNote.upsert({
       where: { id: n.id },
@@ -544,23 +581,22 @@ export async function seed() {
 
   // 9. Backfill any existing tickets with itPriorityId = requestedPriorityId
   await prisma.$executeRawUnsafe(
-    `UPDATE "Ticket" SET "itPriorityId" = "requestedPriorityId" WHERE "itPriorityId" IS NULL`
+    `UPDATE "Ticket" SET "itPriorityId" = "requestedPriorityId" WHERE "itPriorityId" IS NULL`,
   );
 
   // 10. Synchronize serial sequences so future inserts work without ID conflicts
   await prisma.$executeRawUnsafe(
-    `SELECT setval(pg_get_serial_sequence('"User"', 'id'), coalesce(max(id), 0) + 1, false) FROM "User"`
+    `SELECT setval(pg_get_serial_sequence('"User"', 'id'), coalesce(max(id), 0) + 1, false) FROM "User"`,
   );
   await prisma.$executeRawUnsafe(
-    `SELECT setval(pg_get_serial_sequence('"Ticket"', 'id'), coalesce(max(id), 0) + 1, false) FROM "Ticket"`
+    `SELECT setval(pg_get_serial_sequence('"Ticket"', 'id'), coalesce(max(id), 0) + 1, false) FROM "Ticket"`,
   );
   await prisma.$executeRawUnsafe(
-    `SELECT setval(pg_get_serial_sequence('"PublicComment"', 'id'), coalesce(max(id), 0) + 1, false) FROM "PublicComment"`
+    `SELECT setval(pg_get_serial_sequence('"PublicComment"', 'id'), coalesce(max(id), 0) + 1, false) FROM "PublicComment"`,
   );
   await prisma.$executeRawUnsafe(
-    `SELECT setval(pg_get_serial_sequence('"InternalNote"', 'id'), coalesce(max(id), 0) + 1, false) FROM "InternalNote"`
+    `SELECT setval(pg_get_serial_sequence('"InternalNote"', 'id'), coalesce(max(id), 0) + 1, false) FROM "InternalNote"`,
   );
-
 
   const actionResults = [
     "In Progress",
@@ -590,7 +626,10 @@ async function main() {
 }
 
 // When executed directly as a script
-if (process.argv[1]?.endsWith("seed.ts") || process.argv[1]?.endsWith("seed.js")) {
+if (
+  process.argv[1]?.endsWith("seed.ts") ||
+  process.argv[1]?.endsWith("seed.js")
+) {
   main()
     .catch((e) => {
       console.error(e);

@@ -125,14 +125,22 @@ export async function updateStaffTicketPriority(
 export async function updateStaffTicketStatus(
   ticketId: number,
   statusId: number,
-  resolutionSummary?: string,
+  expectedUpdatedAt: Date,
+  opts: { resolutionSummary?: string; resetResolvedFlag?: boolean } = {},
 ) {
-  return getPrisma().ticket.update({
-    where: { id: ticketId },
+  const result = await getPrisma().ticket.updateMany({
+    where: { id: ticketId, updatedAt: expectedUpdatedAt }, // optimistic lock
     data: {
       currentStatusId: statusId,
-      resolutionSummary,
+      ...(opts.resolutionSummary !== undefined
+        ? { resolutionSummary: opts.resolutionSummary }
+        : {}),
+      ...(opts.resetResolvedFlag ? { problemAppearsResolved: false } : {}),
     },
+  });
+  if (result.count === 0) return null;
+  return getPrisma().ticket.findUnique({
+    where: { id: ticketId },
     include: ticketDetailInclude,
   });
 }

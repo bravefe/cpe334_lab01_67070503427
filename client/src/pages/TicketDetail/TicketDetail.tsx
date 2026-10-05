@@ -16,16 +16,12 @@ interface TicketDetailProps {
   requester?: Requester;
   ticketNumber: string;
   onBack: () => void;
-  onLogout?: () => void;
-  onCreateTicket?: () => void;
 }
 
 export default function TicketDetail({
   requester,
   ticketNumber,
   onBack,
-  onLogout,
-  onCreateTicket,
 }: TicketDetailProps) {
   const [ticket, setTicket] = useState<TicketDetailType | null>(null);
   const [loading, setLoading] = useState(true);
@@ -120,12 +116,7 @@ export default function TicketDetail({
 
   return (
     <>
-      <TopBar
-        requester={requester}
-        onChange={onLogout ?? (() => undefined)}
-        onMyTickets={onBack}
-        onCreateTicket={() => window.location.assign("/create-ticket")}
-      />
+      <TopBar requester={requester} />
 
       <main className="page ticket-detail-page">
         <div className="detail-header">

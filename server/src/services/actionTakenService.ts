@@ -31,7 +31,8 @@ export async function resolveActionTicketAccess(
     return { kind: "not_found" };
   }
 
-  if (role === "REQUESTER" && ticket.requesterId !== userId) {
+  const normalizedRole = role.trim().replace(/\s+/g, "_").toUpperCase();
+  if (normalizedRole === "REQUESTER" && ticket.requesterId !== userId) {
     return { kind: "forbidden" };
   }
 

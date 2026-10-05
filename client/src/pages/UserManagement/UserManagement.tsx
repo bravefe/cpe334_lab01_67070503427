@@ -7,14 +7,13 @@ import {
   updateUser,
 } from "../../api/users";
 import { ManagedUser, UserInput, UserRole } from "../../lib/user";
+import { Requester } from "../../lib/requester";
 import TopBar from "../TopBar";
 import "./UserManagement.css";
 
 interface Props {
   currentUserId: number;
-  user: { id: number; name: string; email: string; isActive: boolean };
-  onLogout: () => void;
-  onAdmin: () => void;
+  user: Requester;
 }
 
 const emptyForm = (): UserInput & { initialPassword: string } => ({
@@ -33,8 +32,6 @@ const roleName = (role: string) =>
 export default function UserManagement({
   currentUserId,
   user,
-  onLogout,
-  onAdmin,
 }: Props) {
   const [users, setUsers] = useState<ManagedUser[]>([]);
   const [search, setSearch] = useState("");
@@ -72,12 +69,7 @@ export default function UserManagement({
 
   return (
     <>
-      <TopBar
-        requester={user}
-        role="ADMINISTRATOR"
-        onChange={onLogout}
-        onAdmin={onAdmin}
-      />
+      <TopBar requester={user} />
       <main className="page users-page">
         <header className="page-header">
           <div>

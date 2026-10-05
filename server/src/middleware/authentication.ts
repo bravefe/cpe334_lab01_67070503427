@@ -67,6 +67,10 @@ export function requireCsrf(
   next();
 }
 
+function normalizeRoleName(value: string): string {
+  return value.trim().replace(/\s+/g, "_").toUpperCase();
+}
+
 export function requireRole(...roles: string[]) {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
@@ -79,7 +83,12 @@ export function requireRole(...roles: string[]) {
       return;
     }
 
-    if (!roles.includes(req.user.role)) {
+    const normalizedRole = normalizeRoleName(req.user.role);
+    const allowed = roles.some(
+      (role) => normalizeRoleName(role) === normalizedRole,
+    );
+
+    if (!allowed) {
       res.status(403).json({
         error: {
           code: "FORBIDDEN",

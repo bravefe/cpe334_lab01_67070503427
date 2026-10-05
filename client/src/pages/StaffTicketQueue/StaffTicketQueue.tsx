@@ -6,15 +6,14 @@ import {
 } from "../../api/referenceData";
 import { fetchStaffTickets } from "../../api/tickets";
 import { Category, Priority, Status } from "../../lib/reference";
+import { Requester } from "../../lib/requester";
 import { StaffTicket, StaffTicketQuery } from "../../lib/ticket";
 import { formatDate } from "../../lib/formatDate";
 import TopBar from "../TopBar";
 import "./StaffTicketQueue.css";
 
 interface StaffTicketQueueProps {
-  requester?: { id: number; name: string; email: string; isActive: boolean };
-  onLogout: () => void;
-  onQueue: () => void;
+  requester?: Requester;
   onOpenTicket: (ticketRef: string) => void;
 }
 
@@ -28,8 +27,6 @@ const initialQuery: StaffTicketQuery = {
 
 export default function StaffTicketQueue({
   requester,
-  onLogout,
-  onQueue,
   onOpenTicket,
 }: StaffTicketQueueProps) {
   const [query, setQuery] = useState(initialQuery);
@@ -107,12 +104,7 @@ export default function StaffTicketQueue({
 
   return (
     <>
-      <TopBar
-        requester={requester}
-        role="IT_STAFF"
-        onChange={onLogout}
-        onQueue={onQueue}
-      />
+      <TopBar requester={requester} />
       <main className="page staff-queue-page">
         <header className="page-header">
           <div>

@@ -22,7 +22,26 @@ router.post("/tickets", requireRole("REQUESTER"), createTicket);
 router.get("/tickets/:ticketNumber", getTicketDetail);
 router.get("/tickets/:ticketNumber/comments", getTicketComments);
 router.post("/tickets/:ticketNumber/comments", createTicketComment);
-router.patch("/tickets/:ticketNumber/resolution", updateTicketResolution);
+router.patch(
+  "/tickets/:ticketNumber/resolution",
+  requireRole("REQUESTER"),
+  updateTicketResolution,
+);
 
-router.get("/tickets/:ticketId/actions", getActions);
+router.get(
+  "/tickets/:ticketId/actions",
+  requireRole("IT_STAFF", "ADMINISTRATOR"),
+  getActions,
+);
+router.post(
+  "/tickets/:ticketId/actions",
+  requireRole("IT_STAFF", "ADMINISTRATOR"),
+  createAction,
+);
+router.patch(
+  "/tickets/:ticketId/actions/:actionId",
+  requireRole("IT_STAFF", "ADMINISTRATOR"),
+  updateAction,
+);
 export default router;
+
