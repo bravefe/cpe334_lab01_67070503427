@@ -7,7 +7,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "test:e2e": "playwright test e2e/lab-03"
+    "test": "playwright test e2e/lab-04"
   },
   "repository": {
     "type": "git",
