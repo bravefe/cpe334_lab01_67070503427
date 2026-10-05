@@ -112,6 +112,14 @@ test.describe("Lab 4 Ticket Resolution Workflow", () => {
     // different page. openTicketFromQueue waits for the ticket itself.
     await signIn(page, "elrond@rivendell.example.com");
 
+    // await expect(page).toHaveURL(/\/my-tickets/);
+
+    await page.getByLabel("My Queue").click();
+    await expect(page).toHaveURL(/\/queue/);
+
+    // await page.goto("/queue");
+    // await page.goto("http://localhost:5173/queue");
+
     await openTicketFromQueue(page, TICKET_NO);
 
     await expect(

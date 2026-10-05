@@ -161,6 +161,17 @@ export default function App() {
         </main>
       );
     }
+    const staffTicketMatch = path.match(/^\/queue\/(.+)$/);
+
+    if (staffTicketMatch) {
+      return (
+        <StaffTicketDetail
+          requester={requester}
+          ticketRef={staffTicketMatch[1]}
+          onQueue={onQueue}
+        />
+      );
+    }
   }
 
   if (user.role === "IT_STAFF") {
