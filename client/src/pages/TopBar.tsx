@@ -95,29 +95,45 @@ export default function TopBar({ requester }: TopBarProps) {
           </a>
         </>
       ) : role === "IT_STAFF" ? (
-        <a
-          className={isQueuePage ? "active" : undefined}
-          onClick={() => navigate("/queue")}
-          aria-label="My Queue"
-          title="My Queue"
-        >
-          <span className="nav-icon" aria-hidden="true">
-            ▣
-          </span>
-          <span className="nav-label">My Queue</span>
-        </a>
+        <>
+          <a
+            className={isQueuePage ? "active" : undefined}
+            onClick={() => navigate("/queue")}
+            aria-label="My Queue"
+            title="My Queue"
+          >
+            <span className="nav-icon" aria-hidden="true">
+              ▣
+            </span>
+            <span className="nav-label">My Queue</span>
+          </a>
+        </>
       ) : (
-        <a
-          className={isAdminPage ? "active" : undefined}
-          onClick={() => navigate("/admin/users")}
-          aria-label="Admin"
-          title="User Management"
-        >
-          <span className="nav-icon" aria-hidden="true">
-            ▣
-          </span>
-          <span className="nav-label">Admin</span>
-        </a>
+        <>
+          <a
+            className={isAdminPage ? "active" : undefined}
+            onClick={() => navigate("/admin/users")}
+            aria-label="Admin"
+            title="User Management"
+          >
+            <span className="nav-icon" aria-hidden="true">
+              ▣
+            </span>
+            <span className="nav-label">Admin</span>
+          </a>
+
+          <a
+            className={isQueuePage ? "active" : undefined}
+            onClick={() => navigate("/queue")}
+            aria-label="My Queue"
+            title="My Queue"
+          >
+            <span className="nav-icon" aria-hidden="true">
+              ▣
+            </span>
+            <span className="nav-label">My Queue</span>
+          </a>
+        </>
       )}
       <div className="profile-menu" ref={profileMenuRef}>
         <button

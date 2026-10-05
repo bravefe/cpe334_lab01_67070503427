@@ -113,8 +113,9 @@ export default function App() {
   const onMyTickets = () => goTo("/my-tickets");
   const onCreateTicket = () => goTo("/create-ticket");
   const onQueue = () => goTo("/queue");
+  const onDefault = () => goTo(getDefaultPath(user.role));
 
-  if (path.startsWith("/queue") && user.role !== "IT_STAFF") {
+  if (path.startsWith("/queue") && user.role == "REQUESTER") {
     return (
       <main className="selection">
         <div className="selection-card">
@@ -122,7 +123,7 @@ export default function App() {
           <p className="muted">
             You are not permitted to view the IT Staff queue.
           </p>
-          <button type="button" className="primary" onClick={onMyTickets}>
+          <button type="button" className="primary" onClick={onDefault}>
             ← Back to My Tickets
           </button>
         </div>
@@ -138,7 +139,7 @@ export default function App() {
           <p className="muted">
             You are not permitted to view User Management.
           </p>
-          <button type="button" className="primary" onClick={onMyTickets}>
+          <button type="button" className="primary" onClick={onDefault}>
             ← Back
           </button>
         </div>
@@ -148,12 +149,7 @@ export default function App() {
 
   if (user.role === "ADMINISTRATOR") {
     if (path.startsWith("/admin/users")) {
-      return (
-        <UserManagement
-          currentUserId={user.id}
-          user={requester}
-        />
-      );
+      return <UserManagement currentUserId={user.id} user={requester} />;
     }
     if (path === "/queue") {
       return (
