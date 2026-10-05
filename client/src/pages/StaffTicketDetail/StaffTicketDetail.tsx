@@ -6,6 +6,7 @@ import {
   updateStaffStatus,
 } from "../../api/tickets";
 import { fetchActionsTaken } from "../../api/actions";
+import { Requester } from "../../lib/requester";
 import { StaffTicket } from "../../lib/ticket";
 import TopBar from "../TopBar";
 import AttachmentTicketDetail from "../TicketDetail/AttachmentTicketDetail";
@@ -26,15 +27,13 @@ const transitions: Record<string, string[]> = {
 };
 
 interface Props {
-  requester?: { id: number; name: string; email: string; isActive: boolean };
+  requester?: Requester;
   ticketRef: string;
-  onLogout: () => void;
   onQueue: () => void;
 }
 export default function StaffTicketDetail({
   requester,
   ticketRef,
-  onLogout,
   onQueue,
 }: Props) {
   const [ticket, setTicket] = useState<StaffTicket | null>(null);
@@ -215,12 +214,7 @@ export default function StaffTicketDetail({
 
   return (
     <>
-      <TopBar
-        requester={requester}
-        role="IT_STAFF"
-        onChange={onLogout}
-        onQueue={onQueue}
-      />
+      <TopBar requester={requester} />
       <main className="page staff-detail-page">
         <header className="detail-header">
           <div>

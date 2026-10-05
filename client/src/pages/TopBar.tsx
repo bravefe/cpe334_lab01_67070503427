@@ -1,33 +1,45 @@
 import { useEffect, useRef, useState } from "react";
+import { logout as logoutUser } from "../api/auth";
 import { Requester } from "../lib/requester";
 import "./TopBar.css";
 import logo from "../icon/logo.png";
 
 interface TopBarProps {
   requester?: Requester;
-  role?: string;
-  onChange: () => void;
-  onMyTickets?: () => void;
-  onCreateTicket?: () => void;
-  onQueue?: () => void;
-  onAdmin?: () => void;
 }
 
-export default function TopBar({
-  requester,
-  role = "REQUESTER",
-  onChange,
-  onMyTickets,
-  onCreateTicket,
-  onQueue,
-  onAdmin,
-}: TopBarProps) {
+export default function TopBar({ requester }: TopBarProps) {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [logoutError, setLogoutError] = useState("");
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const currentPage = window.location.pathname;
+  const role = requester?.role ?? "REQUESTER";
+
   const isMyTicketsPage = currentPage === "/my-tickets";
   const isCreateTicketPage = currentPage === "/create-ticket";
-  const isQueuePage = currentPage === "/queue";
+  const isQueuePage =
+    currentPage === "/queue" || currentPage.startsWith("/queue/");
+  const isAdminPage =
+    currentPage === "/admin/users" || currentPage.startsWith("/admin/users/");
+
+  const navigate = (path: string) => {
+    if (window.location.pathname === path) return;
+    window.history.pushState({}, "", path);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  };
+
+  const handleLogout = async () => {
+    setLogoutError("");
+    try {
+      await logoutUser();
+      setIsProfileMenuOpen(false);
+      window.dispatchEvent(new Event("app:logout"));
+    } catch (error) {
+      setLogoutError(
+        error instanceof Error ? error.message : "Unable to log out.",
+      );
+    }
+  };
 
   useEffect(() => {
     if (!isProfileMenuOpen) return;
@@ -60,7 +72,7 @@ export default function TopBar({
         <>
           <a
             className={isMyTicketsPage ? "active" : undefined}
-            onClick={onMyTickets}
+            onClick={() => navigate("/my-tickets")}
             aria-label="My Tickets"
             title="My Tickets"
           >
@@ -69,9 +81,10 @@ export default function TopBar({
             </span>
             <span className="nav-label">My Tickets</span>
           </a>
+
           <a
             className={isCreateTicketPage ? "active" : undefined}
-            onClick={onCreateTicket ?? onMyTickets}
+            onClick={() => navigate("/create-ticket")}
             aria-label="Create Ticket"
             title="Create Ticket"
           >
@@ -84,7 +97,7 @@ export default function TopBar({
       ) : role === "IT_STAFF" ? (
         <a
           className={isQueuePage ? "active" : undefined}
-          onClick={onQueue ?? onMyTickets}
+          onClick={() => navigate("/queue")}
           aria-label="My Queue"
           title="My Queue"
         >
@@ -95,8 +108,8 @@ export default function TopBar({
         </a>
       ) : (
         <a
-          className={currentPage === "/admin/users" ? "active" : undefined}
-          onClick={onAdmin}
+          className={isAdminPage ? "active" : undefined}
+          onClick={() => navigate("/admin/users")}
           aria-label="Admin"
           title="User Management"
         >
@@ -127,13 +140,11 @@ export default function TopBar({
             <button
               type="button"
               role="menuitem"
-              onClick={() => {
-                setIsProfileMenuOpen(false);
-                onChange();
-              }}
+              onClick={() => void handleLogout()}
             >
               Log out
             </button>
+            {logoutError && <p className="error-message">{logoutError}</p>}
           </div>
         )}
       </div>

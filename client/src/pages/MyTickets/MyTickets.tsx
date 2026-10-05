@@ -23,16 +23,12 @@ const initialQuery: TicketQuery = {
 
 interface MyTicketsProps {
   requester?: Requester;
-  onChange: () => void;
-  onMyTickets: () => void;
   onCreateTicket: () => void;
   onOpenTicket: (ticketNumber: string) => void;
 }
 
 export default function MyTickets({
   requester,
-  onChange,
-  onMyTickets,
   onCreateTicket,
   onOpenTicket,
 }: MyTicketsProps) {
@@ -125,9 +121,6 @@ export default function MyTickets({
     <>
       <TopBar
         requester={requester}
-        onChange={onChange}
-        onMyTickets={onMyTickets}
-        onCreateTicket={onCreateTicket}
       />
       <main className="page">
         <header className="page-header">
