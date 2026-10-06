@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { requireRole } from "../middleware/authentication.js";
 import {
+  getStaffDashboard,
   createNote,
   createStaffComment,
   getStaffTicket,
@@ -19,6 +20,7 @@ import {
 const router = Router();
 
 router.use(requireRole("IT_STAFF", "ADMINISTRATOR"));
+router.get("/staff/dashboard", getStaffDashboard);
 router.get("/staff/tickets", listStaffTickets);
 router.get("/staff/tickets/:id", getStaffTicket);
 

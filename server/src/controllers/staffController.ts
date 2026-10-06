@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { validateContent } from "../lib/content.js";
 import {
+  getStaffDashboardService,
   createStaffCommentOrNote,
   findPriorityByName,
   findStatusByName,
@@ -78,6 +79,18 @@ function formatTicket(ticket: any) {
 
 async function resolveTicketRef(value: string | undefined) {
   return resolveStaffTicket(value);
+}
+
+export async function getStaffDashboard(req: Request, res: Response) {
+  try {
+    const userId = Number((req as any).user.id); // reuse this file's existing session-user access
+    res.status(200).json(await getStaffDashboardService(userId));
+  } catch (err) {
+    console.error("staff dashboard error:", err);
+    res.status(500).json({
+      error: { code: "INTERNAL_ERROR", message: "Something went wrong." },
+    });
+  }
 }
 
 export async function listStaffTickets(
