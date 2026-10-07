@@ -5,12 +5,14 @@ import {
   getRequesterDashboard,
   getStaffDashboard,
 } from "../../api/dashboard";
+import { fetchPriorities } from "../../api/referenceData";
 import {
   AdminDashboard,
   RecentTicket,
   RequesterDashboard,
   StaffDashboard,
 } from "../../lib/dashboard";
+import { Priority } from "../../lib/reference";
 import { Requester } from "../../lib/requester";
 import "./Dashboard.css";
 
@@ -23,8 +25,6 @@ interface MetricCardDef {
   value: number;
   href: string;
 }
-
-const PRIORITY_ORDER = ["Low", "Medium", "High", "Urgent"];
 
 const navigate = (path: string) => {
   window.history.pushState({}, "", path);
@@ -179,6 +179,7 @@ export default function Dashboard({ requester }: DashboardProps) {
   const [staffData, setStaffData] = useState<
     StaffDashboard | AdminDashboard | null
   >(null);
+  const [priorities, setPriorities] = useState<Priority[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -189,10 +190,18 @@ export default function Dashboard({ requester }: DashboardProps) {
       try {
         if (isRequester) {
           setRequesterData(await getRequesterDashboard(signal));
-        } else if (isAdmin) {
-          setStaffData(await getAdminDashboard(signal));
         } else {
-          setStaffData(await getStaffDashboard(signal));
+          const [dashboard, priorityResult] = await Promise.all([
+            isAdmin
+              ? getAdminDashboard(signal)
+              : getStaffDashboard(signal),
+            fetchPriorities(),
+          ]);
+          if (signal?.aborted) return;
+          setStaffData(dashboard);
+          setPriorities(
+            priorityResult.data.sort((a, b) => a.sortOrder - b.sortOrder),
+          );
         }
       } catch (err) {
         if (signal?.aborted) return;
@@ -291,11 +300,12 @@ export default function Dashboard({ requester }: DashboardProps) {
       },
     ];
 
-    const priorityRows = PRIORITY_ORDER.map((name) => ({
-      name,
+    const priorityRows = priorities.map((priority) => ({
+      name: priority.name,
       count:
         d?.byPriority.find(
-          (p) => p.priorityName.toLowerCase() === name.toLowerCase(),
+          (p) =>
+            p.priorityName.toLowerCase() === priority.name.toLowerCase(),
         )?.count ?? 0,
     }));
 
