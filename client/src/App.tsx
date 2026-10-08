@@ -5,6 +5,7 @@ import { getCurrentUser } from "./api/auth";
 import ChangePassword from "./pages/ChangePassword/ChangePassword";
 import CreateTicket from "./pages/CreateTicket/CreateTicket";
 import Login from "./pages/Login/Login";
+import Dashboard from "./pages/Dashboard/Dashboard";
 import MyTickets from "./pages/MyTickets/MyTickets";
 import TicketDetail from "./pages/TicketDetail/TicketDetail";
 import StaffTicketQueue from "./pages/StaffTicketQueue/StaffTicketQueue";
@@ -47,16 +48,24 @@ export default function App() {
     setPath(new URL(nextPath, window.location.origin).pathname);
   };
 
+  // Old version
+
+  // const getDefaultPath = (role: string) => {
+  //   if (role === "IT_STAFF") {
+  //     return "/queue";
+  //   }
+
+  //   if (role === "ADMINISTRATOR") {
+  //     return "/admin/users";
+  //   }
+
+  //   return "/my-tickets";
+  // };
+
   const getDefaultPath = (role: string) => {
-    if (role === "IT_STAFF") {
-      return "/queue";
-    }
-
-    if (role === "ADMINISTRATOR") {
-      return "/admin/users";
-    }
-
-    return "/my-tickets";
+    if (role === "IT_STAFF") return "/staff/dashboard";
+    if (role === "ADMINISTRATOR") return "/admin/dashboard";
+    return "/requester/dashboard";
   };
 
   if (loading) {
@@ -114,6 +123,29 @@ export default function App() {
   const onCreateTicket = () => goTo("/create-ticket");
   const onQueue = () => goTo("/queue");
   const onDefault = () => goTo(getDefaultPath(user.role));
+
+  const dashboardPaths: Record<string, string> = {
+    REQUESTER: "/requester/dashboard",
+    IT_STAFF: "/staff/dashboard",
+    ADMINISTRATOR: "/admin/dashboard",
+  };
+
+  if (path.endsWith("/dashboard") && path.split("/").length === 3) {
+    if (path === dashboardPaths[user.role]) {
+      return <Dashboard requester={requester} />;
+    }
+    return (
+      <main className="selection">
+        <div className="selection-card">
+          <h1>Access forbidden</h1>
+          <p className="muted">You are not permitted to view this dashboard.</p>
+          <button type="button" className="primary" onClick={onDefault}>
+            ← Back
+          </button>
+        </div>
+      </main>
+    );
+  }
 
   if (path.startsWith("/queue") && user.role == "REQUESTER") {
     return (

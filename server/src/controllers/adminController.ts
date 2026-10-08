@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { getPrisma } from "../prisma.js";
 import { hashPassword, validatePassword } from "../lib/password.js";
 import { isValidEmail, normalizeEmail } from "../lib/email.js";
+import { getAdminDashboardService } from "../services/adminService.js";
 
 const VALID_ROLES = ["REQUESTER", "IT_STAFF", "ADMINISTRATOR"] as const;
 type RoleType = (typeof VALID_ROLES)[number];
@@ -39,9 +40,23 @@ function sendError(
   return res.status(status).json({ error: { code, message } });
 }
 
+// controllers/adminController.ts  (add function)
+export async function getAdminDashboard(req: Request, res: Response) {
+  try {
+    const userId = Number((req as any).user.id); // reuse this file's existing session-user access
+    res.status(200).json(await getAdminDashboardService(userId));
+  } catch (err) {
+    console.error("admin dashboard error:", err);
+    res.status(500).json({
+      error: { code: "INTERNAL_ERROR", message: "Something went wrong." },
+    });
+  }
+}
+
 export async function listUsers(req: Request, res: Response): Promise<void> {
   const q = typeof req.query.q === "string" ? req.query.q.trim() : undefined;
-  const roleQuery = typeof req.query.role === "string" ? req.query.role : undefined;
+  const roleQuery =
+    typeof req.query.role === "string" ? req.query.role : undefined;
   const role = roleQuery && isValidRole(roleQuery) ? roleQuery : undefined;
 
   const users = await getPrisma().user.findMany({
@@ -235,7 +250,10 @@ export async function updateUser(req: Request, res: Response): Promise<void> {
   res.status(200).json(formatSafeUser(updated));
 }
 
-export async function resetPassword(req: Request, res: Response): Promise<void> {
+export async function resetPassword(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const userId = Number(req.params.id);
   if (!Number.isInteger(userId) || userId <= 0) {
     sendError(res, 404, "NOT_FOUND", "User not found.");

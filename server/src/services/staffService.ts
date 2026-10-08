@@ -1,4 +1,16 @@
 import { getPrisma } from "../prisma.js";
+// services/staffService.ts  (add imports + function)
+import {
+  RECENT_TICKETS_LIMIT,
+  STATUS,
+  isActiveTicket,
+  recentTicketSelect,
+  staffFilters,
+  toRecentTicket,
+  withStatus,
+  type PriorityCount,
+  type StaffDashboard,
+} from "../lib/dashboard.js";
 
 export const ticketDetailInclude = {
   requester: true,
@@ -32,6 +44,65 @@ export type StaffSortField =
   | "status"
   | "owner";
 export type StaffSortDirection = "asc" | "desc";
+
+export async function getStaffDashboardService(
+  staffUserId: number,
+): Promise<StaffDashboard> {
+  const prisma = getPrisma();
+
+  const [
+    unassigned,
+    myAssigned,
+    newCount,
+    open,
+    inProgress,
+    waitingForRequester,
+    priorityGroups,
+    priorities,
+    recent,
+  ] = await Promise.all([
+    prisma.ticket.count({ where: { ticketOwnerId: null, ...isActiveTicket } }),
+    prisma.ticket.count({
+      where: { ticketOwnerId: staffUserId, ...isActiveTicket },
+    }),
+    prisma.ticket.count({ where: withStatus(STATUS.NEW) }),
+    prisma.ticket.count({ where: withStatus(STATUS.OPEN) }),
+    prisma.ticket.count({ where: withStatus(STATUS.IN_PROGRESS) }),
+    prisma.ticket.count({ where: withStatus(STATUS.WAITING_FOR_REQUESTER) }),
+    prisma.ticket.groupBy({
+      by: ["itPriorityId"],
+      where: isActiveTicket,
+      _count: { _all: true },
+    }),
+    prisma.priority.findMany({ orderBy: { sortOrder: "desc" } }), // High → Low
+    prisma.ticket.findMany({
+      orderBy: { updatedAt: "desc" },
+      take: RECENT_TICKETS_LIMIT,
+      select: recentTicketSelect,
+    }),
+  ]);
+
+  const counts = new Map(
+    priorityGroups.map((g) => [g.itPriorityId, g._count._all]),
+  );
+  const byPriority: PriorityCount[] = priorities.map((p) => ({
+    priorityId: p.id,
+    priorityName: p.name,
+    count: counts.get(p.id) ?? 0,
+  }));
+
+  return {
+    unassigned,
+    myAssigned,
+    new: newCount,
+    open,
+    inProgress,
+    waitingForRequester,
+    byPriority,
+    recentTickets: recent.map(toRecentTicket),
+    filters: staffFilters(),
+  };
+}
 
 export async function resolveStaffTicket(value: string | undefined) {
   if (!value) return null;
