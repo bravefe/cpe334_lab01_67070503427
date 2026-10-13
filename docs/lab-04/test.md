@@ -26,8 +26,8 @@ updated to `Pass`/`Fail` for submission (Part 3 requires the actual passing outp
 | API-05 | API | AC-07, BR-11 | Edit Action Taken with stale `updatedAt` | `409 Conflict`, current record returned, no data overwritten | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
 | API-06 | API | AC-05, AC-06 | Transition to `Resolved` with/without a `Resolved`-result Action Taken | Rejected without one; succeeds with one | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned |
 | API-07 | API | BR-09 | Transition not in the matrix (e.g. `New` → `Resolved`) | `409 Conflict` | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned |
-| API-08 | API | AC-02, BR-14 | `GET /api/dashboard/requester` with a spoofed/foreign requester id in the query | Own session's data only; foreign id ignored | `server/tests/lab-04/requester-dashboard.api.test.ts` | Planned |
-| API-09 | API | AC-08, BR-13 | `GET /api/dashboard/staff` counts against a known seeded dataset | Unassigned/My Assigned/status counts match a hand-computed expectation | `server/tests/lab-04/staff-dashboard.api.test.ts` | Planned |
+| API-08 | API | AC-02, BR-14 | `GET /api/requester/dashboard` with a spoofed/foreign requester id in the query | Own session's data only; foreign id ignored | `server/tests/lab-04/requester-dashboard.api.test.ts` | Planned |
+| API-09 | API | AC-08, BR-13 | `GET /api/staff/dashboard` counts against a known seeded dataset | Unassigned/My Assigned/status counts match a hand-computed expectation | `server/tests/lab-04/staff-dashboard.api.test.ts` | Planned |
 
 ## 3. UI Component
 
@@ -83,8 +83,8 @@ updated to `Pass`/`Fail` for submission (Part 3 requires the actual passing outp
 
 | Test ID | Type | Req/AC | What It Tests | Expected Result | Automated Test File | Final |
 |---|---|---|---|---|---|---|
-| PERF-01 | Perf smoke | BR-12 | `GET /api/dashboard/staff` against ~500 seeded Tickets | Responds within an agreed threshold (e.g. < 500 ms locally) with correct counts | `server/tests/lab-04/staff-dashboard.api.test.ts` | Planned |
-| PERF-02 | Perf smoke | BR-12 | `GET /api/dashboard/requester` against a Requester with ~50 Tickets | Responds within threshold; `recentTickets` still capped at 5 | `server/tests/lab-04/requester-dashboard.api.test.ts` | Planned |
+| PERF-01 | Perf smoke | BR-12 | `GET /api/staff/dashboard` against ~500 seeded Tickets | Responds within an agreed threshold (e.g. < 500 ms locally) with correct counts | `server/tests/lab-04/staff-dashboard.api.test.ts` | Planned |
+| PERF-02 | Perf smoke | BR-12 | `GET /api/requester/dashboard` against a Requester with ~50 Tickets | Responds within threshold; `recentTickets` still capped at 5 | `server/tests/lab-04/requester-dashboard.api.test.ts` | Planned |
 
 ## 10. End-to-End
 

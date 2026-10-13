@@ -93,7 +93,7 @@ Dashboard endpoints return concise, pre-aggregated data — never raw Ticket col
 handout's dashboard contract requirement. Each metric includes a `filters` object the client uses
 to build the corresponding Ticket Queue/My Tickets drill-down link.
 
-### `GET /api/dashboard/requester`
+### `GET /api/requester/dashboard`
 - **Auth:** Requester. Server derives the Requester from the session; any client-supplied
   requester/user id is ignored (BR-14).
 - **200 Response:**
@@ -108,7 +108,7 @@ to build the corresponding Ticket Queue/My Tickets drill-down link.
   ```
   `recentTickets` capped at 5.
 
-### `GET /api/dashboard/staff`
+### `GET /api/staff/dashboard`
 - **Auth:** IT Staff, Administrator.
 - **200 Response:**
   ```json
@@ -124,7 +124,7 @@ to build the corresponding Ticket Queue/My Tickets drill-down link.
   }
   ```
 
-### `GET /api/dashboard/admin`
+### `GET /api/admin/dashboard`
 - **Auth:** Administrator only.
 - **200 Response:** the staff dashboard payload above, plus:
   ```json

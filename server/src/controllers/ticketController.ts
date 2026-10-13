@@ -3,6 +3,7 @@ import { getPrisma } from "../prisma.js";
 import { validateContent } from "../lib/content.js";
 import { parseTicketQuery, type TicketQuery } from "../lib/tickets.js";
 import {
+  getRequesterDashboardService,
   createTicketService,
   getTicketDetailService,
   getTicketsService,
@@ -29,6 +30,19 @@ function sendError(
       ...extra,
     },
   });
+}
+
+export async function getRequesterDashboard(req: Request, res: Response) {
+  try {
+    // Requester always comes from the session, never from the client (BR-14).
+    const requesterId = Number((req as any).user.id); // reuse however this file already reads the session user
+    res.status(200).json(await getRequesterDashboardService(requesterId));
+  } catch (err) {
+    console.error("requester dashboard error:", err);
+    res.status(500).json({
+      error: { code: "INTERNAL_ERROR", message: "Something went wrong." },
+    });
+  }
 }
 
 export async function getTickets(req: Request, res: Response): Promise<void> {

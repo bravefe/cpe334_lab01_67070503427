@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { requireRole } from "../middleware/authentication.js";
 import {
+  getAdminDashboard,
   createUser,
   getUser,
   listUsers,
@@ -9,6 +10,7 @@ import {
 } from "../controllers/adminController.js";
 const router = Router();
 router.use(requireRole("ADMINISTRATOR"));
+router.get("/admin/dashboard", getAdminDashboard);
 router.get("/admin/users", listUsers);
 router.post("/admin/users", createUser);
 router.get("/admin/users/:id", getUser);

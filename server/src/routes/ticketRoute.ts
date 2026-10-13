@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  getRequesterDashboard,
   createTicket,
   createTicketComment,
   getTicketComments,
@@ -7,15 +8,15 @@ import {
   getTickets,
   updateTicketResolution,
 } from "../controllers/ticketController.js";
-import {
-  createAction,
-  getActions,
-  updateAction,
-} from "../controllers/actionTakenController.js";
 import { requireRole } from "../middleware/authentication.js";
 
 const router = Router();
 
+router.get(
+  "/requester/dashboard",
+  requireRole("REQUESTER"),
+  getRequesterDashboard,
+);
 router.get("/tickets", getTickets);
 router.post("/create-ticket", requireRole("REQUESTER"), createTicket);
 router.post("/tickets", requireRole("REQUESTER"), createTicket);
@@ -28,20 +29,4 @@ router.patch(
   updateTicketResolution,
 );
 
-router.get(
-  "/tickets/:ticketId/actions",
-  requireRole("IT_STAFF", "ADMINISTRATOR"),
-  getActions,
-);
-router.post(
-  "/tickets/:ticketId/actions",
-  requireRole("IT_STAFF", "ADMINISTRATOR"),
-  createAction,
-);
-router.patch(
-  "/tickets/:ticketId/actions/:actionId",
-  requireRole("IT_STAFF", "ADMINISTRATOR"),
-  updateAction,
-);
 export default router;
-
