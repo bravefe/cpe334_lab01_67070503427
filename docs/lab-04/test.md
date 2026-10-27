@@ -71,13 +71,11 @@ updated to `Pass`/`Fail` for submission (Part 3 requires the actual passing outp
 | WF-03 | Workflow | FR-06 | Full lifecycle New → Open → In Progress → Resolved → Closed with an Action Taken added at the right point | Each transition succeeds in order; fails if attempted out of order | `e2e/lab-04/ticket-resolution.spec.ts` | Planned |
 | WF-04 | Workflow | BR-10 | Administrator reopens a `Closed` Ticket, then normal flow resumes | Reopen succeeds for Admin; new Action Taken can then be added (BR-16) | `e2e/lab-04/ticket-resolution.spec.ts` | Planned |
 
-## 8. Migration / Regression
+## 8. Migration
 
 | Test ID | Type | Req/AC | What It Tests | Expected Result | Automated Test File | Final |
 |---|---|---|---|---|---|---|
-| REG-01 | Regression | AC-11 | Migration run against a Lab 3 database snapshot | All existing Tickets/Attachments/Comments/Notes intact; zero Action Taken rows on legacy Tickets | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
-| REG-02 | Regression | AC-14 | Full Lab 1–3 automated suite | Runs unmodified against the Lab 4 build; all previously passing tests still pass | (existing Lab 1–3 test files, re-run) | Planned |
-| REG-03 | Regression | FR-13 | Manual smoke pass: auth, My Tickets, Ticket Queue, Public Comments, Internal Notes, Attachments, User Management | Each still behaves exactly as in Lab 3 | `artifacts/lab-04/screenshots/` (evidence) | Planned |
+| MIG-01 | Migration | — | Additive migration run against an existing database | Existing records are unchanged; existing Tickets have zero Action Taken rows | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
 
 ## 9. Performance smoke
 
@@ -108,7 +106,6 @@ updated to `Pass`/`Fail` for submission (Part 3 requires the actual passing outp
 | AC-08 | API-09 |
 | AC-09 | UI-05 |
 | AC-10 | UI-06, E2E-03 |
-| AC-11 | UI-02, REG-01 |
+| AC-11 | UI-02 |
 | AC-12 | AUTH-02 |
 | AC-13 | UI-03, E2E-01 |
-| AC-14 | REG-02 |

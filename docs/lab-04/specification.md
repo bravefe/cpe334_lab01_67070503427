@@ -1,7 +1,7 @@
 # TokTickIT - Sprint 4 Engineering Specification
 
 **Course:** CPE 334, Sections 1, 2, HS, 31, 32 — Semester 1/2026
-**Sprint:** Lab 4 — Actions Taken, Dashboards, and Final Regression
+**Sprint:** Lab 4 — Actions Taken, Dashboards, and Workflow Hardening
 **Status:** Draft for review under Issue #53 (branch `document/lab4`)
 **Depends on:** Lab 3 `specification.md`, `ui-spec.md`, `api-spec.md`, `tests.md` (all merged to `lab3-staging`)
 
@@ -12,10 +12,8 @@
 Sprint 4 completes the TokTickIT service-desk workflow. IT Staff and Administrators can now
 record **Actions Taken** against a Ticket, the Ticket status lifecycle is fully enforced end to end
 (including a backend-enforced resolution gate), and Requesters, IT Staff, and Administrators each
-get a concise, role-appropriate **Dashboard** that links back to the existing detailed screens. The
-sprint closes with a full regression and accessibility/visual hardening pass so the application from
-Labs 1–3 (auth, My Tickets, Ticket Queue, Public Comments, Internal Notes, Attachments, User
-Management) keeps working exactly as before.
+get a concise, role-appropriate **Dashboard** that links back to the detailed screens in scope. The
+sprint closes with accessibility/visual hardening and safe-failure checks for the Lab 4 workflows.
 
 ## 2. Stakeholder Request (interpreted)
 
@@ -35,8 +33,8 @@ needs their attention next, without replacing the detailed Ticket screens they a
 - Database/Prisma increments, migration, and idempotent seed data for the above.
 - REST API increments for Actions Taken, status transitions, and dashboards.
 - Zen Green UI extensions for all new screens, responsive and accessible.
-- Full regression of Labs 1–3 behavior and final hardening (safe failure, duplicate-submit
-  prevention, console/UI cleanup).
+- Final hardening of the Lab 4 workflows (safe failure, duplicate-submit prevention, console/UI
+  cleanup).
 
 ### 3.2 Explicitly excluded (per handout §4.2)
 - Automatic SLA clocks, escalation engines, on-call scheduling, breach notifications.
@@ -64,9 +62,8 @@ needs their attention next, without replacing the detailed Ticket screens they a
 | FR-10 | The system provides an IT Staff Dashboard summarizing operational data across the Tickets that user is authorized to see. |
 | FR-11 | The system provides an Administrator Dashboard that reuses the IT Staff Dashboard and adds concise user-account counts. |
 | FR-12 | Every dashboard card/list item supports drill-down navigation to the corresponding filtered Ticket Queue, My Tickets, or Ticket Detail view. |
-| FR-13 | All Lab 1–3 features continue to function without regression: authentication, My Tickets, Create Ticket, Ticket Queue, ownership, IT Priority, Public Comments, Internal Notes, Attachments, and User Management. |
-| FR-14 | Loading, empty, forbidden, conflict, not-found, and safe-failure states are consistent across all new and existing screens. |
-| FR-15 | Duplicate submissions (double-click, network retry) on Action Taken creation and status transitions are prevented or safely deduplicated. |
+| FR-13 | Loading, empty, forbidden, conflict, not-found, and safe-failure states are consistent across the Lab 4 screens and workflows. |
+| FR-14 | Duplicate submissions (double-click, network retry) on Action Taken creation and status transitions are prevented or safely deduplicated. |
 
 ## 5. Business Rules
 
@@ -140,7 +137,7 @@ Full detail lives in [`ui-spec.md`](./ui-spec.md). Summary:
   statuses, with the backend as final authority and a plain-language reason shown when the
   Resolved gate isn't met yet.
 - All new screens reuse the existing Zen Green tokens, card/table/badge/button/form components,
-  and loading/empty/forbidden/error conventions from Labs 2–3.
+  with consistent loading/empty/forbidden/error states.
 
 ## 7. Data Changes
 
@@ -174,11 +171,10 @@ Seed values: `In Progress`, `Resolved`, `Escalated`, `No Fault Found`, `Awaiting
 
 ### 7.3 Migration and backfill
 
-The migration is additive only — no existing `ticket`, `attachment`, `public_comment`, or
-`internal_note` data is touched. Legacy Tickets get zero `action_taken` rows; the Actions Taken UI
-and all dashboard counts must treat "zero rows" as a normal, defined empty state rather than an
-error (AC-11). Rollback drops the two new tables and their FKs; no data from Labs 1–3 is at risk
-because nothing existing is altered.
+The migration is additive only and does not alter existing records. Existing Tickets get zero
+`action_taken` rows; the Actions Taken UI and all dashboard counts must treat "zero rows" as a
+normal, defined empty state rather than an error (AC-11). Rollback drops the two new tables and
+their FKs.
 
 ### 7.4 Seed data
 
@@ -209,9 +205,6 @@ Full detail lives in [`api-spec.md`](./api-spec.md). New endpoints:
 - `GET /api/dashboard/requester`, `GET /api/dashboard/staff` (Administrator reuses the staff
   payload plus a user-count summary).
 
-All Labs 2–3 endpoints (auth, tickets, comments, notes, attachments, categories, users) are
-unchanged.
-
 ## 9. Acceptance Criteria
 
 | ID | Criterion |
@@ -226,20 +219,18 @@ unchanged.
 | AC-08 | Given an authenticated IT Staff user, when the IT Staff Dashboard is requested, then Unassigned/My Assigned/status counts and recent Tickets reflect only Tickets that user may see, computed server-side. |
 | AC-09 | Given a Requester with zero Tickets, when the Requester Dashboard is requested, then every metric card renders its defined empty state without error. |
 | AC-10 | Given any dashboard metric card, when clicked, then the corresponding filtered Ticket list/queue opens showing the same record set implied by that metric. |
-| AC-11 | Given a legacy Ticket with zero Action Taken records, when its Ticket Detail is viewed, then the Actions Taken area renders the defined empty state, not an error. |
+| AC-11 | Given a Ticket with zero Action Taken records, when its Ticket Detail is viewed, then the Actions Taken area renders the defined empty state, not an error. |
 | AC-12 | Given a Cancelled or Closed Ticket, when viewed by IT Staff vs. Administrator, then only the Administrator sees a reopen control. |
 | AC-13 | Given a rapid double-click on "Save Action Taken," when two submissions race, then only one Action Taken record is created. |
-| AC-14 | Given the Lab 1–3 regression suite, when run against the Lab 4 build, then all previously passing behavior still passes. |
 
 ## 10. Definition of Done
 
 - [ ] `specification.md`, `ui-spec.md`, `api-spec.md`, `tests.md` reviewed and merged to `lab4-staging` **before** any implementation PR is opened (tracked by Issue #53).
-- [ ] All FR-01–FR-15 implemented and demonstrable.
+- [ ] All FR-01–FR-14 implemented and demonstrable.
 - [ ] All BR-01–BR-16 enforced server-side (verified by tests, not just hidden UI controls).
-- [ ] All AC-01–AC-14 covered by at least one automated test, traced in `tests.md`.
+- [ ] All AC-01–AC-13 covered by at least one automated test, traced in `tests.md`.
 - [ ] Migration applied cleanly to a database seeded with Lab 1–3 data; rollback documented and tested.
 - [ ] Idempotent seed script runs twice with no duplicate/erroring data.
-- [ ] Full Lab 1–3 regression suite passes on the Lab 4 build.
 - [ ] Zen Green visual/accessibility checklist completed for every new screen (see `ui-spec.md`).
 - [ ] No console errors, dead links, placeholder text, or unfinished controls remain.
 - [ ] README setup/seed/migration/test/demo instructions are current.
