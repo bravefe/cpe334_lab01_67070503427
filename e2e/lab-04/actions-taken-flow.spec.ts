@@ -56,6 +56,10 @@ test.describe("Lab 4 Actions Taken", () => {
     page,
   }) => {
     await signIn(page, "arwen@rivendell.example.com");
+
+    await page.getByLabel("My Queue").click();
+    await expect(page).toHaveURL(/\/queue/);
+
     await openTicket(page);
 
     const dialog = page.getByRole("dialog");
@@ -101,6 +105,10 @@ test.describe("Lab 4 Actions Taken", () => {
     page,
   }) => {
     await signIn(page, "arwen@rivendell.example.com");
+
+    await page.getByLabel("My Queue").click();
+    await expect(page).toHaveURL(/\/queue/);
+
     await openTicket(page);
 
     const dialog = page.getByRole("dialog");
