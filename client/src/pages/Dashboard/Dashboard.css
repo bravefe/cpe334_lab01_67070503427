@@ -1,0 +1,362 @@
+Dashboard .dashboard-page {
+  width: min(100% - 48px, 1800px);
+  margin: 0 auto;
+  padding: 24px 0 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dashboard-page h1,
+.dashboard-page h2 {
+  margin: 0;
+}
+
+.dashboard-page h2 {
+  font-size: 1.05rem;
+}
+
+/* ---------- header ---------- */
+.dash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.dash-header p {
+  margin: 4px 0 0;
+}
+
+.dash-error {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--error-banner-surface);
+  border: 1px solid var(--error-banner-border);
+  color: var(--error);
+  font-weight: 700;
+}
+
+/* ---------- metric cards ---------- */
+.dash-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.dash-grid-6 {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.dash-grid-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.dash-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 112px;
+  padding: 18px;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 8px 22px var(--shadow-card);
+}
+
+button.dash-card:hover:not(:disabled) {
+  background: var(--pale-green);
+  border-color: var(--primary-green);
+}
+
+.dash-card-label {
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.dash-card-value {
+  color: var(--primary-green);
+  font:
+    700 2rem "Space Grotesk",
+    sans-serif;
+  line-height: 1;
+}
+
+/* ---------- panels ---------- */
+.dash-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 8px 22px var(--shadow-card);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dash-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.dash-link {
+  color: var(--primary-green);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.dash-link:hover {
+  text-decoration: underline;
+}
+
+.dash-lower {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.dash-empty {
+  padding: 16px 0;
+  text-align: center;
+}
+
+/* ---------- badges (colour + text label) ---------- */
+.dash-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-badge {
+  background: var(--status-surface);
+  color: var(--status-text);
+}
+
+.priority-low {
+  background: var(--low-priority-surface);
+  color: var(--low-priority-text);
+}
+
+.priority-medium {
+  background: var(--medium-priority-surface);
+  color: var(--medium-priority-text);
+}
+
+.priority-high {
+  background: var(--high-priority-surface);
+  color: var(--high-priority-text);
+}
+
+.priority-urgent {
+  background: var(--error-surface);
+  color: var(--error);
+  border: 1px solid var(--error-border);
+}
+
+/* ---------- priority list ---------- */
+.priority-list,
+.recent-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.priority-row {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 14px;
+}
+
+.priority-count {
+  font:
+    700 1.1rem "Space Grotesk",
+    sans-serif;
+  color: var(--text);
+}
+
+/* ---------- recent tickets ---------- */
+.recent-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 70px minmax(0, 1fr) auto 170px;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 500;
+}
+
+.recent-id {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.recent-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent-time {
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: right;
+}
+
+/* ---------- quick actions ---------- */
+.quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ---------- admin user counts ---------- */
+.user-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.user-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 120px;
+  padding: 12px 14px;
+  background: var(--readonly-surface);
+  border: 1px solid var(--readonly-border);
+  border-radius: 8px;
+}
+
+.user-stat-value {
+  font:
+    700 1.4rem "Space Grotesk",
+    sans-serif;
+  color: var(--text);
+}
+
+/* ---------- skeleton ---------- */
+.dash-skeleton .skeleton-line {
+  display: block;
+  height: 14px;
+  width: 100%;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--border),
+    var(--page-bg),
+    var(--border)
+  );
+  background-size: 200% 100%;
+  animation: dash-shimmer 1.4s ease infinite;
+}
+
+.dash-skeleton .skeleton-line.short {
+  width: 50%;
+}
+
+.dash-skeleton .skeleton-line.tall {
+  height: 28px;
+  width: 35%;
+}
+
+.recent-row.dash-skeleton {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+@keyframes dash-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* ---------- responsive ---------- */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .dash-grid-6 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dash-grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dash-lower {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .dashboard-page {
+    width: min(100% - 32px, 1200px);
+    padding-top: 18px;
+  }
+
+  .dash-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dash-header .dash-refresh {
+    width: 100%;
+  }
+
+  .dash-grid-6,
+  .dash-grid-4,
+  .dash-lower {
+    grid-template-columns: 1fr;
+  }
+
+  .recent-row {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "id badge"
+      "title title"
+      "time time";
+  }
+
+  .recent-id {
+    grid-area: id;
+  }
+
+  .recent-row .status-badge {
+    grid-area: badge;
+  }
+
+  .recent-title {
+    grid-area: title;
+    white-space: normal;
+  }
+
+  .recent-time {
+    grid-area: time;
+    text-align: left;
+  }
+
+  .dash-error {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

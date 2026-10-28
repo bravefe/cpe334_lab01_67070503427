@@ -1,5 +1,15 @@
 import { getPrisma } from "../prisma.js";
 import type { TicketQuery } from "../lib/tickets.js";
+import {
+  RECENT_TICKETS_LIMIT,
+  STATUS,
+  isActiveTicket,
+  withStatus,
+  recentTicketSelect,
+  requesterFilters,
+  toRecentTicket,
+  type RequesterDashboard,
+} from "../lib/dashboard.js";
 
 interface GetTicketsParams {
   requesterId: number;
@@ -16,10 +26,47 @@ interface CreateTicketParams {
 }
 
 export class TicketValidationError extends Error {
-  constructor(public readonly field: string, message: string) {
+  constructor(
+    public readonly field: string,
+    message: string,
+  ) {
     super(message);
     this.name = "TicketValidationError";
   }
+}
+
+export async function getRequesterDashboardService(
+  requesterId: number,
+): Promise<RequesterDashboard> {
+  const prisma = getPrisma();
+  const mine = { requesterId };
+
+  const [totalOpen, waitingForYou, recentlyResolved, closed, recent] =
+    await Promise.all([
+      prisma.ticket.count({ where: { ...mine, ...isActiveTicket } }),
+      prisma.ticket.count({
+        where: { ...mine, ...withStatus(STATUS.WAITING_FOR_REQUESTER) },
+      }),
+      prisma.ticket.count({
+        where: { ...mine, ...withStatus(STATUS.RESOLVED) },
+      }),
+      prisma.ticket.count({ where: { ...mine, ...withStatus(STATUS.CLOSED) } }),
+      prisma.ticket.findMany({
+        where: mine,
+        orderBy: { updatedAt: "desc" },
+        take: RECENT_TICKETS_LIMIT,
+        select: recentTicketSelect,
+      }),
+    ]);
+
+  return {
+    totalOpen,
+    waitingForYou,
+    recentlyResolved,
+    closed,
+    recentTickets: recent.map(toRecentTicket),
+    filters: requesterFilters(),
+  };
 }
 
 async function generateTicketNumber(): Promise<string> {
@@ -138,15 +185,24 @@ export async function createTicketService({
   ]);
 
   if (!category || !category.isActive) {
-    throw new TicketValidationError("categoryId", "Category is invalid or inactive.");
+    throw new TicketValidationError(
+      "categoryId",
+      "Category is invalid or inactive.",
+    );
   }
 
   if (!relatedSystem || !relatedSystem.isActive) {
-    throw new TicketValidationError("relatedSystemId", "Related system is invalid or inactive.");
+    throw new TicketValidationError(
+      "relatedSystemId",
+      "Related system is invalid or inactive.",
+    );
   }
 
   if (!priority) {
-    throw new TicketValidationError("requestedPriorityId", "Requested priority is invalid.");
+    throw new TicketValidationError(
+      "requestedPriorityId",
+      "Requested priority is invalid.",
+    );
   }
 
   if (!defaultStatus) {
@@ -260,16 +316,29 @@ export async function getTicketDetailService({
       updatedAt: ticket.updatedAt.toISOString(),
       requester: { id: ticket.requester.id, name: ticket.requester.name },
       category: { id: ticket.category.id, name: ticket.category.name },
-      relatedSystem: { id: ticket.relatedSystem.id, name: ticket.relatedSystem.name },
-      requestedPriority: { id: ticket.requestedPriority.id, name: ticket.requestedPriority.name },
-      currentStatus: { id: ticket.currentStatus.id, name: ticket.currentStatus.name },
+      relatedSystem: {
+        id: ticket.relatedSystem.id,
+        name: ticket.relatedSystem.name,
+      },
+      requestedPriority: {
+        id: ticket.requestedPriority.id,
+        name: ticket.requestedPriority.name,
+      },
+      currentStatus: {
+        id: ticket.currentStatus.id,
+        name: ticket.currentStatus.name,
+      },
       attachments: ticket.attachments.map((attachment) => ({
         attachmentId: attachment.id,
         originalFileName: attachment.originalFileName,
         status: attachment.status,
         uploadedAt: attachment.uploadedAt.toISOString(),
-        ...(attachment.removedAt ? { removedAt: attachment.removedAt.toISOString() } : {}),
-        ...(attachment.removalReason ? { removalReason: attachment.removalReason } : {}),
+        ...(attachment.removedAt
+          ? { removedAt: attachment.removedAt.toISOString() }
+          : {}),
+        ...(attachment.removalReason
+          ? { removalReason: attachment.removalReason }
+          : {}),
       })),
     },
   };

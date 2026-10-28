@@ -54,6 +54,10 @@ test.describe("Lab 4 Ticket Resolution Workflow", () => {
   }) => {
     // IT Staff login
     await signIn(page, "arwen@rivendell.example.com");
+
+    await page.getByLabel("My Queue").click();
+    await expect(page).toHaveURL(/\/queue/);
+
     await expect(page.getByRole("heading", { name: "My Queue" })).toBeVisible();
 
     // Open the target ticket from the queue (any page).

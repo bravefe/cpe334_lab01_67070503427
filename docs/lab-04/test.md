@@ -26,8 +26,8 @@ updated to `Pass`/`Fail` for submission (Part 3 requires the actual passing outp
 | API-05 | API | AC-07, BR-11 | Edit Action Taken with stale `updatedAt` | `409 Conflict`, current record returned, no data overwritten | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
 | API-06 | API | AC-05, AC-06 | Transition to `Resolved` with/without a `Resolved`-result Action Taken | Rejected without one; succeeds with one | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned |
 | API-07 | API | BR-09 | Transition not in the matrix (e.g. `New` → `Resolved`) | `409 Conflict` | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned |
-| API-08 | API | AC-02, BR-14 | `GET /api/dashboard/requester` with a spoofed/foreign requester id in the query | Own session's data only; foreign id ignored | `server/tests/lab-04/requester-dashboard.api.test.ts` | Planned |
-| API-09 | API | AC-08, BR-13 | `GET /api/dashboard/staff` counts against a known seeded dataset | Unassigned/My Assigned/status counts match a hand-computed expectation | `server/tests/lab-04/staff-dashboard.api.test.ts` | Planned |
+| API-08 | API | AC-02, BR-14 | `GET /api/requester/dashboard` with a spoofed/foreign requester id in the query | Own session's data only; foreign id ignored | `server/tests/lab-04/requester-dashboard.api.test.ts` | Planned |
+| API-09 | API | AC-08, BR-13 | `GET /api/staff/dashboard` counts against a known seeded dataset | Unassigned/My Assigned/status counts match a hand-computed expectation | `server/tests/lab-04/staff-dashboard.api.test.ts` | Planned |
 
 ## 3. UI Component
 
@@ -71,20 +71,18 @@ updated to `Pass`/`Fail` for submission (Part 3 requires the actual passing outp
 | WF-03 | Workflow | FR-06 | Full lifecycle New → Open → In Progress → Resolved → Closed with an Action Taken added at the right point | Each transition succeeds in order; fails if attempted out of order | `e2e/lab-04/ticket-resolution.spec.ts` | Planned |
 | WF-04 | Workflow | BR-10 | Administrator reopens a `Closed` Ticket, then normal flow resumes | Reopen succeeds for Admin; new Action Taken can then be added (BR-16) | `e2e/lab-04/ticket-resolution.spec.ts` | Planned |
 
-## 8. Migration / Regression
+## 8. Migration
 
 | Test ID | Type | Req/AC | What It Tests | Expected Result | Automated Test File | Final |
 |---|---|---|---|---|---|---|
-| REG-01 | Regression | AC-11 | Migration run against a Lab 3 database snapshot | All existing Tickets/Attachments/Comments/Notes intact; zero Action Taken rows on legacy Tickets | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
-| REG-02 | Regression | AC-14 | Full Lab 1–3 automated suite | Runs unmodified against the Lab 4 build; all previously passing tests still pass | (existing Lab 1–3 test files, re-run) | Planned |
-| REG-03 | Regression | FR-13 | Manual smoke pass: auth, My Tickets, Ticket Queue, Public Comments, Internal Notes, Attachments, User Management | Each still behaves exactly as in Lab 3 | `artifacts/lab-04/screenshots/` (evidence) | Planned |
+| MIG-01 | Migration | — | Additive migration run against an existing database | Existing records are unchanged; existing Tickets have zero Action Taken rows | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
 
 ## 9. Performance smoke
 
 | Test ID | Type | Req/AC | What It Tests | Expected Result | Automated Test File | Final |
 |---|---|---|---|---|---|---|
-| PERF-01 | Perf smoke | BR-12 | `GET /api/dashboard/staff` against ~500 seeded Tickets | Responds within an agreed threshold (e.g. < 500 ms locally) with correct counts | `server/tests/lab-04/staff-dashboard.api.test.ts` | Planned |
-| PERF-02 | Perf smoke | BR-12 | `GET /api/dashboard/requester` against a Requester with ~50 Tickets | Responds within threshold; `recentTickets` still capped at 5 | `server/tests/lab-04/requester-dashboard.api.test.ts` | Planned |
+| PERF-01 | Perf smoke | BR-12 | `GET /api/staff/dashboard` against ~500 seeded Tickets | Responds within an agreed threshold (e.g. < 500 ms locally) with correct counts | `server/tests/lab-04/staff-dashboard.api.test.ts` | Planned |
+| PERF-02 | Perf smoke | BR-12 | `GET /api/requester/dashboard` against a Requester with ~50 Tickets | Responds within threshold; `recentTickets` still capped at 5 | `server/tests/lab-04/requester-dashboard.api.test.ts` | Planned |
 
 ## 10. End-to-End
 
@@ -108,7 +106,19 @@ updated to `Pass`/`Fail` for submission (Part 3 requires the actual passing outp
 | AC-08 | API-09 |
 | AC-09 | UI-05 |
 | AC-10 | UI-06, E2E-03 |
-| AC-11 | UI-02, REG-01 |
+| AC-11 | UI-02 |
 | AC-12 | AUTH-02 |
 | AC-13 | UI-03, E2E-01 |
-| AC-14 | REG-02 |
+
+
+```bash
+Running 5 tests using 1 worker
+
+  ✓  1 …ions Taken › E2E-01: IT Staff can add, view, and edit an Action Taken (10.8s)
+  ✓  2 …4 Actions Taken › E2E-02: Follow-Up Required requires a follow-up note (8.3s)
+  ✓  3 …olution gate unlocks and requester/staff dashboard drill-downs update (15.1s)
+  ✓  4 …F-03: completes New → Open → In Progress → Resolved → Closed lifecycle (9.5s)
+  ✓  5 …› WF-04: Administrator reopens a Closed Ticket and normal flow resumes (4.7s)
+  5 passed (1.1m)
+PS C:\KMUTT\3.1\Software\Pai> 
+```

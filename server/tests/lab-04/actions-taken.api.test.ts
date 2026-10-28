@@ -221,6 +221,30 @@ describe("Lab 4 Actions Taken API", () => {
     expect(created.updatedAt).toBeDefined();
   });
 
+  it("uses Prisma's current-time default when actionAt is omitted", async () => {
+    const requestStartedAt = Date.now();
+    const response = await staff
+      .post(`/api/staff/tickets/${testTicket.id}/actions`)
+      .set(csrf)
+      .send({
+        description: "Action recorded using the server timestamp default",
+        resultId: activeResult.id,
+        followUpRequired: false,
+        followUpNote: null,
+      });
+
+    expect(response.status).toBe(201);
+    const created = response.body.data ?? response.body;
+    const actionAt = new Date(created.actionAt).getTime();
+    expect(actionAt).toBeGreaterThanOrEqual(requestStartedAt - 5000);
+    expect(actionAt).toBeLessThanOrEqual(Date.now() + 5000);
+
+    const inDb = await prisma.actionTaken.findUnique({
+      where: { id: created.id },
+    });
+    expect(inDb?.actionAt.toISOString()).toBe(created.actionAt);
+  });
+
   it("API-04: rejects create with followUpRequired=true and empty note with 400 and field: 'followUpNote'", async () => {
     const actionPayload = {
       actionAt: new Date().toISOString(),
@@ -312,5 +336,25 @@ describe("Lab 4 Actions Taken API", () => {
       .send(actionPayload);
 
     expect(response.status).toBe(403);
+  });
+
+  it("allows a Requester to view Actions Taken for their own ticket", async () => {
+    const requesterUser = await prisma.user.findUnique({
+      where: { email: "frodo.b@shiremail.example.com" },
+    });
+    if (!requesterUser) throw new Error("Requester user not found");
+
+    const requesterTicket = await prisma.ticket.findFirst({
+      where: { requesterId: requesterUser.id },
+      orderBy: { id: "asc" },
+    });
+    if (!requesterTicket) throw new Error("Requester ticket not found");
+
+    const response = await requester.get(
+      `/api/tickets/${requesterTicket.ticketNumber}/actions`,
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toBeInstanceOf(Array);
   });
 });

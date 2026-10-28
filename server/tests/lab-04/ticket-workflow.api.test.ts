@@ -12,8 +12,6 @@ const password = "Password123!";
 // HELPERS - adjust these if your seed data / role strings differ
 // ---------------------------------------------------------------------------
 
-// Must match SessionPayload.role / User.role in the DB AND the Role strings
-// used in lib/statusTransition.ts.
 const ROLE = {
   requester: "REQUESTER",
   staff: "IT_STAFF",
@@ -26,6 +24,9 @@ const STAFF_EMAIL = "arwen@rivendell.example.com";
 // What staff/admin get on PATCH /api/tickets/:ticketNumber/resolution
 // (requester-only endpoint). Set to match your resolveTicketAccess behaviour.
 const STAFF_ON_RESOLUTION_EXPECTED = 403;
+
+// Each test creates many tickets, so give them more than the 5s default.
+const LONG = 60_000;
 
 async function authenticated(email: string): Promise<Agent> {
   const agent = request.agent(app);
@@ -103,6 +104,13 @@ describe("Lab 4 Ticket Workflow API", () => {
       .send({ toStatus, updatedAt: t.updatedAt.toISOString() });
   }
 
+  async function setAppearsResolved(ticketNumber: string, value: unknown) {
+    return agents[ROLE.requester]
+      .patch(`/api/tickets/${ticketNumber}/resolution`)
+      .set(csrf)
+      .send({ problemAppearsResolved: value });
+  }
+
   beforeAll(async () => {
     const adminUser = await prisma.user.findFirst({
       where: { role: ROLE.admin, isActive: true },
@@ -169,230 +177,236 @@ describe("Lab 4 Ticket Workflow API", () => {
   // -------------------------------------------------------------------------
   // API-06 | AC-05, AC-06 | Resolved gate
   // -------------------------------------------------------------------------
-  it("API-06: Resolved is rejected without a Resolved-result Action Taken and succeeds with one", async () => {
-    const ticket = await makeTicket("In Progress");
+  it(
+    "API-06: Resolved requires an Action Taken with a Resolved result",
+    async () => {
+      // No Action Taken -> rejected, then accepted once one is added.
+      const ticket = await makeTicket("In Progress");
 
-    const rejected = await patchStatus(
-      agents[ROLE.staff],
-      ticket.id,
-      "Resolved",
-    );
-    expect(rejected.status).toBe(409);
-    expect(rejected.body.error).toBeDefined();
-    expect(rejected.body.error.message).toMatch(/Action Taken/i);
-    expect(await dbStatus(ticket.id)).toBe("In Progress");
+      const rejected = await patchStatus(
+        agents[ROLE.staff],
+        ticket.id,
+        "Resolved",
+      );
+      expect(rejected.status, "no action taken").toBe(409);
+      expect(rejected.body.error.message).toMatch(/Action Taken/i);
+      expect(await dbStatus(ticket.id)).toBe("In Progress");
 
-    await addResolvedAction(ticket.id);
+      await addResolvedAction(ticket.id);
 
-    const accepted = await patchStatus(
-      agents[ROLE.staff],
-      ticket.id,
-      "Resolved",
-    );
-    expect(accepted.status).toBe(200);
-    expect(await dbStatus(ticket.id)).toBe("Resolved");
-  });
+      const accepted = await patchStatus(
+        agents[ROLE.staff],
+        ticket.id,
+        "Resolved",
+      );
+      expect(accepted.status, "with Resolved action").toBe(200);
+      expect(await dbStatus(ticket.id)).toBe("Resolved");
 
-  it("API-06: an Action Taken with a non-Resolved result does not satisfy the gate", async () => {
-    const ticket = await makeTicket("In Progress");
-    const other = await prisma.actionResult.findFirst({
-      where: { name: { not: "Resolved" }, isActive: true },
-    });
-    if (other) {
-      await prisma.actionTaken.create({
-        data: {
-          ticketId: ticket.id,
-          performedByUserId: staffUser.id,
-          actionAt: new Date(),
-          description: "Investigated but not fixed yet.",
-          resultId: other.id,
-          followUpRequired: false,
-        },
+      // A non-Resolved result does not satisfy the gate.
+      const other = await prisma.actionResult.findFirst({
+        where: { name: { not: "Resolved" }, isActive: true },
       });
-    }
-
-    const response = await patchStatus(
-      agents[ROLE.staff],
-      ticket.id,
-      "Resolved",
-    );
-    expect(response.status).toBe(409);
-    expect(await dbStatus(ticket.id)).toBe("In Progress");
-  });
+      const ticket2 = await makeTicket("In Progress");
+      if (other) {
+        await prisma.actionTaken.create({
+          data: {
+            ticketId: ticket2.id,
+            performedByUserId: staffUser.id,
+            actionAt: new Date(),
+            description: "Investigated but not fixed yet.",
+            resultId: other.id,
+            followUpRequired: false,
+          },
+        });
+      }
+      const notEnough = await patchStatus(
+        agents[ROLE.staff],
+        ticket2.id,
+        "Resolved",
+      );
+      expect(notEnough.status, "non-Resolved action").toBe(409);
+      expect(await dbStatus(ticket2.id)).toBe("In Progress");
+    },
+    LONG,
+  );
 
   // -------------------------------------------------------------------------
   // API-07 | BR-09 | Transition not in the matrix
   // -------------------------------------------------------------------------
-  it("API-07: New -> Resolved is rejected with 409 Conflict", async () => {
-    const ticket = await makeTicket("New");
-    await addResolvedAction(ticket.id); // gate satisfied, so only the matrix can reject
+  it(
+    "API-07: invalid transitions, unknown status and stale updatedAt are rejected",
+    async () => {
+      // New -> Resolved is not in the matrix (gate satisfied, so only the matrix rejects).
+      const t1 = await makeTicket("New");
+      await addResolvedAction(t1.id);
+      const invalid = await patchStatus(agents[ROLE.staff], t1.id, "Resolved");
+      expect(invalid.status, "New -> Resolved").toBe(409);
+      expect(invalid.body.error.code).toBe("INVALID_TRANSITION");
+      expect(await dbStatus(t1.id)).toBe("New");
 
-    const response = await patchStatus(
-      agents[ROLE.staff],
-      ticket.id,
-      "Resolved",
-    );
-    expect(response.status).toBe(409);
-    expect(response.body.error.code).toBe("INVALID_TRANSITION");
-    expect(await dbStatus(ticket.id)).toBe("New");
-  });
+      // Unknown status value.
+      const t2 = await makeTicket("New");
+      const unknown = await patchStatus(agents[ROLE.staff], t2.id, "Banana");
+      expect(unknown.status, "unknown status").toBe(400);
+      expect(await dbStatus(t2.id)).toBe("New");
 
-  it("API-07: unknown status value is rejected with 400", async () => {
-    const ticket = await makeTicket("New");
-    const response = await patchStatus(agents[ROLE.staff], ticket.id, "Banana");
-    expect(response.status).toBe(400);
-    expect(await dbStatus(ticket.id)).toBe("New");
-  });
-
-  it("API-07: stale updatedAt is rejected with 409 and the ticket is unchanged", async () => {
-    const ticket = await makeTicket("New");
-    const response = await agents[ROLE.staff]
-      .patch(`/api/staff/tickets/${ticket.id}/status`)
-      .set(csrf)
-      .send({ toStatus: "Open", updatedAt: "2000-01-01T00:00:00.000Z" });
-    expect(response.status).toBe(409);
-    expect(await dbStatus(ticket.id)).toBe("New");
-  });
+      // Stale updatedAt.
+      const t3 = await makeTicket("New");
+      const stale = await agents[ROLE.staff]
+        .patch(`/api/staff/tickets/${t3.id}/status`)
+        .set(csrf)
+        .send({ toStatus: "Open", updatedAt: "2000-01-01T00:00:00.000Z" });
+      expect(stale.status, "stale updatedAt").toBe(409);
+      expect(await dbStatus(t3.id)).toBe("New");
+    },
+    LONG,
+  );
 
   // -------------------------------------------------------------------------
   // AUTH-02 | BR-10, AC-12 | Only Administrator may exit Cancelled/Closed
   // -------------------------------------------------------------------------
-  describe("AUTH-02: exiting Cancelled/Closed", () => {
-    it.each(["Cancelled", "Closed"])(
-      "IT Staff gets 403 on %s -> Reopened and the status is unchanged",
-      async (from) => {
-        const ticket = await makeTicket(from);
-        const response = await patchStatus(
+  it(
+    "AUTH-02: only Administrator may reopen Cancelled/Closed tickets",
+    async () => {
+      for (const from of ["Cancelled", "Closed"]) {
+        const forStaff = await makeTicket(from);
+        const staffRes = await patchStatus(
           agents[ROLE.staff],
-          ticket.id,
+          forStaff.id,
           "Reopened",
         );
-        expect(response.status).toBe(403);
-        expect(await dbStatus(ticket.id)).toBe(from);
-      },
-    );
+        expect(staffRes.status, `${from} -> Reopened as staff`).toBe(403);
+        expect(await dbStatus(forStaff.id)).toBe(from);
 
-    it.each(["Cancelled", "Closed"])(
-      "Administrator succeeds on %s -> Reopened",
-      async (from) => {
-        const ticket = await makeTicket(from);
-        const response = await patchStatus(
+        const forAdmin = await makeTicket(from);
+        const adminRes = await patchStatus(
           agents[ROLE.admin],
-          ticket.id,
+          forAdmin.id,
           "Reopened",
         );
-        expect(response.status).toBe(200);
-        expect(await dbStatus(ticket.id)).toBe("Reopened");
-      },
-    );
-  });
+        expect(adminRes.status, `${from} -> Reopened as admin`).toBe(200);
+        expect(await dbStatus(forAdmin.id)).toBe("Reopened");
+      }
+    },
+    LONG,
+  );
 
   // -------------------------------------------------------------------------
   // AUTH-03 | api-spec §5 | Authorization sweep: endpoints x roles
   // -------------------------------------------------------------------------
-  describe("AUTH-03: authorization matrix sweep", () => {
-    type Caller = "anonymous" | (typeof ROLE)[keyof typeof ROLE];
+  it(
+    "AUTH-03: authorization matrix sweep (endpoints x roles)",
+    async () => {
+      type Caller = "anonymous" | (typeof ROLE)[keyof typeof ROLE];
 
-    const callers: Caller[] = [
-      "anonymous",
-      ROLE.requester,
-      ROLE.staff,
-      ROLE.admin,
-    ];
+      const callers: Caller[] = [
+        "anonymous",
+        ROLE.requester,
+        ROLE.staff,
+        ROLE.admin,
+      ];
 
-    const endpoints: {
-      name: string;
-      run: (agent: Agent | null) => Promise<{ status: number }>;
-      expected: Record<Caller, number>;
-    }[] = [
-      {
-        name: "PATCH /api/staff/tickets/:id/status",
-        run: async (agent) => {
-          const t = await makeTicket("New");
-          return patchStatus(agent, t.id, "Open");
+      const endpoints: {
+        name: string;
+        run: (agent: Agent | null) => Promise<{ status: number }>;
+        expected: Record<Caller, number>;
+      }[] = [
+        {
+          name: "PATCH /api/staff/tickets/:id/status",
+          run: async (agent) => {
+            const t = await makeTicket("New");
+            return patchStatus(agent, t.id, "Open");
+          },
+          expected: {
+            anonymous: 401,
+            [ROLE.requester]: 403,
+            [ROLE.staff]: 200,
+            [ROLE.admin]: 200,
+          },
         },
-        expected: {
-          anonymous: 401,
-          [ROLE.requester]: 403,
-          [ROLE.staff]: 200,
-          [ROLE.admin]: 200,
+        {
+          name: "PATCH /api/tickets/:ticketNumber/resolution",
+          run: async (agent) => {
+            const t = await makeTicket("Open");
+            return (agent ?? request(app))
+              .patch(`/api/tickets/${t.ticketNumber}/resolution`)
+              .set(csrf)
+              .send({ problemAppearsResolved: true });
+          },
+          expected: {
+            anonymous: 401,
+            [ROLE.requester]: 200, // ticket is owned by the seeded requester
+            [ROLE.staff]: STAFF_ON_RESOLUTION_EXPECTED,
+            [ROLE.admin]: STAFF_ON_RESOLUTION_EXPECTED,
+          },
         },
-      },
-      {
-        name: "PATCH /api/tickets/:ticketNumber/resolution",
-        run: async (agent) => {
-          const t = await makeTicket("Open");
-          return (agent ?? request(app))
-            .patch(`/api/tickets/${t.ticketNumber}/resolution`)
-            .set(csrf)
-            .send({ problemAppearsResolved: true });
+        {
+          name: "POST /api/staff/tickets/:id/actions",
+          run: async (agent) => {
+            const t = await makeTicket("Open");
+            return (agent ?? request(app))
+              .post(`/api/staff/tickets/${t.id}/actions`)
+              .set(csrf)
+              .send({
+                actionAt: t.createdAt.toISOString(),
+                description: "Authorization sweep action description",
+                resultId: resolvedResult.id,
+                followUpRequired: false,
+                followUpNote: null,
+              });
+          },
+          expected: {
+            anonymous: 401,
+            [ROLE.requester]: 403,
+            [ROLE.staff]: 201,
+            [ROLE.admin]: 201,
+          },
         },
-        expected: {
-          anonymous: 401,
-          [ROLE.requester]: 200, // ticket is owned by the seeded requester
-          [ROLE.staff]: STAFF_ON_RESOLUTION_EXPECTED,
-          [ROLE.admin]: STAFF_ON_RESOLUTION_EXPECTED,
-        },
-      },
-      {
-        name: "POST /api/staff/tickets/:id/actions",
-        run: async (agent) => {
-          const t = await makeTicket("Open");
-          return (agent ?? request(app))
-            .post(`/api/staff/tickets/${t.id}/actions`)
-            .set(csrf)
-            .send({
-              actionAt: t.createdAt.toISOString(),
-              description: "Authorization sweep action description",
-              resultId: resolvedResult.id,
-              followUpRequired: false,
-              followUpNote: null,
-            });
-        },
-        expected: {
-          anonymous: 401,
-          [ROLE.requester]: 403,
-          [ROLE.staff]: 201,
-          [ROLE.admin]: 201,
-        },
-      },
-    ];
+      ];
 
-    for (const endpoint of endpoints) {
-      for (const caller of callers) {
-        it(`${endpoint.name} as ${caller} -> ${endpoint.expected[caller]}`, async () => {
+      for (const endpoint of endpoints) {
+        for (const caller of callers) {
           const agent = caller === "anonymous" ? null : agents[caller];
           const response = await endpoint.run(agent);
-          expect(response.status).toBe(endpoint.expected[caller]);
-        });
+          expect(response.status, `${endpoint.name} as ${caller}`).toBe(
+            endpoint.expected[caller],
+          );
+        }
       }
-    }
-  });
+    },
+    LONG,
+  );
 
   // -------------------------------------------------------------------------
   // WF-01 | BR-09 | Every edge in the matrix, for every allowed role
   // -------------------------------------------------------------------------
-  describe("WF-01: every matrix edge succeeds for its allowed roles", () => {
-    const edges = Object.entries(transitionMatrix).flatMap(([from, targets]) =>
-      Object.entries(targets).flatMap(([to, roles]) =>
-        roles.map((role) => ({ from, to, role: role as string })),
-      ),
-    );
+  it(
+    "WF-01: every matrix edge succeeds for allowed roles and is rejected for others",
+    async () => {
+      // Allowed roles succeed on every edge.
+      for (const [from, targets] of Object.entries(transitionMatrix)) {
+        for (const [to, roles] of Object.entries(targets)) {
+          for (const role of roles as string[]) {
+            const agent = agents[role];
+            if (!agent)
+              throw new Error(
+                `No agent for role "${role}" - check ROLE constants`,
+              );
 
-    it.each(edges)("$from -> $to as $role", async ({ from, to, role }) => {
-      const agent = agents[role];
-      if (!agent)
-        throw new Error(`No agent for role "${role}" - check ROLE constants`);
+            const ticket = await makeTicket(from);
+            if (to === "Resolved") await addResolvedAction(ticket.id);
 
-      const ticket = await makeTicket(from);
-      if (to === "Resolved") await addResolvedAction(ticket.id);
+            const response = await patchStatus(agent, ticket.id, to);
+            expect(response.status, `${from} -> ${to} as ${role}`).toBe(200);
+            expect(
+              await dbStatus(ticket.id),
+              `${from} -> ${to} as ${role}`,
+            ).toBe(to);
+          }
+        }
+      }
 
-      const response = await patchStatus(agent, ticket.id, to);
-      expect(response.status).toBe(200);
-      expect(await dbStatus(ticket.id)).toBe(to);
-    });
-
-    it("rejects every edge for roles not allowed on it (excluding the requester-blocked route)", async () => {
+      // Disallowed roles get 403 (requester is blocked by the route itself).
       for (const [from, targets] of Object.entries(transitionMatrix)) {
         for (const [to, allowedRoles] of Object.entries(targets)) {
           for (const role of [ROLE.staff, ROLE.admin]) {
@@ -405,91 +419,60 @@ describe("Lab 4 Ticket Workflow API", () => {
           }
         }
       }
-    });
-  });
+    },
+    LONG,
+  );
 
   // -------------------------------------------------------------------------
   // WF-02 | BR-08 | "Appears resolved" flag is advisory only
   // -------------------------------------------------------------------------
-  describe("WF-02: requester 'appears resolved' flag is advisory", () => {
-    it("setting the flag does not change the ticket status", async () => {
-      const ticket = await makeTicket("In Progress");
-
-      const response = await agents[ROLE.requester]
-        .patch(`/api/tickets/${ticket.ticketNumber}/resolution`)
-        .set(csrf)
-        .send({ problemAppearsResolved: true });
-
-      expect(response.status).toBe(200);
-      expect(response.body.problemAppearsResolved).toBe(true);
-
+  it(
+    "WF-02: requester 'appears resolved' flag is advisory only",
+    async () => {
+      // Setting the flag does not change the status.
+      const t1 = await makeTicket("In Progress");
+      const set = await setAppearsResolved(t1.ticketNumber, true);
+      expect(set.status).toBe(200);
+      expect(set.body.problemAppearsResolved).toBe(true);
       const inDb = await prisma.ticket.findUniqueOrThrow({
-        where: { id: ticket.id },
+        where: { id: t1.id },
         include: { currentStatus: true },
       });
       expect(inDb.problemAppearsResolved).toBe(true);
       expect(inDb.currentStatus.name).toBe("In Progress");
-    });
 
-    it("the flag does not satisfy the Resolved gate", async () => {
-      const ticket = await makeTicket("In Progress");
-      await agents[ROLE.requester]
-        .patch(`/api/tickets/${ticket.ticketNumber}/resolution`)
-        .set(csrf)
-        .send({ problemAppearsResolved: true });
+      // The flag does not satisfy the Resolved gate.
+      const gate = await patchStatus(agents[ROLE.staff], t1.id, "Resolved");
+      expect(gate.status, "flag must not satisfy gate").toBe(409);
+      expect(await dbStatus(t1.id)).toBe("In Progress");
 
-      const response = await patchStatus(
-        agents[ROLE.staff],
-        ticket.id,
-        "Resolved",
-      );
-      expect(response.status).toBe(409);
-      expect(await dbStatus(ticket.id)).toBe("In Progress");
-    });
-
-    it("the flag can be cleared again without any status change", async () => {
-      const ticket = await makeTicket("Open");
-      await agents[ROLE.requester]
-        .patch(`/api/tickets/${ticket.ticketNumber}/resolution`)
-        .set(csrf)
-        .send({ problemAppearsResolved: true });
-      const cleared = await agents[ROLE.requester]
-        .patch(`/api/tickets/${ticket.ticketNumber}/resolution`)
-        .set(csrf)
-        .send({ problemAppearsResolved: false });
-
+      // The flag can be cleared without any status change.
+      const t2 = await makeTicket("Open");
+      await setAppearsResolved(t2.ticketNumber, true);
+      const cleared = await setAppearsResolved(t2.ticketNumber, false);
       expect(cleared.status).toBe(200);
-      const inDb = await prisma.ticket.findUniqueOrThrow({
-        where: { id: ticket.id },
+      const clearedDb = await prisma.ticket.findUniqueOrThrow({
+        where: { id: t2.id },
         include: { currentStatus: true },
       });
-      expect(inDb.problemAppearsResolved).toBe(false);
-      expect(inDb.currentStatus.name).toBe("Open");
-    });
+      expect(clearedDb.problemAppearsResolved).toBe(false);
+      expect(clearedDb.currentStatus.name).toBe("Open");
 
-    it("rejects a non-boolean flag with 400", async () => {
-      const ticket = await makeTicket("Open");
-      const response = await agents[ROLE.requester]
-        .patch(`/api/tickets/${ticket.ticketNumber}/resolution`)
-        .set(csrf)
-        .send({ problemAppearsResolved: "yes" });
-      expect(response.status).toBe(400);
-    });
+      // A non-boolean flag is rejected.
+      const t3 = await makeTicket("Open");
+      const bad = await setAppearsResolved(t3.ticketNumber, "yes");
+      expect(bad.status, "non-boolean flag").toBe(400);
 
-    it("staff ticket detail displays the flag", async () => {
-      // Adjust the path if your staff detail route differs.
-      const ticket = await makeTicket("Open");
-      await agents[ROLE.requester]
-        .patch(`/api/tickets/${ticket.ticketNumber}/resolution`)
-        .set(csrf)
-        .send({ problemAppearsResolved: true });
-
-      const response = await agents[ROLE.staff].get(
-        `/api/staff/tickets/${ticket.ticketNumber}`,
+      // Staff ticket detail displays the flag (adjust path if your route differs).
+      const t4 = await makeTicket("Open");
+      await setAppearsResolved(t4.ticketNumber, true);
+      const detail = await agents[ROLE.staff].get(
+        `/api/staff/tickets/${t4.ticketNumber}`,
       );
-      expect(response.status).toBe(200);
-      const body = response.body.data ?? response.body;
+      expect(detail.status).toBe(200);
+      const body = detail.body.data ?? detail.body;
       expect(body.problemAppearsResolved).toBe(true);
-    });
-  });
+    },
+    LONG,
+  );
 });

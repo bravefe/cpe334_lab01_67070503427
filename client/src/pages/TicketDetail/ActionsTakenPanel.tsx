@@ -32,7 +32,7 @@ interface ActionForm {
 
 const localDateTime = (date: Date) => {
   const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-  return local.toISOString().slice(0, 16);
+  return local.toISOString().slice(0, 19);
 };
 
 const toForm = (action: ActionTaken): ActionForm => ({
@@ -79,7 +79,7 @@ export default function ActionsTakenPanel({
     setLoading(true);
     setError("");
     try {
-      const data = await fetchActionsTaken(ticketRef);
+      const data = await fetchActionsTaken(ticketRef, canManage);
       setActions(
         sortedActions(Array.isArray(data) ? data : ((data as any)?.data ?? [])),
       );
@@ -96,7 +96,7 @@ export default function ActionsTakenPanel({
 
   useEffect(() => {
     void loadActions();
-  }, [ticketRef]);
+  }, [ticketRef, canManage]);
 
   useEffect(() => {
     if (!canManage) return;
@@ -131,7 +131,7 @@ export default function ActionsTakenPanel({
     setFormError("");
     setFieldError("");
     setForm({
-      actionAt: localDateTime(new Date()),
+      actionAt: "",
       description: "",
       resultId: results[0] ? String(results[0].id) : "",
       followUpRequired: false,
@@ -207,19 +207,21 @@ export default function ActionsTakenPanel({
       return;
     }
     if (!editing) {
-      const actionTime = new Date(form.actionAt).getTime();
-      const createdTime = ticketCreatedAt
-        ? new Date(ticketCreatedAt).getTime()
-        : 0;
-      if (
-        !Number.isFinite(actionTime) ||
-        (createdTime > 0 && actionTime < createdTime) ||
-        actionTime > Date.now() + 60000
-      ) {
-        setFieldError(
-          "Action date/time must be between ticket creation and now.",
-        );
-        return;
+      if (form.actionAt) {
+        const actionTime = new Date(form.actionAt).getTime();
+        const createdTime = ticketCreatedAt
+          ? new Date(ticketCreatedAt).getTime()
+          : 0;
+        if (
+          !Number.isFinite(actionTime) ||
+          (createdTime > 0 && actionTime < createdTime) ||
+          actionTime > Date.now() + 60000
+        ) {
+          setFieldError(
+            `Action date/time must be between ticket creation and now. (Now: ${new Date().toLocaleString()}, Ticket Created: ${ticketCreatedAt ? new Date(ticketCreatedAt).toLocaleString() : "Unknown"}, Action Time: ${new Date(form.actionAt).toLocaleString()})`,
+          );
+          return;
+        }
       }
     }
 
@@ -250,7 +252,9 @@ export default function ActionsTakenPanel({
       } else {
         const payload: CreateActionTakenInput = {
           ...fields,
-          actionAt: new Date(form.actionAt).toISOString(),
+          ...(form.actionAt
+            ? { actionAt: new Date(form.actionAt).toISOString() }
+            : {}),
         };
         const created = await createActionTaken(ticketRef, payload);
         setActions((current) => sortedActions([...current, created]));
@@ -485,6 +489,7 @@ export default function ActionsTakenPanel({
                 <span>Action Date/Time</span>
                 <input
                   type="datetime-local"
+                  step={1}
                   value={form.actionAt}
                   min={
                     ticketCreatedAt
@@ -498,6 +503,9 @@ export default function ActionsTakenPanel({
                   }
                 />
                 {editing && <small>The action date cannot be changed.</small>}
+                {!editing && (
+                  <small>Leave blank to use the current server time.</small>
+                )}
               </label>
               <label className="actions-field">
                 <span>Description</span>

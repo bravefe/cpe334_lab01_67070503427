@@ -25,11 +25,28 @@ const initialQuery: StaffTicketQuery = {
   pageSize: 10,
 };
 
+function getInitialQuery(): StaffTicketQuery {
+  const params = new URLSearchParams(window.location.search);
+  const filter = params.get("filter");
+
+  return {
+    ...initialQuery,
+    status: params.get("status") || undefined,
+    itPriority: params.get("priority") || undefined,
+    owner:
+      filter === "unassigned"
+        ? "unassigned"
+        : filter === "my-assigned"
+          ? "me"
+          : undefined,
+  };
+}
+
 export default function StaffTicketQueue({
   requester,
   onOpenTicket,
 }: StaffTicketQueueProps) {
-  const [query, setQuery] = useState(initialQuery);
+  const [query, setQuery] = useState(getInitialQuery);
   const [draftSearch, setDraftSearch] = useState("");
   const [tickets, setTickets] = useState<StaffTicket[]>([]);
   const [meta, setMeta] = useState({
