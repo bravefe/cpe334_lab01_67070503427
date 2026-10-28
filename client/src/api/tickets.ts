@@ -32,7 +32,7 @@ export function fetchTickets(query: TicketQuery) {
     params.set("currentStatusId", String(query.currentStatusId));
   }
 
-  return get<TicketPage>(`/api/tickets?${params}`);
+  return get<TicketPage>(`/api/tickets/?${params}`);
 }
 
 export function fetchStaffTickets(query: StaffTicketQuery) {
@@ -51,7 +51,7 @@ export function fetchStaffTickets(query: StaffTicketQuery) {
   if (query.itPriority) params.set("itPriority", query.itPriority);
   if (query.owner) params.set("owner", query.owner);
 
-  return get<StaffTicketPage>(`/api/staff/tickets?${params}`);
+  return get<StaffTicketPage>(`/api/staff/tickets/?${params}`);
 }
 
 export function createTicket(input: CreateTicketPayload) {
