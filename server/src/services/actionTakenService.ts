@@ -92,7 +92,7 @@ export async function createActionTaken({
 }: {
   ticketId: number;
   performedByUserId: number;
-  actionAt: Date;
+  actionAt?: Date;
   description: string;
   resultId: number;
   followUpRequired: boolean;
@@ -119,7 +119,7 @@ export async function createActionTaken({
     return { kind: "closed" as const };
   }
 
-  if (actionAt < ticket.createdAt || actionAt > new Date()) {
+  if (actionAt && (actionAt < ticket.createdAt || actionAt > new Date())) {
     return { kind: "invalid_action_time" as const };
   }
 
@@ -134,7 +134,7 @@ export async function createActionTaken({
   const created = await prisma.actionTaken.create({
     data: {
       ticketId,
-      actionAt,
+      ...(actionAt ? { actionAt } : {}),
       description,
       resultId,
       performedByUserId,

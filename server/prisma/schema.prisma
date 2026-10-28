@@ -162,7 +162,7 @@ model ActionResult {
 model ActionTaken {
   id                Int      @id @default(autoincrement())
   ticketId          Int
-  actionAt          DateTime
+  actionAt          DateTime @default(now())
   description       String   @db.Text
   resultId          Int
   performedByUserId Int

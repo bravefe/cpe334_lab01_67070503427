@@ -109,3 +109,16 @@ updated to `Pass`/`Fail` for submission (Part 3 requires the actual passing outp
 | AC-11 | UI-02 |
 | AC-12 | AUTH-02 |
 | AC-13 | UI-03, E2E-01 |
+
+
+```bash
+Running 5 tests using 1 worker
+
+  ✓  1 …ions Taken › E2E-01: IT Staff can add, view, and edit an Action Taken (10.8s)
+  ✓  2 …4 Actions Taken › E2E-02: Follow-Up Required requires a follow-up note (8.3s)
+  ✓  3 …olution gate unlocks and requester/staff dashboard drill-downs update (15.1s)
+  ✓  4 …F-03: completes New → Open → In Progress → Resolved → Closed lifecycle (9.5s)
+  ✓  5 …› WF-04: Administrator reopens a Closed Ticket and normal flow resumes (4.7s)
+  5 passed (1.1m)
+PS C:\KMUTT\3.1\Software\Pai> 
+```

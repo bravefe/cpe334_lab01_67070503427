@@ -221,6 +221,30 @@ describe("Lab 4 Actions Taken API", () => {
     expect(created.updatedAt).toBeDefined();
   });
 
+  it("uses Prisma's current-time default when actionAt is omitted", async () => {
+    const requestStartedAt = Date.now();
+    const response = await staff
+      .post(`/api/staff/tickets/${testTicket.id}/actions`)
+      .set(csrf)
+      .send({
+        description: "Action recorded using the server timestamp default",
+        resultId: activeResult.id,
+        followUpRequired: false,
+        followUpNote: null,
+      });
+
+    expect(response.status).toBe(201);
+    const created = response.body.data ?? response.body;
+    const actionAt = new Date(created.actionAt).getTime();
+    expect(actionAt).toBeGreaterThanOrEqual(requestStartedAt - 5000);
+    expect(actionAt).toBeLessThanOrEqual(Date.now() + 5000);
+
+    const inDb = await prisma.actionTaken.findUnique({
+      where: { id: created.id },
+    });
+    expect(inDb?.actionAt.toISOString()).toBe(created.actionAt);
+  });
+
   it("API-04: rejects create with followUpRequired=true and empty note with 400 and field: 'followUpNote'", async () => {
     const actionPayload = {
       actionAt: new Date().toISOString(),

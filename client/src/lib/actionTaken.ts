@@ -20,7 +20,7 @@ export interface ActionTaken {
 }
 
 export interface CreateActionTakenInput {
-  actionAt: string;
+  actionAt?: string;
   description: string;
   resultId: number;
   followUpRequired: boolean;

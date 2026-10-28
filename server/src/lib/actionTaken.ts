@@ -1,5 +1,5 @@
 export interface CreateActionTakenInput {
-    actionAt: Date;
+    actionAt?: Date;
     description: string;
     resultId: number;
     followUpRequired: boolean;
@@ -37,16 +37,19 @@ export function parseActionTakenCreateInput(body: unknown):
         });
     }
 
-    const actionAt =
-        typeof value.actionAt === "string"
-            ? new Date(value.actionAt)
-            : null;
+    let actionAt: Date | undefined;
+    if ("actionAt" in value) {
+        actionAt =
+            typeof value.actionAt === "string"
+                ? new Date(value.actionAt)
+                : undefined;
 
-    if (!actionAt || Number.isNaN(actionAt.getTime())) {
-        fieldErrors.push({
-            field: "actionAt",
-            message: "Action date/time must be a valid date.",
-        });
+        if (!actionAt || Number.isNaN(actionAt.getTime())) {
+            fieldErrors.push({
+                field: "actionAt",
+                message: "Action date/time must be a valid date.",
+            });
+        }
     }
 
     const resultId = Number(value.resultId);
@@ -97,7 +100,7 @@ export function parseActionTakenCreateInput(body: unknown):
     return {
         ok: true,
         data: {
-            actionAt: actionAt!,
+            ...(actionAt ? { actionAt } : {}),
             description,
             resultId,
             followUpRequired,

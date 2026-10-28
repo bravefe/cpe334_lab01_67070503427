@@ -30,6 +30,7 @@ Create an Action Taken.
     "attachmentNotes": "see battery_test.png"
   }
   ```
+  `actionAt` is optional; when omitted, the database records the current time.
 - **201 Response:** full Action Taken record, including server-set `id`, `performedBy` (id + name,
   from session), `createdAt`, `updatedAt`.
 - **Errors:**
