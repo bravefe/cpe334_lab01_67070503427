@@ -7,7 +7,8 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "playwright test e2e/lab-04"
+    "test": "playwright test e2e/lab-04",
+    "testr": "cd server && npx prisma migrate reset --force && cd .. && playwright test e2e/lab-04"
   },
   "repository": {
     "type": "git",

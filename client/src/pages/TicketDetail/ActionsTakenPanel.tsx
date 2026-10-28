@@ -79,7 +79,7 @@ export default function ActionsTakenPanel({
     setLoading(true);
     setError("");
     try {
-      const data = await fetchActionsTaken(ticketRef);
+      const data = await fetchActionsTaken(ticketRef, canManage);
       setActions(
         sortedActions(Array.isArray(data) ? data : ((data as any)?.data ?? [])),
       );
@@ -96,7 +96,7 @@ export default function ActionsTakenPanel({
 
   useEffect(() => {
     void loadActions();
-  }, [ticketRef]);
+  }, [ticketRef, canManage]);
 
   useEffect(() => {
     if (!canManage) return;

@@ -102,6 +102,37 @@ describe("Lab 4 Actions Taken UI Component", () => {
     ).not.toBeInTheDocument();
   });
 
+  it.each([
+    ["IT_STAFF", "/api/staff/tickets/"],
+    ["ADMINISTRATOR", "/api/staff/tickets/"],
+    ["REQUESTER", "/api/tickets/"],
+  ] as const)(
+    "loads Actions Taken from the correct endpoint for %s",
+    async (role, expectedPath) => {
+      const fetchMock = setupFetchMock();
+      vi.stubGlobal("fetch", fetchMock);
+
+      render(
+        <ActionsTakenPanel
+          ticketRef="TKT-2026-000001"
+          role={role}
+          ticketCreatedAt="2026-09-01T00:00:00.000Z"
+        />,
+      );
+
+      expect(
+        await screen.findByText(
+          "Replaced hardware component and ran diagnostics.",
+        ),
+      ).toBeInTheDocument();
+      expect(
+        fetchMock.mock.calls.some(([url]) =>
+          String(url).includes(`${expectedPath}TKT-2026-000001/actions`),
+        ),
+      ).toBe(true);
+    },
+  );
+
   it("UI-02: renders defined empty state with zero records without errors", async () => {
     vi.stubGlobal("fetch", setupFetchMock([]));
 
