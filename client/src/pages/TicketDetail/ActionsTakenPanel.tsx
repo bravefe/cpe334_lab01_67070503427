@@ -217,7 +217,7 @@ export default function ActionsTakenPanel({
         actionTime > Date.now() + 60000
       ) {
         setFieldError(
-          "Action date/time must be between ticket creation and now.",
+          `Action date/time must be between ticket creation and now. (Now: ${new Date().toLocaleString()}, Ticket Created: ${ticketCreatedAt ? new Date(ticketCreatedAt).toLocaleString() : "Unknown"}, Action Time: ${new Date(form.actionAt).toLocaleString()})`,
         );
         return;
       }

@@ -313,4 +313,24 @@ describe("Lab 4 Actions Taken API", () => {
 
     expect(response.status).toBe(403);
   });
+
+  it("allows a Requester to view Actions Taken for their own ticket", async () => {
+    const requesterUser = await prisma.user.findUnique({
+      where: { email: "frodo.b@shiremail.example.com" },
+    });
+    if (!requesterUser) throw new Error("Requester user not found");
+
+    const requesterTicket = await prisma.ticket.findFirst({
+      where: { requesterId: requesterUser.id },
+      orderBy: { id: "asc" },
+    });
+    if (!requesterTicket) throw new Error("Requester ticket not found");
+
+    const response = await requester.get(
+      `/api/tickets/${requesterTicket.ticketNumber}/actions`,
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toBeInstanceOf(Array);
+  });
 });

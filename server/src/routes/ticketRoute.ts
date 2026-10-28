@@ -3,6 +3,7 @@ import {
   getRequesterDashboard,
   createTicket,
   createTicketComment,
+  getActions,
   getTicketComments,
   getTicketDetail,
   getTickets,
@@ -21,6 +22,11 @@ router.get("/tickets", getTickets);
 router.post("/create-ticket", requireRole("REQUESTER"), createTicket);
 router.post("/tickets", requireRole("REQUESTER"), createTicket);
 router.get("/tickets/:ticketNumber", getTicketDetail);
+router.get(
+  "/tickets/:ticketNumber/actions",
+  requireRole("REQUESTER"),
+  getActions,
+);
 router.get("/tickets/:ticketNumber/comments", getTicketComments);
 router.post("/tickets/:ticketNumber/comments", createTicketComment);
 router.patch(
