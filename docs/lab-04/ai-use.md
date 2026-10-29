@@ -7,6 +7,8 @@
 | 1 | Implement this test file | implement the test |
 | 2 | Let Requesters view Actions Taken for their own tickets and sync the API with the frontend. | Added a requester-authorized read endpoint, kept create/edit restricted to staff and administrators, updated the panel to use the role-appropriate endpoint, and added regression tests. |
 | 3 | generate file directory for lab 4 | - |
+| 4 | implment this part and input the issue description and exeption criteria on the issue | - |
+
 ### **LLM/Agent Used: Gemini 3.8 (Antigravity)**
 
 | # | Prompt (Summarised) | What I Did with the Result |
