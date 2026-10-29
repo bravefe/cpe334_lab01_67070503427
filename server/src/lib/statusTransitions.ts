@@ -22,6 +22,7 @@ const HUMAN_ROLE_MAP = {
   ADMINISTRATOR: "ADMINISTRATOR",
 } as const;
 
+const REQUESTER_ROLE: Role[] = ["REQUESTER"];
 const STAFF: Role[] = ["IT_STAFF", "ADMINISTRATOR"];
 const ADMIN: Role[] = ["ADMINISTRATOR"];
 
@@ -43,7 +44,10 @@ function normalizeRole(role: unknown): Role | null {
 }
 
 export const transitionMatrix: Record<string, Record<string, Role[]>> = {
-  New: { Open: STAFF, Cancelled: STAFF },
+  New: {
+    Open: STAFF,
+    Cancelled: [...REQUESTER_ROLE, ...STAFF],
+  },
   Open: {
     "In Progress": STAFF,
     "Waiting for Requester": STAFF,
@@ -56,13 +60,18 @@ export const transitionMatrix: Record<string, Record<string, Role[]>> = {
   },
   "Waiting for Requester": {
     "In Progress": STAFF,
-    Resolved: STAFF,
     Cancelled: STAFF,
   },
-  Resolved: { Closed: STAFF, Reopened: STAFF },
+  Resolved: {
+    Closed: STAFF,
+    Reopened: [...REQUESTER_ROLE, ...STAFF],
+  },
   Closed: { Reopened: ADMIN },
   Cancelled: { Reopened: ADMIN },
-  Reopened: { Open: STAFF, "In Progress": STAFF, Cancelled: STAFF },
+  Reopened: {
+    "In Progress": STAFF,
+    Cancelled: STAFF,
+  },
 };
 
 // Kept so existing callers/tests don't break. This is UNIT-04.
@@ -98,7 +107,13 @@ export function allowedNextStatuses(from: string, role: string): string[] {
 
 // UNIT-05
 export function isResolvedGateMet(
-  actions: { result: { name: string } | null }[],
+  actions: Array<{ result?: { name?: string } | null; performedBy?: { role?: string } | null }> = [],
 ): boolean {
-  return actions.some((a) => a.result?.name === "Resolved");
+  return actions.some((action) => {
+    if (action.result?.name !== "Resolved") return false;
+
+    const actorRole = action.performedBy?.role ?? "";
+    const normalizedRole = normalizeRole(actorRole);
+    return normalizedRole === "IT_STAFF" || normalizedRole === "ADMINISTRATOR";
+  });
 }

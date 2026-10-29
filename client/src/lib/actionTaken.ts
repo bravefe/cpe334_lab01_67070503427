@@ -11,7 +11,7 @@ export interface ActionTaken {
   description: string;
   resultId: number;
   result: { id: number; name: string };
-  performedBy: { id: number; name: string };
+  performedBy: { id: number; name: string; role?: string };
   followUpRequired: boolean;
   followUpNote: string | null;
   attachmentNotes: string | null;

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { isLegalStatusTransition } from "../../../src/lib/statusTransitions.js";
 
+import { describe, expect, it } from "vitest";
+import { isLegalStatusTransition } from "../../../src/lib/statusTransitions.js";
+
 const legalPairs = [
   ["New", "Open"],
   ["New", "Cancelled"],

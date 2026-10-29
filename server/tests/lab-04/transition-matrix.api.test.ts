@@ -70,8 +70,20 @@ describe("UNIT-04 | BR-09 | status-transition matrix lookup", () => {
     }
   });
 
-  it("never lets a Requester perform any transition", () => {
-    for (const from of ALL_STATUSES) {
+  it("allows a Requester to perform only the delegated Requester transitions", () => {
+    expect(allowedNextStatuses("New", "Requester")).toEqual(["Cancelled"]);
+    expect(allowedNextStatuses("Resolved", "Requester")).toEqual([
+      "Reopened",
+    ]);
+
+    for (const from of [
+      "Open",
+      "In Progress",
+      "Waiting for Requester",
+      "Closed",
+      "Cancelled",
+      "Reopened",
+    ]) {
       expect(allowedNextStatuses(from, "Requester"), from).toEqual([]);
     }
   });
@@ -92,23 +104,36 @@ describe("UNIT-05 | BR-07 | Resolved-gate check", () => {
   it("returns false when no Action Taken has the Resolved result", () => {
     expect(
       isResolvedGateMet([
-        { result: { name: "Needs Follow-up" } },
-        { result: { name: "Escalated" } },
+        { result: { name: "Needs Follow-up" }, performedBy: { role: "IT_STAFF" } },
+        { result: { name: "Escalated" }, performedBy: { role: "IT_STAFF" } },
         { result: null },
       ]),
     ).toBe(false);
   });
 
-  it("returns true once a Resolved-result Action Taken exists", () => {
+  it("returns true once a Resolved-result Action Taken exists from an IT Staff/Admin actor", () => {
     expect(
       isResolvedGateMet([
-        { result: { name: "Needs Follow-up" } },
-        { result: { name: "Resolved" } },
+        { result: { name: "Needs Follow-up" }, performedBy: { role: "IT_STAFF" } },
+        { result: { name: "Resolved" }, performedBy: { role: "IT_STAFF" } },
+      ]),
+    ).toBe(true);
+    expect(
+      isResolvedGateMet([
+        { result: { name: "Resolved" }, performedBy: { role: "ADMINISTRATOR" } },
       ]),
     ).toBe(true);
   });
 
+  it("rejects a Resolved result recorded by a non-staff actor", () => {
+    expect(
+      isResolvedGateMet([{ result: { name: "Resolved" }, performedBy: { role: "REQUESTER" } }]),
+    ).toBe(false);
+  });
+
   it("is case-sensitive on the result name", () => {
-    expect(isResolvedGateMet([{ result: { name: "resolved" } }])).toBe(false);
+    expect(
+      isResolvedGateMet([{ result: { name: "resolved" }, performedBy: { role: "IT_STAFF" } }]),
+    ).toBe(false);
   });
 });

@@ -56,6 +56,7 @@ function mapAction(action: any) {
     performedBy: {
       id: action.performedBy.id,
       name: action.performedBy.name,
+      role: action.performedBy.role,
     },
     followUpRequired: action.followUpRequired,
     followUpNote: action.followUpNote,
