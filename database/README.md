@@ -30,6 +30,22 @@
 
    Inserts the initial data into the database.
 
+   To seed the reference data without creating sample tickets, set
+   `SKIP_TICKET_SEED=true` before running the seed command. This also skips
+   sample comments, internal notes, ticket backfill, and ticket-related ID
+   sequence synchronization:
+
+   **PowerShell**
+   ```powershell
+   $env:SKIP_TICKET_SEED = "true"
+   npx prisma db seed
+   ```
+
+   **macOS/Linux**
+   ```bash
+   SKIP_TICKET_SEED=true npx prisma db seed
+   ```
+
 5. **Open Prisma Studio**
 
    ```bash
