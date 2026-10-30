@@ -1,32 +1,51 @@
-import { describe, expect, it } from "vitest";
-import request from "supertest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import request, { type Agent } from "supertest";
 import { app } from "../../src/app.js";
+import { getPrisma } from "../../src/prisma.js";
+
+const prisma = getPrisma();
+let requester: Agent;
+let otherRequester: Agent;
+
+async function authenticated(email: string): Promise<Agent> {
+  const agent = request.agent(app);
+  const response = await agent
+    .post("/api/auth/login")
+    .send({ email, password: "Password123!" });
+  expect(response.status).toBe(200);
+  return agent;
+}
 
 describe("GET /api/tickets/:ticketNumber", () => {
-  it("returns the current requester's owned ticket detail", async () => {
-    const response = await request(app)
-      .get("/api/tickets/TKT-2026-000001")
-      .set("X-Dev-Requester-Id", "1");
+  beforeAll(async () => {
+    requester = await authenticated("frodo.b@shiremail.example.com");
+    otherRequester = await authenticated("sam.gamgee@shiremail.example.com");
+  });
+
+  afterAll(async () => {
+    await prisma.$disconnect();
+  });
+
+  it("returns the authenticated requester's ticket detail", async () => {
+    const response = await requester.get("/api/tickets/TKT-2026-000001");
 
     expect(response.status).toBe(200);
     expect(response.body.data.ticketNumber).toBe("TKT-2026-000001");
     expect(response.body.data.summary).toBe("Test Test 123");
   });
-it("API-23: should return 404 when requester B tries to access requester A's ticket", async () => {
-    const response = await request(app)
-      .get("/api/tickets/TKT-2026-000001")
-      .set("X-Dev-Requester-Id", "2");
 
-    expect(response.status).toBe(404);
+  it("forbids another requester from accessing the ticket", async () => {
+    const response = await otherRequester.get(
+      "/api/tickets/TKT-2026-000001",
+    );
 
+    expect(response.status).toBe(403);
     expect(response.body).toEqual({
       error: {
-        code: "NOT_FOUND",
-        message: "ERROR 404: Ticket not found.",
+        code: "FORBIDDEN",
+        message: "You are not allowed to access this ticket.",
       },
     });
-
-    // Make sure no ticket data is returned.
     expect(response.body.data).toBeUndefined();
   });
 });

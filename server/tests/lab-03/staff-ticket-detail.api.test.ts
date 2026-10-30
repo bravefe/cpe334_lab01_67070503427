@@ -24,6 +24,7 @@ describe("Lab 3 staff ticket detail API", () => {
   let inactiveStaffId: number;
   let requesterUserId: number;
   let originalTicket: any;
+  const createdActionIds: number[] = [];
 
   beforeAll(async () => {
     staff = await login("arwen@rivendell.example.com");
@@ -54,6 +55,11 @@ describe("Lab 3 staff ticket detail API", () => {
   });
 
   afterAll(async () => {
+    if (createdActionIds.length) {
+      await prisma.actionTaken.deleteMany({
+        where: { id: { in: createdActionIds } },
+      });
+    }
     if (originalTicket) {
       await prisma.ticket.update({
         where: { id: ticketId },
@@ -121,7 +127,6 @@ describe("Lab 3 staff ticket detail API", () => {
   });
 
   it("API-23: rejects a direct status jump from New to Resolved", async () => {
-    const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
     await prisma.ticket.update({
       where: { id: ticketId },
       data: {
@@ -130,11 +135,17 @@ describe("Lab 3 staff ticket detail API", () => {
         }))!.id,
       },
     });
+    const ticket = await prisma.ticket.findUniqueOrThrow({
+      where: { id: ticketId },
+    });
 
     const response = await staff
       .patch(`/api/staff/tickets/${ticketId}/status`)
       .set(csrf)
-      .send({ status: "Resolved" });
+      .send({
+        toStatus: "Resolved",
+        updatedAt: ticket.updatedAt.toISOString(),
+      });
 
     expect(response.status).toBe(409);
     expect(response.body.error.message).toContain("New");
@@ -149,17 +160,37 @@ describe("Lab 3 staff ticket detail API", () => {
         }))!.id,
       },
     });
+    const ticket = await prisma.ticket.findUniqueOrThrow({
+      where: { id: ticketId },
+    });
+    const resolvedResult = await prisma.actionResult.findFirstOrThrow({
+      where: { name: "Resolved" },
+    });
+    const action = await prisma.actionTaken.create({
+      data: {
+        ticketId,
+        performedByUserId: staffUser1Id,
+        description: "Resolved the issue for the status-transition test.",
+        resultId: resolvedResult.id,
+        followUpRequired: false,
+      },
+    });
+    createdActionIds.push(action.id);
 
     const response = await staff
       .patch(`/api/staff/tickets/${ticketId}/status`)
       .set(csrf)
-      .send({ status: "Resolved", resolutionSummary: "Fixed." });
+      .send({
+        toStatus: "Resolved",
+        updatedAt: ticket.updatedAt.toISOString(),
+        resolutionSummary: "Fixed.",
+      });
 
     expect(response.status).toBe(200);
     expect(response.body.status).toBe("Resolved");
   });
 
-  it("API-25: rejects every transition from Cancelled", async () => {
+  it("API-25: prevents IT Staff from reopening a Cancelled ticket", async () => {
     await prisma.ticket.update({
       where: { id: ticketId },
       data: {
@@ -168,13 +199,19 @@ describe("Lab 3 staff ticket detail API", () => {
         }))!.id,
       },
     });
+    const ticket = await prisma.ticket.findUniqueOrThrow({
+      where: { id: ticketId },
+    });
 
     const response = await staff
       .patch(`/api/staff/tickets/${ticketId}/status`)
       .set(csrf)
-      .send({ status: "Resolved" });
+      .send({
+        toStatus: "Reopened",
+        updatedAt: ticket.updatedAt.toISOString(),
+      });
 
-    expect(response.status).toBe(409);
+    expect(response.status).toBe(403);
   });
 
   it("API-26: staff can view any ticket by id, while missing tickets return 404", async () => {
