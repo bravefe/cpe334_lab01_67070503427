@@ -282,6 +282,7 @@ export default function StaffTicketDetail({
                 <select
                   disabled={busy === "status"}
                   value={ticket.status ?? ""}
+                  aria-label="Current Status"
                   onChange={(event) => void saveStatus(event.target.value)}
                 >
                   <option value={ticket.status}>{ticket.status}</option>
@@ -296,6 +297,7 @@ export default function StaffTicketDetail({
                 <select
                   disabled={busy === "status"}
                   value={ticket.status ?? ""}
+                  aria-label="Current Status"
                   onChange={(event) => void saveStatus(event.target.value)}
                   aria-describedby={
                     !hasResolvedAction &&
@@ -440,6 +442,7 @@ export default function StaffTicketDetail({
                 ticketCreatedAt={ticket.createdAt}
                 ticketStatus={ticket.status ?? ""}
                 role="IT_STAFF"
+                onResolvedActionChange={setHasResolvedAction}
               />
             ) : conversationTab === "comments" ||
               conversationTab === "notes" ? (

@@ -19,6 +19,7 @@ interface Props {
   ticketCreatedAt?: string;
   ticketStatus?: string;
   role?: "REQUESTER" | "IT_STAFF" | "ADMINISTRATOR" | string;
+  onResolvedActionChange?: (hasResolvedAction: boolean) => void;
 }
 
 interface ActionForm {
@@ -55,6 +56,7 @@ export default function ActionsTakenPanel({
   ticketCreatedAt,
   ticketStatus = "",
   role = "REQUESTER",
+  onResolvedActionChange,
 }: Props) {
   const [actions, setActions] = useState<ActionTaken[]>([]);
   const [results, setResults] = useState<ActionResult[]>([]);
@@ -244,10 +246,12 @@ export default function ActionsTakenPanel({
           updatedAt: editing.updatedAt,
         };
         const updated = await updateActionTaken(ticketRef, editing.id, payload);
-        setActions((current) =>
-          sortedActions(
-            current.map((item) => (item.id === updated.id ? updated : item)),
-          ),
+        const nextActions = sortedActions(
+          actions.map((item) => (item.id === updated.id ? updated : item)),
+        );
+        setActions(nextActions);
+        onResolvedActionChange?.(
+          nextActions.some((action) => action.result?.name === "Resolved"),
         );
       } else {
         const payload: CreateActionTakenInput = {
@@ -257,7 +261,11 @@ export default function ActionsTakenPanel({
             : {}),
         };
         const created = await createActionTaken(ticketRef, payload);
-        setActions((current) => sortedActions([...current, created]));
+        const nextActions = sortedActions([...actions, created]);
+        setActions(nextActions);
+        onResolvedActionChange?.(
+          nextActions.some((action) => action.result?.name === "Resolved"),
+        );
       }
       setForm(null);
       setEditing(null);
