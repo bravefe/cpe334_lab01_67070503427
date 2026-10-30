@@ -3,7 +3,7 @@ import {
   fetchStaffTicketDetail,
   updateStaffOwner,
   updateStaffPriority,
-  updateStaffStatus,
+  updateTicketStatus,
 } from "../../api/tickets";
 import { fetchActionsTaken } from "../../api/actions";
 import { Requester } from "../../lib/requester";
@@ -198,7 +198,7 @@ export default function StaffTicketDetail({
     setError("");
     try {
       setTicket(
-        await updateStaffStatus(ticketRef, value, ticket.updatedAt, summary),
+        await updateTicketStatus(ticketRef, value, ticket.updatedAt, summary),
       );
       setMessage(`Status updated to ${value}.`);
     } catch (requestError) {

@@ -24,6 +24,7 @@ export interface TicketDetail extends Ticket {
   relatedSystemId: number;
   requestedPriorityId: number;
   currentStatusId: number;
+  allowedNextStatuses: string[];
   attachments: Attachment[];
   relatedSystem?: RelatedSystem;
   itPriority?: Priority;

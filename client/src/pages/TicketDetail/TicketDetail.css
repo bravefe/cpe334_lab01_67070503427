@@ -119,6 +119,11 @@
   overflow-wrap: anywhere;
   word-break: break-all; */
 }
+
+.ticket-detail-page .field select:not(:disabled) {
+  background: var(--surface);
+}
+
 .ticket-detail-page .field textarea {
   line-height: 1.6;
   min-height: 120px;

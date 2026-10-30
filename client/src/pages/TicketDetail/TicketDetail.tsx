@@ -1,6 +1,9 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { fetchTicketDetail } from "../../api/tickets";
-import { markTicketResolved } from "../../api/tickets";
+import {
+  fetchTicketDetail,
+  markTicketResolved,
+  updateTicketStatus,
+} from "../../api/tickets";
 import { Requester } from "../../lib/requester";
 import { TicketDetail as TicketDetailType } from "../../lib/ticket";
 import TopBar from "../TopBar";
@@ -29,6 +32,8 @@ export default function TicketDetail({
   const [activeTab, setActiveTab] = useState("public-comments");
   const [resolutionBusy, setResolutionBusy] = useState(false);
   const [resolutionError, setResolutionError] = useState("");
+  const [statusBusy, setStatusBusy] = useState(false);
+  const [statusError, setStatusError] = useState("");
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const resolutionRef = useRef<HTMLTextAreaElement>(null);
   const createdFromForm =
@@ -92,6 +97,7 @@ export default function TicketDetail({
   const canDisplayResolutionSummary = ["Resolved", "Closed"].includes(
     ticket?.currentStatus?.name ?? "",
   );
+  const allowedNextStatuses = ticket?.allowedNextStatuses ?? [];
   const markResolved = async () => {
     if (
       !window.confirm(
@@ -111,6 +117,28 @@ export default function TicketDetail({
       );
     } finally {
       setResolutionBusy(false);
+    }
+  };
+  const changeStatus = async (statusName: string) => {
+    if (!ticket || !allowedNextStatuses.includes(statusName)) return;
+
+    setStatusBusy(true);
+    setStatusError("");
+    try {
+      await updateTicketStatus(
+        ticketNumber,
+        statusName,
+        ticket.updatedAt,
+      );
+      setTicket(await fetchTicketDetail(ticketNumber));
+    } catch (requestError) {
+      setStatusError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Unable to update the ticket status.",
+      );
+    } finally {
+      setStatusBusy(false);
     }
   };
 
@@ -204,10 +232,24 @@ export default function TicketDetail({
 
               <label className="field">
                 <span>Current Status</span>
-                <select value={ticket.currentStatus?.id ?? ""} disabled>
-                  <option value={ticket.currentStatus?.id ?? ""}>
+                <select
+                  aria-label="Current Status"
+                  value={ticket.currentStatus?.name ?? ""}
+                  disabled={
+                    statusBusy || allowedNextStatuses.length === 0
+                  }
+                  onChange={(event) =>
+                    void changeStatus(event.target.value)
+                  }
+                >
+                  <option value={ticket.currentStatus?.name ?? ""}>
                     {ticket.currentStatus?.name ?? ""}
                   </option>
+                  {allowedNextStatuses.map((statusName) => (
+                    <option key={statusName} value={statusName}>
+                      {statusName}
+                    </option>
+                  ))}
                 </select>
               </label>
 
@@ -218,6 +260,11 @@ export default function TicketDetail({
                 </div>
               </div> */}
             </div>
+            {statusError && (
+              <div className="error-banner" role="alert">
+                {statusError}
+              </div>
+            )}
 
             {canMarkResolved && !ticket.problemAppearsResolved && (
               <button

@@ -32,6 +32,44 @@ describe("GET /api/tickets/:ticketNumber", () => {
     expect(response.status).toBe(200);
     expect(response.body.data.ticketNumber).toBe("TKT-2026-000001");
     expect(response.body.data.summary).toBe("Test Test 123");
+    expect(response.body.data.allowedNextStatuses).toEqual(
+      expect.any(Array),
+    );
+  });
+
+  it("returns transitions allowed for the current requester and ticket status", async () => {
+    const owner = await prisma.user.findUniqueOrThrow({
+      where: { email: "frodo.b@shiremail.example.com" },
+    });
+    const [category, relatedSystem, priority, newStatus] = await Promise.all([
+      prisma.category.findFirstOrThrow({ where: { isActive: true } }),
+      prisma.relatedSystem.findFirstOrThrow({ where: { isActive: true } }),
+      prisma.priority.findFirstOrThrow(),
+      prisma.status.findUniqueOrThrow({ where: { name: "New" } }),
+    ]);
+    const ticket = await prisma.ticket.create({
+      data: {
+        ticketNumber: `TKT-DETAIL-TRANSITIONS-${Date.now()}`,
+        summary: "Requester status transition permissions",
+        description: "Temporary ticket for transition permission testing.",
+        requesterId: owner.id,
+        categoryId: category.id,
+        relatedSystemId: relatedSystem.id,
+        requestedPriorityId: priority.id,
+        currentStatusId: newStatus.id,
+      },
+    });
+
+    try {
+      const response = await requester.get(
+        `/api/tickets/${ticket.ticketNumber}`,
+      );
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.allowedNextStatuses).toEqual(["Cancelled"]);
+    } finally {
+      await prisma.ticket.delete({ where: { id: ticket.id } });
+    }
   });
 
   it("forbids another requester from accessing the ticket", async () => {

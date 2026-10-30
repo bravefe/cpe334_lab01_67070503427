@@ -89,7 +89,7 @@ export function updateStaffPriority(ticketRef: string, itPriority: string) {
   );
 }
 
-export function updateStaffStatus(
+export function updateTicketStatus(
   ticketRef: string,
   status: string,
   updatedAt: string,
