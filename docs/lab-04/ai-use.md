@@ -4,17 +4,13 @@
 
 | # | Prompt (Summarised) | What I Did with the Result |
 | - | - | - |
-| 1 | Implement this test file | implement the test |
+| 1 | Implement this test file. | Used the generated test file to test the required functionality. |
 | 2 | Let Requesters view Actions Taken for their own tickets and sync the API with the frontend. | Added a requester-authorized read endpoint, kept create/edit restricted to staff and administrators, updated the panel to use the role-appropriate endpoint, and added regression tests. |
-| 3 | generate file directory for lab 4 | - |
-| 4 | implment this part and input the issue description and exeption criteria on the issue | - |
-
-### **LLM/Agent Used: Gemini 3.8 (Antigravity)**
-
-| # | Prompt (Summarised) | What I Did with the Result |
-| - | - | - |
-
+| 3 | Generate the file directory for Lab 4. | Used the suggested directory structure to organize the Lab 4 test files. |
+| 4 | Implement this part and include the issue description and acceptance criteria in the issue. | Used AI to implement the requested functionality and prepare the issue description and acceptance criteria. |
+| 5 | Use tests from Lab 3 as a reference to complete the tests for Lab 4. | Used the existing Lab 3 tests as a reference and adapted them to meet Lab 4 requirements. |
+| 6 | Fix the existing server tests from the previous lab. | Used AI suggestions to identify and fix issues in the existing server tests. |
 
 ## Reflection
 
-This lab mainly involved **pasting an already-prepared specification into AI and using it to guide the implementation**. There were fewer personal adjustments compared to Lab 2, although sometimes the AI implemented only the client, server, or test side, so it was necessary to re-prompt it and specify the exact part to implement, such as writing the test in a separate prompt. There were still some errors when running the tests, and sometimes it was necessary to step back and re-evaluate the tests.
+When using AI, I sometimes provided only the issue description without including the full specifications. This helped reduce token usage and made the prompts shorter. However, it could also lead to some mistakes or misunderstandings because the AI might not have enough context to fully understand the requirements. In some cases, I had to provide additional information or correct the generated results.

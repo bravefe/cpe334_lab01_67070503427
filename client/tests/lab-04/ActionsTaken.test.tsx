@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import ActionsTakenPanel from "../../src/pages/TicketDetail/ActionsTakenPanel";
@@ -191,8 +191,6 @@ describe("Lab 4 Actions Taken UI Component", () => {
       />,
     );
 
-    console.log("sampleResults:", sampleResults);
-
     // Open Add Action modal
     const addBtn = await screen.findByRole("button", { name: /Add Action/i });
     await user.click(addBtn);
@@ -208,7 +206,6 @@ describe("Lab 4 Actions Taken UI Component", () => {
     const resultSelect = screen.getByLabelText(/Result/i);
     await user.selectOptions(resultSelect, "1");
 
-    console.log("result select:", resultSelect.innerHTML);
     const saveButton = screen.getByRole("button", { name: "Save" });
     expect(saveButton).toBeEnabled();
 
@@ -224,25 +221,30 @@ describe("Lab 4 Actions Taken UI Component", () => {
     expect(postCalls.length).toBe(1);
 
     // Clean up pending promise
-    resolveCreate(
-      response(
-        {
-          id: 99,
-          ticketId: 101,
-          actionAt: new Date().toISOString(),
-          description: "Hardware replacement complete and verified.",
-          resultId: 1,
-          result: { id: 1, name: "Resolved" },
-          performedBy: { id: 2, name: "Sam Staff" },
-          followUpRequired: false,
-          followUpNote: null,
-          attachmentNotes: null,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        201,
-      ),
-    );
+    await act(async () => {
+      resolveCreate(
+        response(
+          {
+            id: 99,
+            ticketId: 101,
+            actionAt: new Date().toISOString(),
+            description: "Hardware replacement complete and verified.",
+            resultId: 1,
+            result: { id: 1, name: "Resolved" },
+            performedBy: { id: 2, name: "Sam Staff" },
+            followUpRequired: false,
+            followUpNote: null,
+            attachmentNotes: null,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          201,
+        ),
+      );
+    });
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
   });
 
   it("STYLE-01: adheres to Zen Green design tokens and CSS class conventions", async () => {

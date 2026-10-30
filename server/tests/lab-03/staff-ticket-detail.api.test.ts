@@ -23,17 +23,10 @@ describe("Lab 3 staff ticket detail API", () => {
   let staffUser2Id: number;
   let inactiveStaffId: number;
   let requesterUserId: number;
-  let originalTicket: any;
-  const createdActionIds: number[] = [];
+  let createdTicketId: number | null = null;
 
   beforeAll(async () => {
     staff = await login("arwen@rivendell.example.com");
-    const ticket = await prisma.ticket.findFirst({
-      where: { ticketOwnerId: null },
-      orderBy: { id: "asc" },
-    });
-    ticketId = ticket?.id ?? 1;
-    originalTicket = await prisma.ticket.findUnique({ where: { id: ticketId } });
 
     const s1 = await prisma.user.findFirst({
       where: { role: "IT_STAFF", isActive: true },
@@ -52,24 +45,35 @@ describe("Lab 3 staff ticket detail API", () => {
     staffUser2Id = s2!.id;
     inactiveStaffId = sInactive!.id;
     requesterUserId = rUser!.id;
+
+    const [category, relatedSystem, priority, newStatus] = await Promise.all([
+      prisma.category.findFirstOrThrow({ where: { isActive: true } }),
+      prisma.relatedSystem.findFirstOrThrow({ where: { isActive: true } }),
+      prisma.priority.findFirstOrThrow(),
+      prisma.status.findFirstOrThrow({ where: { name: "New" } }),
+    ]);
+    const ticket = await prisma.ticket.create({
+      data: {
+        ticketNumber: `TKT-STAFF-DETAIL-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        requesterId: requesterUserId,
+        categoryId: category.id,
+        relatedSystemId: relatedSystem.id,
+        requestedPriorityId: priority.id,
+        currentStatusId: newStatus.id,
+        summary: "Staff ticket detail test ticket",
+        description: "Dedicated ticket for staff detail API regression tests.",
+      },
+    });
+    ticketId = ticket.id;
+    createdTicketId = ticket.id;
   });
 
   afterAll(async () => {
-    if (createdActionIds.length) {
+    if (createdTicketId !== null) {
       await prisma.actionTaken.deleteMany({
-        where: { id: { in: createdActionIds } },
+        where: { ticketId: createdTicketId },
       });
-    }
-    if (originalTicket) {
-      await prisma.ticket.update({
-        where: { id: ticketId },
-        data: {
-          ticketOwnerId: originalTicket.ticketOwnerId,
-          itPriorityId: originalTicket.itPriorityId,
-          currentStatusId: originalTicket.currentStatusId,
-          resolutionSummary: originalTicket.resolutionSummary,
-        },
-      });
+      await prisma.ticket.delete({ where: { id: createdTicketId } });
     }
     await prisma.$disconnect();
   });
@@ -166,7 +170,7 @@ describe("Lab 3 staff ticket detail API", () => {
     const resolvedResult = await prisma.actionResult.findFirstOrThrow({
       where: { name: "Resolved" },
     });
-    const action = await prisma.actionTaken.create({
+    await prisma.actionTaken.create({
       data: {
         ticketId,
         performedByUserId: staffUser1Id,
@@ -175,7 +179,6 @@ describe("Lab 3 staff ticket detail API", () => {
         followUpRequired: false,
       },
     });
-    createdActionIds.push(action.id);
 
     const response = await staff
       .patch(`/api/staff/tickets/${ticketId}/status`)
