@@ -116,6 +116,56 @@ describe("Lab 4 Staff Dashboard", () => {
     expect(screen.getByLabelText("Owner")).toHaveValue("unassigned");
   });
 
+  it("opens a recent ticket using its public ticket number", async () => {
+    const fetchMock = vi.fn().mockImplementation((input: RequestInfo | URL) => {
+      const url = new URL(String(input));
+
+      if (url.pathname === "/api/staff/dashboard") {
+        return Promise.resolve(
+          response({
+            unassigned: 0,
+            myAssigned: 0,
+            new: 0,
+            open: 0,
+            inProgress: 0,
+            waitingForRequester: 0,
+            byPriority: [],
+            recentTickets: [
+              {
+                id: 14,
+                ticketNumber: "TKT-2026-000014",
+                title: "Unable to access email",
+                status: "Open",
+                updatedAt: "2026-10-30T00:00:00.000Z",
+              },
+            ],
+          }),
+        );
+      }
+
+      return Promise.resolve(response([]));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+
+    render(
+      <Dashboard
+        requester={{
+          id: 2,
+          name: "Sam Staff",
+          email: "sam@example.com",
+          role: "IT_STAFF",
+        }}
+      />,
+    );
+
+    await user.click(
+      await screen.findByRole("button", { name: /TKT-2026-000014/ }),
+    );
+
+    expect(window.location.pathname).toBe("/queue/TKT-2026-000014");
+  });
+
   it("RESP-01: dashboard metric grids reflow at desktop, tablet, and mobile breakpoints", async () => {
     const fetchMock = vi.fn().mockImplementation((input: RequestInfo | URL) => {
       const url = new URL(String(input));

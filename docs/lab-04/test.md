@@ -16,7 +16,7 @@ updated to `Pass`/`Fail` for submission (Part 3 requires the actual passing outp
 | Responsive | 2 | `client/tests/lab-04/ActionsTaken.test.tsx`, `client/tests/lab-04/StaffDashboard.test.tsx` |
 | Security / Authorization | 4 | `server/tests/lab-04/actions-taken.api.test.ts`, `server/tests/lab-04/ticket-workflow.api.test.ts`, `server/tests/lab-04/admin-dashboard.api.test.ts` |
 | Migration / Regression | 1 | `server/tests/lab-04/actions-taken.api.test.ts` |
-| End-to-End | 5 | `e2e/lab-04/*.spec.ts` |
+| End-to-End | 6 | `e2e/lab-04/*.spec.ts` |
 
 Authorization and migration counts overlap the API / Integration count. The UI component count
 excludes the two style and two responsive tests, which are listed separately. Action field
@@ -112,6 +112,7 @@ separate Action Taken validator unit-test file.
 | E2E-01 | E2E | AC-01 | Full Actions Taken flow: IT Staff opens a Ticket, adds an action, sees it in the list, and edits it | Action appears immediately and the edit persists | `e2e/lab-04/actions-taken-flow.spec.ts` | Pass |
 | E2E-02 | E2E | AC-03 | Create an Action Taken with Follow-Up Required checked and Follow-up Note left blank | Inline validation error shown; record is not created until the note is filled in | `e2e/lab-04/actions-taken-flow.spec.ts` | Pass |
 | E2E-03 | E2E | AC-05, AC-06, AC-10 | Resolution gate end to end, then dashboard drill-down from both roles | Resolve is rejected until a Resolved action exists; requester/staff metrics and drill-downs reflect the status change | `e2e/lab-04/dashboards.spec.ts` | Pass |
+| E2E-09 | E2E / responsive evidence | `ui-spec.md` §§2–7 | Captures Lab 4 dashboards, Actions Taken, workflow, role visibility, and representative regression screens | Evidence screenshots are saved at desktop (1280px), tablet (991px), and mobile (390px) widths with no horizontal overflow | `e2e/lab-04/rubric-evidence.spec.ts`; `artifacts/lab-04/screenshots/` | Pass |
 
 ## Acceptance Criteria → Test Traceability
 

@@ -89,7 +89,7 @@ function RecentTickets({
   tickets: RecentTicket[];
   loading: boolean;
   viewAllHref: string;
-  ticketHref: (id: number) => string;
+  ticketHref: (ticket: RecentTicket) => string;
 }) {
   return (
     <section className="dash-panel" aria-labelledby="recent-heading">
@@ -124,9 +124,9 @@ function RecentTickets({
               <button
                 type="button"
                 className="recent-row"
-                onClick={() => navigate(ticketHref(ticket.id))}
+                onClick={() => navigate(ticketHref(ticket))}
               >
-                <span className="recent-id">#{ticket.id}</span>
+                <span className="recent-id">{ticket.ticketNumber}</span>
                 <span className="recent-title">{ticket.title}</span>
                 <span className="dash-badge status-badge">{ticket.status}</span>
                 <span className="recent-time">
@@ -259,7 +259,7 @@ export default function Dashboard({ requester }: DashboardProps) {
             tickets={d?.recentTickets ?? []}
             loading={showSkeleton}
             viewAllHref="/my-tickets"
-            ticketHref={(id) => `/ticket/${id}`}
+            ticketHref={(ticket) => `/ticket/${ticket.ticketNumber}`}
           />
           <QuickActions
             actions={[
@@ -386,7 +386,7 @@ export default function Dashboard({ requester }: DashboardProps) {
             tickets={d?.recentTickets ?? []}
             loading={showSkeleton}
             viewAllHref="/queue"
-            ticketHref={(id) => `/queue/${id}`}
+            ticketHref={(ticket) => `/queue/${ticket.ticketNumber}`}
           />
           <QuickActions
             actions={[

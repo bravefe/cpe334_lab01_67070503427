@@ -1,4 +1,5 @@
 import { cleanup, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import App from "../../src/App";
 
@@ -52,6 +53,28 @@ describe("Lab 3 application shell", () => {
     render(<App />);
     expect(
       await screen.findByRole("heading", { name: "Sign in" }),
+    ).toBeInTheDocument();
+  });
+
+  it("navigates to the role dashboard when the logo is clicked", async () => {
+    window.history.replaceState({}, "", "/my-tickets");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((input: RequestInfo | URL) =>
+        String(input).includes("/api/auth/me")
+          ? Promise.resolve(response(requester))
+          : Promise.resolve(response({ data: [] })),
+      ),
+    );
+    const user = userEvent.setup();
+
+    render(<App />);
+    await screen.findByRole("heading", { name: "My Tickets" });
+    await user.click(screen.getByRole("button", { name: "Go to dashboard" }));
+
+    expect(window.location.pathname).toBe("/requester/dashboard");
+    expect(
+      await screen.findByRole("heading", { name: "Welcome, Frodo!" }),
     ).toBeInTheDocument();
   });
 });

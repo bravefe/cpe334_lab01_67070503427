@@ -14,6 +14,12 @@ import UserManagement from "./pages/UserManagement/UserManagement";
 
 import { AuthUser } from "./lib/auth";
 
+const dashboardPaths: Record<string, string> = {
+  REQUESTER: "/requester/dashboard",
+  IT_STAFF: "/staff/dashboard",
+  ADMINISTRATOR: "/admin/dashboard",
+};
+
 export default function App() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [path, setPath] = useState(window.location.pathname);
@@ -28,6 +34,7 @@ export default function App() {
     const handlePopState = () => {
       setPath(window.location.pathname);
     };
+
     const handleAppLogout = () => {
       window.history.replaceState({}, "", "/login");
       setPath("/login");
@@ -43,29 +50,32 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    const handleDashboardNavigation = () => {
+      if (!user) return;
+
+      const dashboardPath = dashboardPaths[user.role];
+      if (window.location.pathname === dashboardPath) return;
+
+      window.history.pushState({}, "", dashboardPath);
+      setPath(dashboardPath);
+    };
+
+    window.addEventListener("app:navigate-dashboard", handleDashboardNavigation);
+    return () =>
+      window.removeEventListener(
+        "app:navigate-dashboard",
+        handleDashboardNavigation,
+      );
+  }, [user]);
+
   const goTo = (nextPath: string) => {
     window.history.pushState({}, "", nextPath);
     setPath(new URL(nextPath, window.location.origin).pathname);
   };
 
-  // Old version
-
-  // const getDefaultPath = (role: string) => {
-  //   if (role === "IT_STAFF") {
-  //     return "/queue";
-  //   }
-
-  //   if (role === "ADMINISTRATOR") {
-  //     return "/admin/users";
-  //   }
-
-  //   return "/my-tickets";
-  // };
-
   const getDefaultPath = (role: string) => {
-    if (role === "IT_STAFF") return "/staff/dashboard";
-    if (role === "ADMINISTRATOR") return "/admin/dashboard";
-    return "/requester/dashboard";
+    return dashboardPaths[role] ?? dashboardPaths.REQUESTER;
   };
 
   if (loading) {
@@ -122,18 +132,16 @@ export default function App() {
   const onMyTickets = () => goTo("/my-tickets");
   const onCreateTicket = () => goTo("/create-ticket");
   const onQueue = () => goTo("/queue");
+
+  // Navigate to the dashboard based on the user's role.
   const onDefault = () => goTo(getDefaultPath(user.role));
 
-  const dashboardPaths: Record<string, string> = {
-    REQUESTER: "/requester/dashboard",
-    IT_STAFF: "/staff/dashboard",
-    ADMINISTRATOR: "/admin/dashboard",
-  };
-
+  // Role-based dashboard access
   if (path.endsWith("/dashboard") && path.split("/").length === 3) {
     if (path === dashboardPaths[user.role]) {
       return <Dashboard requester={requester} />;
     }
+
     return (
       <main className="selection">
         <div className="selection-card">
@@ -147,7 +155,8 @@ export default function App() {
     );
   }
 
-  if (path.startsWith("/queue") && user.role == "REQUESTER") {
+  // Requesters cannot access the IT Staff queue.
+  if (path.startsWith("/queue") && user.role === "REQUESTER") {
     return (
       <main className="selection">
         <div className="selection-card">
@@ -156,13 +165,14 @@ export default function App() {
             You are not permitted to view the IT Staff queue.
           </p>
           <button type="button" className="primary" onClick={onDefault}>
-            ← Back to My Tickets
+            ← Back to Dashboard
           </button>
         </div>
       </main>
     );
   }
 
+  // Only administrators can access User Management.
   if (path.startsWith("/admin/users") && user.role !== "ADMINISTRATOR") {
     return (
       <main className="selection">
@@ -179,10 +189,12 @@ export default function App() {
     );
   }
 
+  // Administrator routes
   if (user.role === "ADMINISTRATOR") {
     if (path.startsWith("/admin/users")) {
       return <UserManagement currentUserId={user.id} user={requester} />;
     }
+
     if (path === "/queue") {
       return (
         <main className="selection">
@@ -193,6 +205,7 @@ export default function App() {
         </main>
       );
     }
+
     const staffTicketMatch = path.match(/^\/queue\/(.+)$/);
 
     if (staffTicketMatch) {
@@ -206,6 +219,7 @@ export default function App() {
     }
   }
 
+  // IT Staff routes
   if (user.role === "IT_STAFF") {
     if (path === "/queue") {
       return (
@@ -236,6 +250,7 @@ export default function App() {
     );
   }
 
+  // Requester routes
   if (path === "/my-tickets") {
     return (
       <MyTickets

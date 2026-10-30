@@ -63,10 +63,15 @@ export default function TopBar({ requester }: TopBarProps) {
 
   return (
     <nav className="topbar">
-      <strong className="logo">
-        <img src={logo} alt="TokTockIT logo" />
+      <button
+        type="button"
+        className="logo"
+        aria-label="Go to dashboard"
+        onClick={() => window.dispatchEvent(new Event("app:navigate-dashboard"))}
+      >
+        <img src={logo} alt="" />
         TokTockIT
-      </strong>
+      </button>
 
       {role === "REQUESTER" ? (
         <>
