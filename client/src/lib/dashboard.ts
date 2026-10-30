@@ -3,6 +3,7 @@
 
 export interface RecentTicket {
   id: number;
+  ticketNumber: string;
   title: string;
   status: string;
   updatedAt: string; // ISO date string

@@ -311,6 +311,14 @@ export async function updateStatus(req: Request, res: Response): Promise<void> {
     return;
   }
 
+  if (
+    req.user!.role === "REQUESTER" &&
+    ticket.requesterId !== req.user!.id
+  ) {
+    sendError(res, 404, "NOT_FOUND", "Ticket not found.");
+    return;
+  }
+
   const raw = req.body?.toStatus; // doc says toStatus, not status
   const target = typeof raw === "string" ? raw.trim().replace(/_/g, " ") : "";
   const status = target ? await findStatusByName(target) : null;

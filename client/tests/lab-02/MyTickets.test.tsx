@@ -10,7 +10,13 @@ const requesters = [
 ];
 const categories = [{ id: 1, name: "Account and Access" }];
 const priorities = [{ id: 1, name: "High", sortOrder: 1 }];
-const statuses = [{ id: 1, name: "New", isDefault: true }];
+const statuses = [
+  { id: 1, name: "New", isDefault: true },
+  { id: 2, name: "Open", isDefault: false },
+  { id: 3, name: "In Progress", isDefault: false },
+  { id: 4, name: "Waiting for Requester", isDefault: false },
+  { id: 5, name: "Reopened", isDefault: false },
+];
 
 function response(body: unknown, status = 200) {
   return { ok: status >= 200 && status < 300, status, json: async () => body };
@@ -30,9 +36,13 @@ function defaultFetch(input: RequestInfo | URL, init?: RequestInit) {
   return Promise.resolve(response({ data: [] }));
 }
 
-function renderMyTickets(requesterId = "1") {
+function renderMyTickets(requesterId = "1", statusNames?: string[]) {
   localStorage.setItem("requesterId", requesterId);
-  window.history.pushState({}, "", "/my-tickets");
+  window.history.pushState(
+    statusNames ? { dashboardFilter: { statusNames } } : {},
+    "",
+    "/my-tickets",
+  );
   render(<App />);
 }
 
@@ -56,6 +66,36 @@ describe("My Tickets screen", () => {
     expect(screen.getByText("Create your first support request to get started.")).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: /Create Ticket/ }).length).toBeGreaterThan(0);
     expect(screen.queryByText("No tickets match these filters")).not.toBeInTheDocument();
+  });
+
+  it("applies dashboard multi-status filters from navigation state without changing the URL", async () => {
+    renderMyTickets("1", [
+      "New",
+      "Open",
+      "In Progress",
+      "Waiting for Requester",
+      "Reopened",
+    ]);
+
+    expect(
+      await screen.findByRole("heading", {
+        name: "No tickets match these filters",
+      }),
+    ).toBeInTheDocument();
+    expect(window.location.pathname).toBe("/my-tickets");
+    expect(screen.getByLabelText("Current Status")).toHaveValue("dashboard");
+
+    await waitFor(() => {
+      expect(
+        fetchMock.mock.calls.some(([input]) => {
+          const url = new URL(String(input));
+          return (
+            url.pathname === "/api/tickets/" &&
+            url.searchParams.get("currentStatusIds") === "1,2,3,4,5"
+          );
+        }),
+      ).toBe(true);
+    });
   });
 
   it("UI-12: shows no-results state and clears active filters", async () => {

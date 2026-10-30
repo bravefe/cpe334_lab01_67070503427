@@ -20,117 +20,162 @@ describe("Lab 4 Actions Taken API", () => {
   let requester: Agent;
   let staff: Agent;
   let staffUser: { id: number; name: string; email: string };
-  let testTicket: { id: number; ticketNumber: string; createdAt: Date };
-  let closedTicket: { id: number; ticketNumber: string };
+  let requesterUserId: number;
+  let testTicket!: { id: number; ticketNumber: string; createdAt: Date };
+  let closedTicket!: { id: number; ticketNumber: string };
   let activeResult: { id: number; name: string };
+  const testTicketIds: number[] = [];
 
   beforeAll(async () => {
     requester = await authenticated("frodo.b@shiremail.example.com");
     staff = await authenticated("arwen@rivendell.example.com");
 
-    const foundStaff = await prisma.user.findUnique({
-      where: { email: "arwen@rivendell.example.com" },
-    });
+    const [foundStaff, foundRequester, foundResult, openStatus, closedStatus, category, system, priority] =
+      await Promise.all([
+        prisma.user.findUnique({
+          where: { email: "arwen@rivendell.example.com" },
+        }),
+        prisma.user.findUnique({
+          where: { email: "frodo.b@shiremail.example.com" },
+        }),
+        prisma.actionResult.findFirst({ where: { isActive: true } }),
+        prisma.status.findFirst({ where: { name: "Open" } }),
+        prisma.status.findFirst({ where: { name: "Closed" } }),
+        prisma.category.findFirst({ where: { isActive: true } }),
+        prisma.relatedSystem.findFirst({ where: { isActive: true } }),
+        prisma.priority.findFirst(),
+      ]);
     if (!foundStaff) throw new Error("Staff user not found");
+    if (!foundRequester) throw new Error("Requester user not found");
+    if (!foundResult) throw new Error("No active action result found");
+    if (!openStatus || !closedStatus || !category || !system || !priority) {
+      throw new Error("Ticket reference data is missing");
+    }
     staffUser = {
       id: foundStaff.id,
       name: foundStaff.name,
       email: foundStaff.email,
     };
-
-    const foundResult = await prisma.actionResult.findFirst({
-      where: { isActive: true },
-    });
-    if (!foundResult) throw new Error("No active action result found");
+    requesterUserId = foundRequester.id;
     activeResult = { id: foundResult.id, name: foundResult.name };
 
-    // Find or create an open/in-progress ticket for testing
-    let ticket = await prisma.ticket.findFirst({
-      where: {
-        currentStatus: {
-          name: { notIn: ["Closed", "Cancelled"] },
-        },
+    const ticketSuffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const ticket = await prisma.ticket.create({
+      data: {
+        ticketNumber: `TKT-ACTION-${ticketSuffix}`,
+        summary: "Test Ticket for Actions Taken",
+        description:
+          "This is a detailed description for testing actions taken API.",
+        categoryId: category.id,
+        relatedSystemId: system.id,
+        requestedPriorityId: priority.id,
+        currentStatusId: openStatus.id,
+        requesterId: requesterUserId,
       },
-      include: { currentStatus: true },
-      orderBy: { id: "asc" },
     });
-
-    if (!ticket) {
-      const openStatus = await prisma.status.findFirst({
-        where: { name: "Open" },
-      });
-      const category = await prisma.category.findFirst();
-      const system = await prisma.relatedSystem.findFirst();
-      const priority = await prisma.priority.findFirst();
-      const reqUser = await prisma.user.findFirst({
-        where: { role: "REQUESTER" },
-      });
-
-      ticket = await prisma.ticket.create({
-        data: {
-          ticketNumber: "TKT-TEST-000001",
-          summary: "Test Ticket for Actions Taken",
-          description:
-            "This is a detailed description for testing actions taken API.",
-          categoryId: category!.id,
-          relatedSystemId: system!.id,
-          requestedPriorityId: priority!.id,
-          currentStatusId: openStatus!.id,
-          requesterId: reqUser!.id,
-        },
-        include: { currentStatus: true },
-      });
-    }
     testTicket = {
       id: ticket.id,
       ticketNumber: ticket.ticketNumber,
       createdAt: ticket.createdAt,
     };
+    testTicketIds.push(ticket.id);
 
-    // Find or setup a Closed ticket for API-02
-    let closedStatus = await prisma.status.findFirst({
-      where: { name: "Closed" },
+    const closed = await prisma.ticket.create({
+      data: {
+        ticketNumber: `TKT-ACTION-CLOSED-${ticketSuffix}`,
+        summary: "Closed Test Ticket",
+        description:
+          "This is a closed ticket created for testing action rejection.",
+        categoryId: category.id,
+        relatedSystemId: system.id,
+        requestedPriorityId: priority.id,
+        currentStatusId: closedStatus.id,
+        requesterId: requesterUserId,
+      },
     });
-    if (!closedStatus) {
-      closedStatus = await prisma.status.create({
-        data: { name: "Closed", isDefault: false },
-      });
-    }
-
-    let closed = await prisma.ticket.findFirst({
-      where: { currentStatusId: closedStatus.id },
-    });
-
-    if (!closed) {
-      const category = await prisma.category.findFirst();
-      const system = await prisma.relatedSystem.findFirst();
-      const priority = await prisma.priority.findFirst();
-      const reqUser = await prisma.user.findFirst({
-        where: { role: "REQUESTER" },
-      });
-
-      closed = await prisma.ticket.create({
-        data: {
-          ticketNumber: "TKT-TEST-CLOSED-01",
-          summary: "Closed Test Ticket",
-          description:
-            "This is a closed ticket created for testing action rejection.",
-          categoryId: category!.id,
-          relatedSystemId: system!.id,
-          requestedPriorityId: priority!.id,
-          currentStatusId: closedStatus.id,
-          requesterId: reqUser!.id,
-        },
-      });
-    }
     closedTicket = {
       id: closed.id,
       ticketNumber: closed.ticketNumber,
     };
+    testTicketIds.push(closed.id);
   });
 
   afterAll(async () => {
+    if (testTicketIds.length) {
+      await prisma.actionTaken.deleteMany({
+        where: { ticketId: { in: testTicketIds } },
+      });
+      await prisma.ticket.deleteMany({
+        where: { id: { in: testTicketIds } },
+      });
+    }
     await prisma.$disconnect();
+  });
+
+  it("MIG-01: preserves existing tickets and adds no Action Taken rows", async () => {
+    const appliedMigration = await prisma.$queryRaw<
+      Array<{ migration_name: string; finished_at: Date }>
+    >`
+      SELECT migration_name, finished_at
+      FROM "_prisma_migrations"
+      WHERE migration_name = '20260924080139_lab4'
+        AND finished_at IS NOT NULL
+        AND rolled_back_at IS NULL
+    `;
+    expect(appliedMigration).toHaveLength(1);
+
+    const legacyTickets = await prisma.ticket.findMany({
+      where: {
+        ticketNumber: {
+          in: Array.from(
+            { length: 12 },
+            (_, index) => `TKT-2026-${String(index + 1).padStart(6, "0")}`,
+          ),
+        },
+      },
+      select: {
+        id: true,
+        ticketNumber: true,
+        summary: true,
+        createdAt: true,
+      },
+      orderBy: { ticketNumber: "asc" },
+    });
+
+    expect(legacyTickets).toHaveLength(12);
+    expect(legacyTickets.map(({ ticketNumber }) => ticketNumber)).toEqual(
+      Array.from(
+        { length: 12 },
+        (_, index) => `TKT-2026-${String(index + 1).padStart(6, "0")}`,
+      ),
+    );
+    expect(legacyTickets.map(({ summary }) => summary)).toEqual([
+      "Test Test 123",
+      "Campus Wi-Fi not working",
+      "LEB2 App crashes on assignment upload",
+      "Cannot connect to campus VPN from off-campus",
+      "Library 2nd floor printer paper jam",
+      "Instructor permissions missing for grading portal",
+      "Laptop battery drains rapidly while sleeping",
+      "Intermittent Wi-Fi disconnects in Science Building",
+      "Spam filter test request",
+      "Password reset for remote VPN account",
+      "External monitor not detected via HDMI",
+      "Unable to view course announcements",
+    ]);
+    expect(
+      legacyTickets.every(
+        ({ createdAt }) => createdAt.toISOString() === "2026-01-01T00:00:00.000Z",
+      ),
+    ).toBe(true);
+
+    const actionCountAtMigration = await prisma.actionTaken.count({
+      where: {
+        ticketId: { in: legacyTickets.map(({ id }) => id) },
+        createdAt: { lte: appliedMigration[0].finished_at },
+      },
+    });
+    expect(actionCountAtMigration).toBe(0);
   });
 
   it("API-01: performedById sent by client on create is ignored; server sets it from session", async () => {
@@ -336,6 +381,60 @@ describe("Lab 4 Actions Taken API", () => {
       .send(actionPayload);
 
     expect(response.status).toBe(403);
+  });
+
+  it("AUTH-05: denies a Requester access to another Requester's Actions Taken", async () => {
+    const otherRequester = await prisma.user.findUniqueOrThrow({
+      where: { email: "sam.gamgee@shiremail.example.com" },
+    });
+    const sourceTicket = await prisma.ticket.findUniqueOrThrow({
+      where: { id: testTicket.id },
+    });
+    const ticketNumber = `TKT-AUTH-05-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const foreignTicket = await prisma.ticket.create({
+      data: {
+        ticketNumber,
+        requesterId: otherRequester.id,
+        categoryId: sourceTicket.categoryId,
+        relatedSystemId: sourceTicket.relatedSystemId,
+        summary: "Foreign requester actions access test",
+        description: "Dedicated ticket to verify requester action privacy.",
+        requestedPriorityId: sourceTicket.requestedPriorityId,
+        currentStatusId: sourceTicket.currentStatusId,
+      },
+    });
+    const privateDescription = "PRIVATE ACTION DATA MUST NOT BE RETURNED";
+    const foreignAction = await prisma.actionTaken.create({
+      data: {
+        ticketId: foreignTicket.id,
+        description: privateDescription,
+        resultId: activeResult.id,
+        performedByUserId: staffUser.id,
+        followUpRequired: false,
+      },
+    });
+
+    try {
+      const response = await requester.get(
+        `/api/tickets/${ticketNumber}/actions`,
+      );
+
+      expect(response.status).toBe(403);
+      expect(response.body.error).toEqual({
+        code: "FORBIDDEN",
+        message: "You are not allowed to access this ticket.",
+      });
+      expect(response.body.data).toBeUndefined();
+      expect(JSON.stringify(response.body)).not.toContain(privateDescription);
+      expect(response.body).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: foreignAction.id }),
+        ]),
+      );
+    } finally {
+      await prisma.actionTaken.delete({ where: { id: foreignAction.id } });
+      await prisma.ticket.delete({ where: { id: foreignTicket.id } });
+    }
   });
 
   it("allows a Requester to view Actions Taken for their own ticket", async () => {

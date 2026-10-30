@@ -1,4 +1,10 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import StaffTicketDetail from "../../src/pages/StaffTicketDetail/StaffTicketDetail";
@@ -140,6 +146,54 @@ describe("Lab 3 staff ticket detail", () => {
     expect(
       fetchMock.mock.calls.some(([, init]) => init?.method === "PATCH"),
     ).toBe(false);
+  });
+
+  it("enables Resolved immediately after adding a Resolved service action", async () => {
+    const user = userEvent.setup();
+    const createdAction = {
+      id: 99,
+      ticketId: ticket.id,
+      actionAt: new Date().toISOString(),
+      description: "Service restored and verified.",
+      resultId: 1,
+      result: { id: 1, name: "Resolved" },
+      performedBy: { id: 2, name: "Sam Staff" },
+      followUpRequired: false,
+      followUpNote: null,
+      attachmentNotes: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    const fetchMock = vi.fn().mockImplementation(
+      (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input);
+        const method = (init?.method ?? "GET").toUpperCase();
+        if (url.includes("/actions") && method === "GET")
+          return response([]);
+        if (url.includes("/actions") && method === "POST")
+          return response(createdAction, 201);
+        if (url.includes("/api/action-results"))
+          return response([{ id: 1, name: "Resolved", isActive: true }]);
+        return defaultFetch(input, init);
+      },
+    );
+    renderDetail(fetchMock);
+
+    await user.click(await screen.findByRole("tab", { name: "Service Actions" }));
+    await user.click(await screen.findByRole("button", { name: "Add Action" }));
+    const dialog = await screen.findByRole("dialog");
+    await user.type(
+      within(dialog).getByLabelText("Description"),
+      "Service restored and verified.",
+    );
+    await user.selectOptions(within(dialog).getByLabelText("Result"), "1");
+    await user.click(within(dialog).getByRole("button", { name: "Save" }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("option", { name: "Resolved" }),
+      ).toBeEnabled();
+    });
   });
 
   it("UI-16: confirms final status changes before sending", async () => {

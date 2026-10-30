@@ -1,4 +1,5 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { fetchTickets } from "../../src/api/tickets";
 import Dashboard from "../../src/pages/Dashboard/Dashboard";
@@ -75,6 +76,44 @@ describe("Lab 4 Requester Dashboard", () => {
           return url.pathname === "/api/tickets/";
         }),
       ).toBe(true);
+    });
+  });
+
+  it("navigates requester metric cards with filters in history state and a clean URL", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        response({
+          totalOpen: 1,
+          waitingForYou: 1,
+          recentlyResolved: 0,
+          closed: 0,
+          recentTickets: [],
+        }),
+      ),
+    );
+
+    const user = userEvent.setup();
+    render(
+      <Dashboard
+        requester={{
+          id: 1,
+          name: "Frodo Baggins",
+          email: "frodo@example.com",
+          role: "REQUESTER",
+        }}
+      />,
+    );
+    await user.click(
+      await screen.findByRole("button", {
+        name: "Waiting for You: 1. View tickets",
+      }),
+    );
+
+    expect(window.location.pathname).toBe("/my-tickets");
+    expect(window.location.search).toBe("");
+    expect(window.history.state).toEqual({
+      dashboardFilter: { statusNames: ["Waiting for Requester"] },
     });
   });
 });

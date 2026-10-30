@@ -9,6 +9,13 @@ const SEED_TICKET_CREATED_AT = new Date("2026-01-01T00:00:00Z");
 
 export async function seed() {
   const prisma = getPrisma();
+  const skipTicketSeed = process.env.SKIP_TICKET_SEED?.toLowerCase() === "true";
+
+  if (skipTicketSeed) {
+    console.info(
+      "Skipping ticket, comment, and internal note seed data (SKIP_TICKET_SEED=true).",
+    );
+  }
 
   // 1. Categories
   const categories = ["Account and Access", "Hardware", "Software", "Network"];
@@ -431,7 +438,7 @@ export async function seed() {
     },
   ];
 
-  for (const t of ticketsToSeed) {
+  for (const t of skipTicketSeed ? [] : ticketsToSeed) {
     const requesterId = usersMap.get(t.requesterEmail);
     const categoryId = categoriesMap.get(t.categoryName);
     const relatedSystemId = systemsMap.get(t.systemName);
@@ -507,7 +514,7 @@ export async function seed() {
     },
   ];
 
-  for (const c of sampleComments) {
+  for (const c of skipTicketSeed ? [] : sampleComments) {
     const ticket = await prisma.ticket.findUniqueOrThrow({
       where: { ticketNumber: c.ticketNumber },
     });
@@ -555,7 +562,7 @@ export async function seed() {
     },
   ];
 
-  for (const n of sampleNotes) {
+  for (const n of skipTicketSeed ? [] : sampleNotes) {
     const ticket = await prisma.ticket.findUniqueOrThrow({
       where: { ticketNumber: n.ticketNumber },
     });
@@ -580,23 +587,27 @@ export async function seed() {
   }
 
   // 9. Backfill any existing tickets with itPriorityId = requestedPriorityId
-  await prisma.$executeRawUnsafe(
-    `UPDATE "Ticket" SET "itPriorityId" = "requestedPriorityId" WHERE "itPriorityId" IS NULL`,
-  );
+  if (!skipTicketSeed) {
+    await prisma.$executeRawUnsafe(
+      `UPDATE "Ticket" SET "itPriorityId" = "requestedPriorityId" WHERE "itPriorityId" IS NULL`,
+    );
+  }
 
   // 10. Synchronize serial sequences so future inserts work without ID conflicts
   await prisma.$executeRawUnsafe(
     `SELECT setval(pg_get_serial_sequence('"User"', 'id'), coalesce(max(id), 0) + 1, false) FROM "User"`,
   );
-  await prisma.$executeRawUnsafe(
-    `SELECT setval(pg_get_serial_sequence('"Ticket"', 'id'), coalesce(max(id), 0) + 1, false) FROM "Ticket"`,
-  );
-  await prisma.$executeRawUnsafe(
-    `SELECT setval(pg_get_serial_sequence('"PublicComment"', 'id'), coalesce(max(id), 0) + 1, false) FROM "PublicComment"`,
-  );
-  await prisma.$executeRawUnsafe(
-    `SELECT setval(pg_get_serial_sequence('"InternalNote"', 'id'), coalesce(max(id), 0) + 1, false) FROM "InternalNote"`,
-  );
+  if (!skipTicketSeed) {
+    await prisma.$executeRawUnsafe(
+      `SELECT setval(pg_get_serial_sequence('"Ticket"', 'id'), coalesce(max(id), 0) + 1, false) FROM "Ticket"`,
+    );
+    await prisma.$executeRawUnsafe(
+      `SELECT setval(pg_get_serial_sequence('"PublicComment"', 'id'), coalesce(max(id), 0) + 1, false) FROM "PublicComment"`,
+    );
+    await prisma.$executeRawUnsafe(
+      `SELECT setval(pg_get_serial_sequence('"InternalNote"', 'id'), coalesce(max(id), 0) + 1, false) FROM "InternalNote"`,
+    );
+  }
 
   const actionResults = [
     "In Progress",

@@ -24,6 +24,7 @@ export interface TicketDetail extends Ticket {
   relatedSystemId: number;
   requestedPriorityId: number;
   currentStatusId: number;
+  allowedNextStatuses: string[];
   attachments: Attachment[];
   relatedSystem?: RelatedSystem;
   itPriority?: Priority;
@@ -103,6 +104,7 @@ export interface TicketQuery {
   category?: number;
   requestedPriorityId?: number;
   currentStatusId?: number;
+  currentStatusIds?: number[];
   sortBy: string;
   sortDir: "asc" | "desc";
   page: number;

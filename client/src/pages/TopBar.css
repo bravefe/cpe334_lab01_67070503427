@@ -20,6 +20,10 @@
   padding-right: 24px;
   gap: 8px;
   font-size: 2rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
 }
 
 .logo img {

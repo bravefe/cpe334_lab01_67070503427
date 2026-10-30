@@ -104,6 +104,7 @@ export async function getTicketsService({
     categoryId,
     priorityId,
     statusId,
+    statusIds,
   } = query;
 
   const where = {
@@ -128,7 +129,11 @@ export async function getTicketsService({
       : {}),
     ...(categoryId ? { categoryId } : {}),
     ...(priorityId ? { requestedPriorityId: priorityId } : {}),
-    ...(statusId ? { currentStatusId: statusId } : {}),
+    ...(statusIds?.length
+      ? { currentStatusId: { in: statusIds } }
+      : statusId
+        ? { currentStatusId: statusId }
+        : {}),
   };
 
   const orderBy =

@@ -3,7 +3,7 @@ import {
   fetchStaffTicketDetail,
   updateStaffOwner,
   updateStaffPriority,
-  updateStaffStatus,
+  updateTicketStatus,
 } from "../../api/tickets";
 import { fetchActionsTaken } from "../../api/actions";
 import { Requester } from "../../lib/requester";
@@ -19,11 +19,11 @@ const transitions: Record<string, string[]> = {
   New: ["Open", "Cancelled"],
   Open: ["In Progress", "Waiting for Requester", "Cancelled"],
   "In Progress": ["Waiting for Requester", "Resolved", "Cancelled"],
-  "Waiting for Requester": ["In Progress", "Resolved", "Cancelled"],
+  "Waiting for Requester": ["In Progress", "Cancelled"],
   Resolved: ["Closed", "Reopened"],
   Closed: ["Reopened"],
-  Reopened: ["Open", "In Progress", "Cancelled"],
-  Cancelled: [],
+  Reopened: ["In Progress", "Cancelled"],
+  Cancelled: ["Reopened"],
 };
 
 interface Props {
@@ -198,7 +198,7 @@ export default function StaffTicketDetail({
     setError("");
     try {
       setTicket(
-        await updateStaffStatus(ticketRef, value, ticket.updatedAt, summary),
+        await updateTicketStatus(ticketRef, value, ticket.updatedAt, summary),
       );
       setMessage(`Status updated to ${value}.`);
     } catch (requestError) {
@@ -282,6 +282,7 @@ export default function StaffTicketDetail({
                 <select
                   disabled={busy === "status"}
                   value={ticket.status ?? ""}
+                  aria-label="Current Status"
                   onChange={(event) => void saveStatus(event.target.value)}
                 >
                   <option value={ticket.status}>{ticket.status}</option>
@@ -296,6 +297,7 @@ export default function StaffTicketDetail({
                 <select
                   disabled={busy === "status"}
                   value={ticket.status ?? ""}
+                  aria-label="Current Status"
                   onChange={(event) => void saveStatus(event.target.value)}
                   aria-describedby={
                     !hasResolvedAction &&
@@ -440,6 +442,7 @@ export default function StaffTicketDetail({
                 ticketCreatedAt={ticket.createdAt}
                 ticketStatus={ticket.status ?? ""}
                 role="IT_STAFF"
+                onResolvedActionChange={setHasResolvedAction}
               />
             ) : conversationTab === "comments" ||
               conversationTab === "notes" ? (

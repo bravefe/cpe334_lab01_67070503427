@@ -1,0 +1,125 @@
+Issue 17: Lab 4 Document
+#53
+Document/lab4- #59
+#59
+
+SaintCrois approved these changes on Sep 24
+SaintCrois
+left a comment
+Collaborator
+Looking great! Please tell me when you would like to merge this.
+
+@bravefe
+bravefe
+commented
+on Sep 24
+Owner
+Author
+Thank you for the review please merge
+
+@SaintCrois
+SaintCrois merged commit a779d25 into lab4-stagging on Sep 24
+
+Issue 18: Actions Taken
+#55
+Feature/18 lab4 actions taken- #69
+#69
+SaintCrois approved these changes 29 days ago
+SaintCrois
+left a comment
+Collaborator
+Wow, great changes. 27 files changed. Looking great to me! Please tell me when you would like to merge.
+
+@bravefe
+bravefe
+commented
+29 days ago
+Owner
+Author
+Your effort is gladly appreciated. Please carry on and unify the two branches.
+
+@SaintCrois
+SaintCrois
+commented
+29 days ago
+Collaborator
+Your effort is gladly appreciated. Please carry on and unify the two branches.
+
+Alrighty.
+
+@SaintCrois
+SaintCrois merged commit bda7315 into lab4-stagging 29 days ago
+
+Issue 19: Ticket Workflow & Resolution Gate
+#56
+Feature/19 lab4 ticket workflow- #70
+#70
+Great, I see you have every tests required. Please let me know when you would like to merge this.
+
+@bravefe
+bravefe
+commented
+last month
+Owner
+Author
+Thank you very much, please merge.
+
+@bravefe bravefe self-assigned this 3 weeks ago
+@SaintCrois
+SaintCrois merged commit 277fcdc into lab4-stagging 3 weeks ago
+
+Issue 20: Role Dashboards
+#57
+Feature/20 lab4 role dashboards- #71
+#71
+
+SaintCrois approved these changes 2 days ago
+SaintCrois
+left a comment
+Collaborator
+Looks clean to me. Please let me know when you'd like to merge!
+
+@bravefe
+bravefe
+commented
+2 days ago
+Owner
+Author
+Ok merge
+
+@SaintCrois
+SaintCrois
+commented
+2 days ago
+Collaborator
+Ok merge
+
+Okie/
+
+Issue 21: Integration
+#58
+Feature/21 lab4 integration- #72
+#72
+SaintCrois approved these changes 16 minutes ago
+SaintCrois
+left a comment
+Collaborator
+The UI and code looks alright. Please let me know when you would like to merge.
+
+Approved
+
+@bravefe
+bravefe
+commented
+10 minutes ago
+Owner
+Author
+wait but don't merge
+
+@bravefe
+bravefe
+commented
+10 minutes ago
+Owner
+Author
+i need to finish reviewer.md first and i will let you know

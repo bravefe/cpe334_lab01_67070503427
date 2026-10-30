@@ -9,6 +9,7 @@ import {
   getTicketsService,
   TicketValidationError,
 } from "../services/ticketService.js";
+import { allowedNextStatuses } from "../lib/statusTransitions.js";
 
 export {
   createAction,
@@ -171,7 +172,15 @@ export async function getTicketDetail(
       return;
     }
 
-    res.status(200).json({ data: result.data });
+    res.status(200).json({
+      data: {
+        ...result.data,
+        allowedNextStatuses: allowedNextStatuses(
+          result.data.currentStatus.name,
+          req.user!.role,
+        ),
+      },
+    });
   } catch (_error) {
     sendError(res, 500, "INTERNAL_ERROR", "Failed to load ticket detail.");
   }

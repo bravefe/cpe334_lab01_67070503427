@@ -23,16 +23,10 @@ describe("Lab 3 staff ticket detail API", () => {
   let staffUser2Id: number;
   let inactiveStaffId: number;
   let requesterUserId: number;
-  let originalTicket: any;
+  let createdTicketId: number | null = null;
 
   beforeAll(async () => {
     staff = await login("arwen@rivendell.example.com");
-    const ticket = await prisma.ticket.findFirst({
-      where: { ticketOwnerId: null },
-      orderBy: { id: "asc" },
-    });
-    ticketId = ticket?.id ?? 1;
-    originalTicket = await prisma.ticket.findUnique({ where: { id: ticketId } });
 
     const s1 = await prisma.user.findFirst({
       where: { role: "IT_STAFF", isActive: true },
@@ -51,19 +45,35 @@ describe("Lab 3 staff ticket detail API", () => {
     staffUser2Id = s2!.id;
     inactiveStaffId = sInactive!.id;
     requesterUserId = rUser!.id;
+
+    const [category, relatedSystem, priority, newStatus] = await Promise.all([
+      prisma.category.findFirstOrThrow({ where: { isActive: true } }),
+      prisma.relatedSystem.findFirstOrThrow({ where: { isActive: true } }),
+      prisma.priority.findFirstOrThrow(),
+      prisma.status.findFirstOrThrow({ where: { name: "New" } }),
+    ]);
+    const ticket = await prisma.ticket.create({
+      data: {
+        ticketNumber: `TKT-STAFF-DETAIL-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        requesterId: requesterUserId,
+        categoryId: category.id,
+        relatedSystemId: relatedSystem.id,
+        requestedPriorityId: priority.id,
+        currentStatusId: newStatus.id,
+        summary: "Staff ticket detail test ticket",
+        description: "Dedicated ticket for staff detail API regression tests.",
+      },
+    });
+    ticketId = ticket.id;
+    createdTicketId = ticket.id;
   });
 
   afterAll(async () => {
-    if (originalTicket) {
-      await prisma.ticket.update({
-        where: { id: ticketId },
-        data: {
-          ticketOwnerId: originalTicket.ticketOwnerId,
-          itPriorityId: originalTicket.itPriorityId,
-          currentStatusId: originalTicket.currentStatusId,
-          resolutionSummary: originalTicket.resolutionSummary,
-        },
+    if (createdTicketId !== null) {
+      await prisma.actionTaken.deleteMany({
+        where: { ticketId: createdTicketId },
       });
+      await prisma.ticket.delete({ where: { id: createdTicketId } });
     }
     await prisma.$disconnect();
   });
@@ -121,7 +131,6 @@ describe("Lab 3 staff ticket detail API", () => {
   });
 
   it("API-23: rejects a direct status jump from New to Resolved", async () => {
-    const ticket = await prisma.ticket.findUnique({ where: { id: ticketId } });
     await prisma.ticket.update({
       where: { id: ticketId },
       data: {
@@ -130,11 +139,17 @@ describe("Lab 3 staff ticket detail API", () => {
         }))!.id,
       },
     });
+    const ticket = await prisma.ticket.findUniqueOrThrow({
+      where: { id: ticketId },
+    });
 
     const response = await staff
       .patch(`/api/staff/tickets/${ticketId}/status`)
       .set(csrf)
-      .send({ status: "Resolved" });
+      .send({
+        toStatus: "Resolved",
+        updatedAt: ticket.updatedAt.toISOString(),
+      });
 
     expect(response.status).toBe(409);
     expect(response.body.error.message).toContain("New");
@@ -149,17 +164,36 @@ describe("Lab 3 staff ticket detail API", () => {
         }))!.id,
       },
     });
+    const ticket = await prisma.ticket.findUniqueOrThrow({
+      where: { id: ticketId },
+    });
+    const resolvedResult = await prisma.actionResult.findFirstOrThrow({
+      where: { name: "Resolved" },
+    });
+    await prisma.actionTaken.create({
+      data: {
+        ticketId,
+        performedByUserId: staffUser1Id,
+        description: "Resolved the issue for the status-transition test.",
+        resultId: resolvedResult.id,
+        followUpRequired: false,
+      },
+    });
 
     const response = await staff
       .patch(`/api/staff/tickets/${ticketId}/status`)
       .set(csrf)
-      .send({ status: "Resolved", resolutionSummary: "Fixed." });
+      .send({
+        toStatus: "Resolved",
+        updatedAt: ticket.updatedAt.toISOString(),
+        resolutionSummary: "Fixed.",
+      });
 
     expect(response.status).toBe(200);
     expect(response.body.status).toBe("Resolved");
   });
 
-  it("API-25: rejects every transition from Cancelled", async () => {
+  it("API-25: prevents IT Staff from reopening a Cancelled ticket", async () => {
     await prisma.ticket.update({
       where: { id: ticketId },
       data: {
@@ -168,13 +202,19 @@ describe("Lab 3 staff ticket detail API", () => {
         }))!.id,
       },
     });
+    const ticket = await prisma.ticket.findUniqueOrThrow({
+      where: { id: ticketId },
+    });
 
     const response = await staff
       .patch(`/api/staff/tickets/${ticketId}/status`)
       .set(csrf)
-      .send({ status: "Resolved" });
+      .send({
+        toStatus: "Reopened",
+        updatedAt: ticket.updatedAt.toISOString(),
+      });
 
-    expect(response.status).toBe(409);
+    expect(response.status).toBe(403);
   });
 
   it("API-26: staff can view any ticket by id, while missing tickets return 404", async () => {

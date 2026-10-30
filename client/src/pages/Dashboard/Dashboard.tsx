@@ -24,10 +24,14 @@ interface MetricCardDef {
   label: string;
   value: number;
   href: string;
+  statusNames?: string[];
 }
 
-const navigate = (path: string) => {
-  window.history.pushState({}, "", path);
+const navigate = (
+  path: string,
+  state: { dashboardFilter?: { statusNames: string[] } } = {},
+) => {
+  window.history.pushState(state, "", path);
   window.dispatchEvent(new PopStateEvent("popstate"));
 };
 
@@ -38,12 +42,17 @@ const formatDate = (iso: string) => {
 
 /* ---------- small shared pieces ---------- */
 
-function MetricCard({ label, value, href }: MetricCardDef) {
+function MetricCard({ label, value, href, statusNames }: MetricCardDef) {
   return (
     <button
       type="button"
       className="dash-card"
-      onClick={() => navigate(href)}
+      onClick={() =>
+        navigate(
+          href,
+          statusNames ? { dashboardFilter: { statusNames } } : undefined,
+        )
+      }
       aria-label={`${label}: ${value}. View tickets`}
     >
       <span className="dash-card-label">{label}</span>
@@ -89,7 +98,7 @@ function RecentTickets({
   tickets: RecentTicket[];
   loading: boolean;
   viewAllHref: string;
-  ticketHref: (id: number) => string;
+  ticketHref: (ticket: RecentTicket) => string;
 }) {
   return (
     <section className="dash-panel" aria-labelledby="recent-heading">
@@ -124,9 +133,9 @@ function RecentTickets({
               <button
                 type="button"
                 className="recent-row"
-                onClick={() => navigate(ticketHref(ticket.id))}
+                onClick={() => navigate(ticketHref(ticket))}
               >
-                <span className="recent-id">#{ticket.id}</span>
+                <span className="recent-id">{ticket.ticketNumber}</span>
                 <span className="recent-title">{ticket.title}</span>
                 <span className="dash-badge status-badge">{ticket.status}</span>
                 <span className="recent-time">
@@ -231,22 +240,32 @@ export default function Dashboard({ requester }: DashboardProps) {
       {
         label: "Total Open",
         value: d?.totalOpen ?? 0,
-        href: "/my-tickets?status=New,Open,In Progress,Waiting for Requester,Reopened",
+        href: "/my-tickets",
+        statusNames: [
+          "New",
+          "Open",
+          "In Progress",
+          "Waiting for Requester",
+          "Reopened",
+        ],
       },
       {
         label: "Waiting for You",
         value: d?.waitingForYou ?? 0,
-        href: "/my-tickets?status=Waiting for Requester",
+        href: "/my-tickets",
+        statusNames: ["Waiting for Requester"],
       },
       {
         label: "Recently Resolved",
         value: d?.recentlyResolved ?? 0,
-        href: "/my-tickets?status=Resolved",
+        href: "/my-tickets",
+        statusNames: ["Resolved"],
       },
       {
         label: "Closed",
         value: d?.closed ?? 0,
-        href: "/my-tickets?status=Closed",
+        href: "/my-tickets",
+        statusNames: ["Closed"],
       },
     ];
 
@@ -259,7 +278,7 @@ export default function Dashboard({ requester }: DashboardProps) {
             tickets={d?.recentTickets ?? []}
             loading={showSkeleton}
             viewAllHref="/my-tickets"
-            ticketHref={(id) => `/ticket/${id}`}
+            ticketHref={(ticket) => `/ticket/${ticket.ticketNumber}`}
           />
           <QuickActions
             actions={[
@@ -386,7 +405,7 @@ export default function Dashboard({ requester }: DashboardProps) {
             tickets={d?.recentTickets ?? []}
             loading={showSkeleton}
             viewAllHref="/queue"
-            ticketHref={(id) => `/queue/${id}`}
+            ticketHref={(ticket) => `/queue/${ticket.ticketNumber}`}
           />
           <QuickActions
             actions={[

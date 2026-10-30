@@ -170,7 +170,7 @@ test("E2E-03: resolution gate unlocks and requester/staff dashboard drill-downs 
     })
     .click();
 
-  await expect(page).toHaveURL(/\/my-tickets\?status=Resolved$/);
+  await expect(page).toHaveURL(/\/my-tickets/);
 
   // Manually apply the status filter
   const currentStatus = page.getByLabel("Current Status");

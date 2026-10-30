@@ -31,6 +31,9 @@ export function fetchTickets(query: TicketQuery) {
   if (query.currentStatusId) {
     params.set("currentStatusId", String(query.currentStatusId));
   }
+  if (query.currentStatusIds?.length) {
+    params.set("currentStatusIds", query.currentStatusIds.join(","));
+  }
 
   return get<TicketPage>(`/api/tickets/?${params}`);
 }
@@ -86,7 +89,7 @@ export function updateStaffPriority(ticketRef: string, itPriority: string) {
   );
 }
 
-export function updateStaffStatus(
+export function updateTicketStatus(
   ticketRef: string,
   status: string,
   updatedAt: string,

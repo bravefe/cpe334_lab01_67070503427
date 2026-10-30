@@ -1,9 +1,8 @@
 # TokTickIT - Sprint 4 Engineering Specification
 
-**Course:** CPE 334, Sections 1, 2, HS, 31, 32 — Semester 1/2026
-**Sprint:** Lab 4 — Actions Taken, Dashboards, and Workflow Hardening
-**Status:** Draft for review under Issue #53 (branch `document/lab4`)
-**Depends on:** Lab 3 `specification.md`, `ui-spec.md`, `api-spec.md`, `tests.md` (all merged to `lab3-staging`)
+**Course:** CPE 334, Semester 1/2026
+**Sprint:** Lab 4  Actions Taken, Dashboards, and Workflow Hardening
+**Depends on:** Lab 3 `specification.md`, `ui-spec.md`, `api-spec.md`, `tests.md` (all merged to `main`)
 
 ---
 
