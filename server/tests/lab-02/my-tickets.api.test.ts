@@ -81,6 +81,27 @@ describe("GET /api/tickets", () => {
     ).toBe(true);
   });
 
+  it("filters by multiple current statuses supplied by a dashboard card", async () => {
+    const statuses = await prisma.status.findMany({
+      where: { name: { in: ["New", "Open"] } },
+      select: { id: true },
+    });
+    const statusIds = statuses.map((status) => status.id);
+    expect(statusIds).toHaveLength(2);
+
+    const response = await requester
+      .get("/api/tickets")
+      .query({ currentStatusIds: statusIds.join(",") });
+
+    expect(response.status).toBe(200);
+    expect(
+      response.body.data.every((ticket: { currentStatusId: number }) =>
+        statusIds.includes(ticket.currentStatusId),
+      ),
+    ).toBe(true);
+    expect(response.body.data.length).toBeGreaterThan(0);
+  });
+
   it("reverses ticket order when sort direction is toggled", async () => {
     const ascending = await requester
       .get("/api/tickets")

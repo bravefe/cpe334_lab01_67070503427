@@ -103,6 +103,7 @@ export interface TicketQuery {
   category?: number;
   requestedPriorityId?: number;
   currentStatusId?: number;
+  currentStatusIds?: number[];
   sortBy: string;
   sortDir: "asc" | "desc";
   page: number;

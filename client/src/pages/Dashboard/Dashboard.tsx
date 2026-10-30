@@ -24,10 +24,14 @@ interface MetricCardDef {
   label: string;
   value: number;
   href: string;
+  statusNames?: string[];
 }
 
-const navigate = (path: string) => {
-  window.history.pushState({}, "", path);
+const navigate = (
+  path: string,
+  state: { dashboardFilter?: { statusNames: string[] } } = {},
+) => {
+  window.history.pushState(state, "", path);
   window.dispatchEvent(new PopStateEvent("popstate"));
 };
 
@@ -38,12 +42,17 @@ const formatDate = (iso: string) => {
 
 /* ---------- small shared pieces ---------- */
 
-function MetricCard({ label, value, href }: MetricCardDef) {
+function MetricCard({ label, value, href, statusNames }: MetricCardDef) {
   return (
     <button
       type="button"
       className="dash-card"
-      onClick={() => navigate(href)}
+      onClick={() =>
+        navigate(
+          href,
+          statusNames ? { dashboardFilter: { statusNames } } : undefined,
+        )
+      }
       aria-label={`${label}: ${value}. View tickets`}
     >
       <span className="dash-card-label">{label}</span>
@@ -231,22 +240,32 @@ export default function Dashboard({ requester }: DashboardProps) {
       {
         label: "Total Open",
         value: d?.totalOpen ?? 0,
-        href: "/my-tickets?status=New,Open,In Progress,Waiting for Requester,Reopened",
+        href: "/my-tickets",
+        statusNames: [
+          "New",
+          "Open",
+          "In Progress",
+          "Waiting for Requester",
+          "Reopened",
+        ],
       },
       {
         label: "Waiting for You",
         value: d?.waitingForYou ?? 0,
-        href: "/my-tickets?status=Waiting for Requester",
+        href: "/my-tickets",
+        statusNames: ["Waiting for Requester"],
       },
       {
         label: "Recently Resolved",
         value: d?.recentlyResolved ?? 0,
-        href: "/my-tickets?status=Resolved",
+        href: "/my-tickets",
+        statusNames: ["Resolved"],
       },
       {
         label: "Closed",
         value: d?.closed ?? 0,
-        href: "/my-tickets?status=Closed",
+        href: "/my-tickets",
+        statusNames: ["Closed"],
       },
     ];
 
