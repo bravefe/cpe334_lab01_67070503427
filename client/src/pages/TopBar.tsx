@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { logout as logoutUser } from "../api/auth";
 import { Requester } from "../lib/requester";
+import { dashboardPaths } from "../lib/dashboardPaths";
 import "./TopBar.css";
 import logo from "../icon/logo.png";
 
@@ -67,7 +68,9 @@ export default function TopBar({ requester }: TopBarProps) {
         type="button"
         className="logo"
         aria-label="Go to dashboard"
-        onClick={() => window.dispatchEvent(new Event("app:navigate-dashboard"))}
+        onClick={() =>
+          navigate(dashboardPaths[role] ?? dashboardPaths.REQUESTER)
+        }
       >
         <img src={logo} alt="" />
         TokTockIT

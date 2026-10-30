@@ -13,12 +13,7 @@ import StaffTicketDetail from "./pages/StaffTicketDetail/StaffTicketDetail";
 import UserManagement from "./pages/UserManagement/UserManagement";
 
 import { AuthUser } from "./lib/auth";
-
-const dashboardPaths: Record<string, string> = {
-  REQUESTER: "/requester/dashboard",
-  IT_STAFF: "/staff/dashboard",
-  ADMINISTRATOR: "/admin/dashboard",
-};
+import { dashboardPaths } from "./lib/dashboardPaths";
 
 export default function App() {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -49,25 +44,6 @@ export default function App() {
       window.removeEventListener("app:logout", handleAppLogout);
     };
   }, []);
-
-  useEffect(() => {
-    const handleDashboardNavigation = () => {
-      if (!user) return;
-
-      const dashboardPath = dashboardPaths[user.role];
-      if (window.location.pathname === dashboardPath) return;
-
-      window.history.pushState({}, "", dashboardPath);
-      setPath(dashboardPath);
-    };
-
-    window.addEventListener("app:navigate-dashboard", handleDashboardNavigation);
-    return () =>
-      window.removeEventListener(
-        "app:navigate-dashboard",
-        handleDashboardNavigation,
-      );
-  }, [user]);
 
   const goTo = (nextPath: string) => {
     window.history.pushState({}, "", nextPath);

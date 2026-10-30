@@ -77,4 +77,56 @@ describe("Lab 3 application shell", () => {
       await screen.findByRole("heading", { name: "Welcome, Frodo!" }),
     ).toBeInTheDocument();
   });
+
+  it.each([
+    ["IT_STAFF", "/staff/dashboard"],
+    ["ADMINISTRATOR", "/admin/dashboard"],
+  ] as const)(
+    "navigates %s to its dashboard when the logo is clicked",
+    async (role, dashboardPath) => {
+      window.history.replaceState({}, "", "/queue");
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockImplementation((input: RequestInfo | URL) => {
+          const url = new URL(String(input));
+          if (url.pathname === "/api/auth/me") {
+            return Promise.resolve(response({ ...requester, role }));
+          }
+          if (url.pathname === "/api/staff/tickets/") {
+            return Promise.resolve(
+              response({
+                items: [],
+                page: 1,
+                pageSize: 10,
+                totalItems: 0,
+                totalPages: 0,
+              }),
+            );
+          }
+          if (
+            url.pathname === "/api/staff/dashboard" ||
+            url.pathname === "/api/admin/dashboard"
+          ) {
+            return Promise.resolve(
+              response({
+                byPriority: [],
+                recentTickets: [],
+                userCounts: { total: 0, active: 0, byRole: [] },
+              }),
+            );
+          }
+          return Promise.resolve(response([]));
+        }),
+      );
+      const user = userEvent.setup();
+
+      render(<App />);
+      await user.click(await screen.findByRole("button", { name: "Go to dashboard" }));
+
+      expect(window.location.pathname).toBe(dashboardPath);
+      expect(
+        await screen.findByRole("heading", { name: "Welcome back, Frodo!" }),
+      ).toBeInTheDocument();
+    },
+  );
 });
