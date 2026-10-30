@@ -1,14 +1,19 @@
 import { useEffect, useState } from "react";
-import { getCurrentUser, logout as logoutUser } from "./api/auth";
+
+import { getCurrentUser } from "./api/auth";
+
 import ChangePassword from "./pages/ChangePassword/ChangePassword";
 import CreateTicket from "./pages/CreateTicket/CreateTicket";
 import Login from "./pages/Login/Login";
-import { AuthUser } from "./lib/auth";
+import Dashboard from "./pages/Dashboard/Dashboard";
 import MyTickets from "./pages/MyTickets/MyTickets";
 import TicketDetail from "./pages/TicketDetail/TicketDetail";
 import StaffTicketQueue from "./pages/StaffTicketQueue/StaffTicketQueue";
 import StaffTicketDetail from "./pages/StaffTicketDetail/StaffTicketDetail";
 import UserManagement from "./pages/UserManagement/UserManagement";
+
+import { AuthUser } from "./lib/auth";
+import { dashboardPaths } from "./lib/dashboardPaths";
 
 export default function App() {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -20,9 +25,24 @@ export default function App() {
       .then(setUser)
       .catch(() => setUser(null))
       .finally(() => setLoading(false));
-    const handlePopState = () => setPath(window.location.pathname);
+
+    const handlePopState = () => {
+      setPath(window.location.pathname);
+    };
+
+    const handleAppLogout = () => {
+      window.history.replaceState({}, "", "/login");
+      setPath("/login");
+      setUser(null);
+    };
+
     window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
+    window.addEventListener("app:logout", handleAppLogout);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+      window.removeEventListener("app:logout", handleAppLogout);
+    };
   }, []);
 
   const goTo = (nextPath: string) => {
@@ -30,39 +50,89 @@ export default function App() {
     setPath(new URL(nextPath, window.location.origin).pathname);
   };
 
-  if (loading)
+  const getDefaultPath = (role: string) => {
+    return dashboardPaths[role] ?? dashboardPaths.REQUESTER;
+  };
+
+  if (loading) {
     return (
       <main className="selection">
         <div className="loading">Loading...</div>
       </main>
     );
-  if (!user) return <Login onLogin={setUser} />;
-  if (user.mustChangePassword)
+  }
+
+  // Not logged in → /login
+  if (!user) {
+    if (path !== "/login") {
+      window.history.replaceState({}, "", "/login");
+      setPath("/login");
+    }
+
+    return <Login onLogin={setUser} />;
+  }
+
+  // User must change password → /change-password
+  if (user.mustChangePassword) {
+    if (path !== "/change-password") {
+      window.history.replaceState({}, "", "/change-password");
+      setPath("/change-password");
+    }
+
     return (
       <ChangePassword
-        onComplete={() => setUser({ ...user, mustChangePassword: false })}
+        onComplete={() => {
+          setUser({ ...user, mustChangePassword: false });
+          goTo(getDefaultPath(user.role));
+        }}
       />
     );
+  }
+
+  // Logged-in users should not stay on auth pages.
+  if (path === "/login" || path === "/change-password") {
+    const defaultPath = getDefaultPath(user.role);
+
+    window.history.replaceState({}, "", defaultPath);
+    setPath(defaultPath);
+  }
 
   const requester = {
     id: user.id,
     name: user.name,
     email: user.email,
+    role: user.role,
     isActive: user.isActive,
   };
-  const logout = async () => {
-    try {
-      await logoutUser();
-    } finally {
-      setUser(null);
-    }
-  };
+
   const onMyTickets = () => goTo("/my-tickets");
   const onCreateTicket = () => goTo("/create-ticket");
   const onQueue = () => goTo("/queue");
-  const onAdmin = () => goTo("/admin/users");
 
-  if (path.startsWith("/queue") && user.role !== "IT_STAFF") {
+  // Navigate to the dashboard based on the user's role.
+  const onDefault = () => goTo(getDefaultPath(user.role));
+
+  // Role-based dashboard access
+  if (path.endsWith("/dashboard") && path.split("/").length === 3) {
+    if (path === dashboardPaths[user.role]) {
+      return <Dashboard requester={requester} />;
+    }
+
+    return (
+      <main className="selection">
+        <div className="selection-card">
+          <h1>Access forbidden</h1>
+          <p className="muted">You are not permitted to view this dashboard.</p>
+          <button type="button" className="primary" onClick={onDefault}>
+            ← Back
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  // Requesters cannot access the IT Staff queue.
+  if (path.startsWith("/queue") && user.role === "REQUESTER") {
     return (
       <main className="selection">
         <div className="selection-card">
@@ -70,58 +140,97 @@ export default function App() {
           <p className="muted">
             You are not permitted to view the IT Staff queue.
           </p>
-          <button type="button" className="primary" onClick={onMyTickets}>
-            ← Back to My Tickets
+          <button type="button" className="primary" onClick={onDefault}>
+            ← Back to Dashboard
           </button>
         </div>
       </main>
     );
   }
 
+  // Only administrators can access User Management.
   if (path.startsWith("/admin/users") && user.role !== "ADMINISTRATOR") {
-    return <main className="selection"><div className="selection-card"><h1>Access forbidden</h1><p className="muted">You are not permitted to view User Management.</p><button type="button" className="primary" onClick={onMyTickets}>← Back</button></div></main>;
+    return (
+      <main className="selection">
+        <div className="selection-card">
+          <h1>Access forbidden</h1>
+          <p className="muted">
+            You are not permitted to view User Management.
+          </p>
+          <button type="button" className="primary" onClick={onDefault}>
+            ← Back
+          </button>
+        </div>
+      </main>
+    );
   }
 
+  // Administrator routes
   if (user.role === "ADMINISTRATOR") {
-    return <UserManagement currentUserId={user.id} user={requester} onLogout={logout} onAdmin={onAdmin} />;
-  }
+    if (path.startsWith("/admin/users")) {
+      return <UserManagement currentUserId={user.id} user={requester} />;
+    }
 
-  if (user.role === "IT_STAFF") {
-    if (path === "/queue")
+    if (path === "/queue") {
       return (
-        <StaffTicketQueue
-          requester={requester}
-          onLogout={logout}
-          onQueue={onQueue}
-          onOpenTicket={(ticketRef) => goTo(`/queue/${ticketRef}`)}
-        />
+        <main className="selection">
+          <StaffTicketQueue
+            requester={requester}
+            onOpenTicket={(ticketRef) => goTo(`/queue/${ticketRef}`)}
+          />
+        </main>
       );
+    }
+
     const staffTicketMatch = path.match(/^\/queue\/(.+)$/);
-    if (staffTicketMatch)
+
+    if (staffTicketMatch) {
       return (
         <StaffTicketDetail
           requester={requester}
           ticketRef={staffTicketMatch[1]}
-          onLogout={logout}
           onQueue={onQueue}
         />
       );
+    }
+  }
+
+  // IT Staff routes
+  if (user.role === "IT_STAFF") {
+    if (path === "/queue") {
+      return (
+        <StaffTicketQueue
+          requester={requester}
+          onOpenTicket={(ticketRef) => goTo(`/queue/${ticketRef}`)}
+        />
+      );
+    }
+
+    const staffTicketMatch = path.match(/^\/queue\/(.+)$/);
+
+    if (staffTicketMatch) {
+      return (
+        <StaffTicketDetail
+          requester={requester}
+          ticketRef={staffTicketMatch[1]}
+          onQueue={onQueue}
+        />
+      );
+    }
+
     return (
       <StaffTicketQueue
         requester={requester}
-        onLogout={logout}
-        onQueue={onQueue}
         onOpenTicket={(ticketRef) => goTo(`/queue/${ticketRef}`)}
       />
     );
   }
 
+  // Requester routes
   if (path === "/my-tickets") {
     return (
       <MyTickets
         requester={requester}
-        onChange={logout}
-        onMyTickets={onMyTickets}
         onCreateTicket={onCreateTicket}
         onOpenTicket={(ticketNumber) => goTo(`/ticket/${ticketNumber}`)}
       />
@@ -133,8 +242,6 @@ export default function App() {
       <CreateTicket
         requester={requester}
         onBack={onMyTickets}
-        onLogout={logout}
-        onCreateTicket={onCreateTicket}
         onOpenTicket={(ticketNumber) =>
           goTo(`/ticket/${ticketNumber}?created=1`)
         }
@@ -143,13 +250,13 @@ export default function App() {
   }
 
   const ticketMatch = path.match(/^\/ticket\/(.+)$/);
+
   if (ticketMatch) {
     return (
       <TicketDetail
         requester={requester}
         ticketNumber={ticketMatch[1]}
         onBack={onMyTickets}
-        onLogout={logout}
       />
     );
   }
@@ -157,8 +264,6 @@ export default function App() {
   return (
     <MyTickets
       requester={requester}
-      onChange={logout}
-      onMyTickets={onMyTickets}
       onCreateTicket={onCreateTicket}
       onOpenTicket={(ticketNumber) => goTo(`/ticket/${ticketNumber}`)}
     />

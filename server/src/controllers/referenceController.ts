@@ -1,12 +1,36 @@
 import type { Request, Response } from "express";
 import {
+  getActionResultsService,
   getCategoriesService,
   getPrioritiesService,
   getRelatedSystemsService,
   getStatusesService,
 } from "../services/referenceService.js";
 
-export async function getCategories(_req: Request, res: Response): Promise<void> {
+export async function getActionResults(
+  _req: Request,
+  res: Response,
+): Promise<void> {
+  try {
+    const results = await getActionResultsService();
+
+    res.status(200).json({
+      data: results,
+    });
+  } catch (_error) {
+    res.status(500).json({
+      error: {
+        code: "INTERNAL_ERROR",
+        message: "Failed to fetch action results.",
+      },
+    });
+  }
+}
+
+export async function getCategories(
+  _req: Request,
+  res: Response,
+): Promise<void> {
   try {
     const categories = await getCategoriesService();
     res.status(200).json({ data: categories });
@@ -20,7 +44,10 @@ export async function getCategories(_req: Request, res: Response): Promise<void>
   }
 }
 
-export async function getRelatedSystems(_req: Request, res: Response): Promise<void> {
+export async function getRelatedSystems(
+  _req: Request,
+  res: Response,
+): Promise<void> {
   try {
     const systems = await getRelatedSystemsService();
     res.status(200).json({ data: systems });
@@ -34,7 +61,10 @@ export async function getRelatedSystems(_req: Request, res: Response): Promise<v
   }
 }
 
-export async function getPriorities(_req: Request, res: Response): Promise<void> {
+export async function getPriorities(
+  _req: Request,
+  res: Response,
+): Promise<void> {
   try {
     const priorities = await getPrioritiesService();
     res.status(200).json({ data: priorities });

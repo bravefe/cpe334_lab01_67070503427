@@ -1,6 +1,9 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { fetchTicketDetail } from "../../api/tickets";
-import { markTicketResolved } from "../../api/tickets";
+import {
+  fetchTicketDetail,
+  markTicketResolved,
+  updateTicketStatus,
+} from "../../api/tickets";
 import { Requester } from "../../lib/requester";
 import { TicketDetail as TicketDetailType } from "../../lib/ticket";
 import TopBar from "../TopBar";
@@ -10,21 +13,18 @@ import ConversationPanel from "./ConversationPanel";
 import "./ConversationPanel.css";
 
 import { formatDate } from "../../lib/formatDate";
+import ActionsTakenPanel from "./ActionsTakenPanel";
 
 interface TicketDetailProps {
   requester?: Requester;
   ticketNumber: string;
   onBack: () => void;
-  onLogout?: () => void;
-  onCreateTicket?: () => void;
 }
 
 export default function TicketDetail({
   requester,
   ticketNumber,
   onBack,
-  onLogout,
-  onCreateTicket,
 }: TicketDetailProps) {
   const [ticket, setTicket] = useState<TicketDetailType | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,6 +32,8 @@ export default function TicketDetail({
   const [activeTab, setActiveTab] = useState("public-comments");
   const [resolutionBusy, setResolutionBusy] = useState(false);
   const [resolutionError, setResolutionError] = useState("");
+  const [statusBusy, setStatusBusy] = useState(false);
+  const [statusError, setStatusError] = useState("");
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const resolutionRef = useRef<HTMLTextAreaElement>(null);
   const createdFromForm =
@@ -95,6 +97,7 @@ export default function TicketDetail({
   const canDisplayResolutionSummary = ["Resolved", "Closed"].includes(
     ticket?.currentStatus?.name ?? "",
   );
+  const allowedNextStatuses = ticket?.allowedNextStatuses ?? [];
   const markResolved = async () => {
     if (
       !window.confirm(
@@ -116,15 +119,32 @@ export default function TicketDetail({
       setResolutionBusy(false);
     }
   };
+  const changeStatus = async (statusName: string) => {
+    if (!ticket || !allowedNextStatuses.includes(statusName)) return;
+
+    setStatusBusy(true);
+    setStatusError("");
+    try {
+      await updateTicketStatus(
+        ticketNumber,
+        statusName,
+        ticket.updatedAt,
+      );
+      setTicket(await fetchTicketDetail(ticketNumber));
+    } catch (requestError) {
+      setStatusError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Unable to update the ticket status.",
+      );
+    } finally {
+      setStatusBusy(false);
+    }
+  };
 
   return (
     <>
-      <TopBar
-        requester={requester}
-        onChange={onLogout ?? (() => undefined)}
-        onMyTickets={onBack}
-        onCreateTicket={() => window.location.assign("/create-ticket")}
-      />
+      <TopBar requester={requester} />
 
       <main className="page ticket-detail-page">
         <div className="detail-header">
@@ -212,10 +232,24 @@ export default function TicketDetail({
 
               <label className="field">
                 <span>Current Status</span>
-                <select value={ticket.currentStatus?.id ?? ""} disabled>
-                  <option value={ticket.currentStatus?.id ?? ""}>
+                <select
+                  aria-label="Current Status"
+                  value={ticket.currentStatus?.name ?? ""}
+                  disabled={
+                    statusBusy || allowedNextStatuses.length === 0
+                  }
+                  onChange={(event) =>
+                    void changeStatus(event.target.value)
+                  }
+                >
+                  <option value={ticket.currentStatus?.name ?? ""}>
                     {ticket.currentStatus?.name ?? ""}
                   </option>
+                  {allowedNextStatuses.map((statusName) => (
+                    <option key={statusName} value={statusName}>
+                      {statusName}
+                    </option>
+                  ))}
                 </select>
               </label>
 
@@ -226,6 +260,11 @@ export default function TicketDetail({
                 </div>
               </div> */}
             </div>
+            {statusError && (
+              <div className="error-banner" role="alert">
+                {statusError}
+              </div>
+            )}
 
             {canMarkResolved && !ticket.problemAppearsResolved && (
               <button
@@ -293,7 +332,7 @@ export default function TicketDetail({
               {[
                 "Public Comments",
                 "Attachments",
-                // "Service Actions",
+                "Service Actions",
                 // "Event Log",
               ].map((tab) => {
                 const key = tab.toLowerCase().replace(" ", "-");
@@ -302,6 +341,7 @@ export default function TicketDetail({
                     key={tab}
                     type="button"
                     role="tab"
+                    aria-selected={activeTab === key}
                     className={`attachment-tab${activeTab === key ? " active" : ""}`}
                     onClick={() => setActiveTab(key)}
                   >
@@ -314,6 +354,13 @@ export default function TicketDetail({
               <AttachmentTicketDetail ticketNumber={ticketNumber} />
             ) : activeTab === "public-comments" ? (
               <ConversationPanel ticketRef={ticketNumber} />
+            ) : activeTab === "service-actions" ? (
+              <ActionsTakenPanel
+                ticketRef={ticketNumber}
+                ticketCreatedAt={ticket.createdAt}
+                ticketStatus={ticket.currentStatus?.name ?? ""}
+                role="REQUESTER"
+              />
             ) : (
               <div className="attachment-empty">
                 This section will be implemented later.

@@ -22,8 +22,6 @@ import "./CreateTicket.css";
 interface CreateTicketProps {
   requester?: Requester;
   onBack: () => void;
-  onLogout?: () => void;
-  onCreateTicket?: () => void;
   onOpenTicket?: (ticketNumber: string) => void;
 }
 
@@ -38,8 +36,6 @@ const emptyForm = {
 export default function CreateTicket({
   requester,
   onBack,
-  onLogout,
-  onCreateTicket,
   onOpenTicket,
 }: CreateTicketProps) {
   const [form, setForm] = useState(emptyForm);
@@ -172,12 +168,7 @@ export default function CreateTicket({
 
   return (
     <>
-      <TopBar
-        requester={requester}
-        onChange={onLogout ?? (() => undefined)}
-        onMyTickets={onBack}
-        onCreateTicket={onCreateTicket ?? onBack}
-      />
+      <TopBar requester={requester} />
       <main className="page create-ticket-page">
         <div className="detail-header">
           <div>

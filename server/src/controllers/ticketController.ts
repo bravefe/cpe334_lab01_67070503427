@@ -3,11 +3,19 @@ import { getPrisma } from "../prisma.js";
 import { validateContent } from "../lib/content.js";
 import { parseTicketQuery, type TicketQuery } from "../lib/tickets.js";
 import {
+  getRequesterDashboardService,
   createTicketService,
   getTicketDetailService,
   getTicketsService,
   TicketValidationError,
 } from "../services/ticketService.js";
+import { allowedNextStatuses } from "../lib/statusTransitions.js";
+
+export {
+  createAction,
+  getActions,
+  updateAction,
+} from "./actionTakenController.js";
 
 function sendError(
   res: Response,
@@ -23,6 +31,19 @@ function sendError(
       ...extra,
     },
   });
+}
+
+export async function getRequesterDashboard(req: Request, res: Response) {
+  try {
+    // Requester always comes from the session, never from the client (BR-14).
+    const requesterId = Number((req as any).user.id); // reuse however this file already reads the session user
+    res.status(200).json(await getRequesterDashboardService(requesterId));
+  } catch (err) {
+    console.error("requester dashboard error:", err);
+    res.status(500).json({
+      error: { code: "INTERNAL_ERROR", message: "Something went wrong." },
+    });
+  }
 }
 
 export async function getTickets(req: Request, res: Response): Promise<void> {
@@ -151,7 +172,15 @@ export async function getTicketDetail(
       return;
     }
 
-    res.status(200).json({ data: result.data });
+    res.status(200).json({
+      data: {
+        ...result.data,
+        allowedNextStatuses: allowedNextStatuses(
+          result.data.currentStatus.name,
+          req.user!.role,
+        ),
+      },
+    });
   } catch (_error) {
     sendError(res, 500, "INTERNAL_ERROR", "Failed to load ticket detail.");
   }
@@ -175,7 +204,12 @@ async function resolveTicketAccess(req: Request) {
 
   if (!ticket) return null;
 
-  if (req.user!.role === "REQUESTER" && ticket.requesterId !== req.user!.id) {
+  const normalizedRole = req
+    .user!.role.trim()
+    .replace(/\s+/g, "_")
+    .toUpperCase();
+
+  if (normalizedRole === "REQUESTER" && ticket.requesterId !== req.user!.id) {
     return "forbidden" as const;
   }
 

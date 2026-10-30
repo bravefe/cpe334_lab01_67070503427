@@ -21,22 +21,43 @@ const initialQuery: TicketQuery = {
   pageSize: 10,
 };
 
+function getDashboardStatusNames(): string[] {
+  const state: unknown = window.history.state;
+  if (!state || typeof state !== "object" || !("dashboardFilter" in state)) {
+    return [];
+  }
+
+  const filter = state.dashboardFilter;
+  if (
+    !filter ||
+    typeof filter !== "object" ||
+    !("statusNames" in filter) ||
+    !Array.isArray(filter.statusNames)
+  ) {
+    return [];
+  }
+
+  return filter.statusNames.filter(
+    (statusName): statusName is string => typeof statusName === "string",
+  );
+}
+
 interface MyTicketsProps {
   requester?: Requester;
-  onChange: () => void;
-  onMyTickets: () => void;
   onCreateTicket: () => void;
   onOpenTicket: (ticketNumber: string) => void;
 }
 
 export default function MyTickets({
   requester,
-  onChange,
-  onMyTickets,
   onCreateTicket,
   onOpenTicket,
 }: MyTicketsProps) {
+  const [dashboardStatusNames] = useState(getDashboardStatusNames);
   const [query, setQuery] = useState(initialQuery);
+  const [statusFilterReady, setStatusFilterReady] = useState(
+    dashboardStatusNames.length === 0,
+  );
   const [draftSearch, setDraftSearch] = useState("");
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [meta, setMeta] = useState({
@@ -56,15 +77,46 @@ export default function MyTickets({
 
   const loadReferenceData = () => {
     setReferenceError("");
+    if (dashboardStatusNames.length > 0) setStatusFilterReady(false);
     Promise.all([fetchCategories(), fetchPriorities(), fetchStatuses()])
-      .then(([categories, priorities, statuses]) =>
+      .then(([categories, priorities, statuses]) => {
         setOptions({
           categories: categories.data,
           priorities: priorities.data,
           statuses: statuses.data,
-        }),
-      )
-      .catch((requestError: Error) => setReferenceError(requestError.message));
+        });
+
+        if (dashboardStatusNames.length > 0) {
+          const statusIds = dashboardStatusNames.map(
+            (statusName) =>
+              statuses.data.find((status) => status.name === statusName)?.id,
+          );
+          if (statusIds.some((statusId) => statusId === undefined)) {
+            setReferenceError(
+              "A status from the dashboard filter is not available.",
+            );
+            setError("Unable to apply the dashboard status filter.");
+            setState("error");
+            return;
+          }
+          setQuery((current) => ({
+            ...current,
+            currentStatusId: undefined,
+            currentStatusIds: statusIds.filter(
+              (statusId): statusId is number => statusId !== undefined,
+            ),
+            page: 1,
+          }));
+        }
+        setStatusFilterReady(true);
+      })
+      .catch((requestError: Error) => {
+        setReferenceError(requestError.message);
+        if (dashboardStatusNames.length > 0) {
+          setError("Unable to load status options for the dashboard filter.");
+          setState("error");
+        }
+      });
   };
 
   useEffect(() => {
@@ -72,6 +124,7 @@ export default function MyTickets({
   }, []);
 
   useEffect(() => {
+    if (!statusFilterReady) return;
     setState("loading");
     setError("");
     fetchTickets(query)
@@ -84,7 +137,7 @@ export default function MyTickets({
         setError(requestError instanceof Error ? requestError.message : "");
         setState("error");
       });
-  }, [query]);
+  }, [query, statusFilterReady]);
 
   const update = (change: Partial<TicketQuery>) =>
     setQuery((current) => ({ ...current, ...change, page: 1 }));
@@ -92,6 +145,17 @@ export default function MyTickets({
   const clear = () => {
     setDraftSearch("");
     setQuery(initialQuery);
+    window.history.replaceState({}, "", window.location.pathname);
+  };
+
+  const updateStatusFilter = (currentStatusId?: number) => {
+    setQuery((current) => ({
+      ...current,
+      currentStatusId,
+      currentStatusIds: undefined,
+      page: 1,
+    }));
+    window.history.replaceState({}, "", window.location.pathname);
   };
 
   const sort = (field: string) =>
@@ -118,16 +182,14 @@ export default function MyTickets({
     query.search ||
     query.category ||
     query.requestedPriorityId ||
-    query.currentStatusId,
+    query.currentStatusId ||
+    query.currentStatusIds?.length,
   );
 
   return (
     <>
       <TopBar
         requester={requester}
-        onChange={onChange}
-        onMyTickets={onMyTickets}
-        onCreateTicket={onCreateTicket}
       />
       <main className="page">
         <header className="page-header">
@@ -174,10 +236,18 @@ export default function MyTickets({
           />
           <Filter
             label="Current Status"
-            value={query.currentStatusId}
+            value={
+              query.currentStatusId ??
+              (query.currentStatusIds?.length ? "dashboard" : undefined)
+            }
             options={options.statuses}
-            onChange={(value) => update({ currentStatusId: value })}
+            onChange={updateStatusFilter}
             all="All Statuses"
+            selectedLabel={
+              dashboardStatusNames.length === 1
+                ? `Dashboard filter: ${dashboardStatusNames[0]}`
+                : `Dashboard filter: ${dashboardStatusNames.length} statuses`
+            }
           />
         </section>
         {referenceError && (
@@ -314,13 +384,21 @@ export default function MyTickets({
 
 interface FilterProps {
   label: string;
-  value?: number;
+  value?: number | "dashboard";
   options: { id: number; name: string }[];
   onChange: (value?: number) => void;
   all: string;
+  selectedLabel?: string;
 }
 
-function Filter({ label, value, options, onChange, all }: FilterProps) {
+function Filter({
+  label,
+  value,
+  options,
+  onChange,
+  all,
+  selectedLabel,
+}: FilterProps) {
   return (
     <label>
       {label}
@@ -331,6 +409,11 @@ function Filter({ label, value, options, onChange, all }: FilterProps) {
         }
       >
         <option value="">{all}</option>
+        {value === "dashboard" && (
+          <option value="dashboard" disabled>
+            {selectedLabel}
+          </option>
+        )}
         {options.map((option) => (
           <option key={option.id} value={option.id}>
             {option.name}

@@ -1,43 +1,86 @@
+import { useEffect, useRef, useState } from "react";
+import { logout as logoutUser } from "../api/auth";
 import { Requester } from "../lib/requester";
+import { dashboardPaths } from "../lib/dashboardPaths";
 import "./TopBar.css";
 import logo from "../icon/logo.png";
 
 interface TopBarProps {
   requester?: Requester;
-  role?: string;
-  onChange: () => void;
-  onMyTickets?: () => void;
-  onCreateTicket?: () => void;
-  onQueue?: () => void;
-  onAdmin?: () => void;
 }
 
-export default function TopBar({
-  requester,
-  role = "REQUESTER",
-  onChange,
-  onMyTickets,
-  onCreateTicket,
-  onQueue,
-  onAdmin,
-}: TopBarProps) {
+export default function TopBar({ requester }: TopBarProps) {
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [logoutError, setLogoutError] = useState("");
+  const profileMenuRef = useRef<HTMLDivElement>(null);
   const currentPage = window.location.pathname;
+  const role = requester?.role ?? "REQUESTER";
+
   const isMyTicketsPage = currentPage === "/my-tickets";
   const isCreateTicketPage = currentPage === "/create-ticket";
-  const isQueuePage = currentPage === "/queue";
+  const isQueuePage =
+    currentPage === "/queue" || currentPage.startsWith("/queue/");
+  const isAdminPage =
+    currentPage === "/admin/users" || currentPage.startsWith("/admin/users/");
+
+  const navigate = (path: string) => {
+    if (window.location.pathname === path) return;
+    window.history.pushState({}, "", path);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  };
+
+  const handleLogout = async () => {
+    setLogoutError("");
+    try {
+      await logoutUser();
+      setIsProfileMenuOpen(false);
+      window.dispatchEvent(new Event("app:logout"));
+    } catch (error) {
+      setLogoutError(
+        error instanceof Error ? error.message : "Unable to log out.",
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (!isProfileMenuOpen) return;
+
+    const closeOnOutsideClick = (event: MouseEvent) => {
+      if (!profileMenuRef.current?.contains(event.target as Node)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsProfileMenuOpen(false);
+    };
+
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("mousedown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [isProfileMenuOpen]);
 
   return (
     <nav className="topbar">
-      <strong className="logo">
-        <img src={logo} alt="TokTockIT logo" />
+      <button
+        type="button"
+        className="logo"
+        aria-label="Go to dashboard"
+        onClick={() =>
+          navigate(dashboardPaths[role] ?? dashboardPaths.REQUESTER)
+        }
+      >
+        <img src={logo} alt="" />
         TokTockIT
-      </strong>
+      </button>
 
       {role === "REQUESTER" ? (
         <>
           <a
             className={isMyTicketsPage ? "active" : undefined}
-            onClick={onMyTickets}
+            onClick={() => navigate("/my-tickets")}
             aria-label="My Tickets"
             title="My Tickets"
           >
@@ -46,9 +89,10 @@ export default function TopBar({
             </span>
             <span className="nav-label">My Tickets</span>
           </a>
+
           <a
             className={isCreateTicketPage ? "active" : undefined}
-            onClick={onCreateTicket ?? onMyTickets}
+            onClick={() => navigate("/create-ticket")}
             aria-label="Create Ticket"
             title="Create Ticket"
           >
@@ -59,41 +103,75 @@ export default function TopBar({
           </a>
         </>
       ) : role === "IT_STAFF" ? (
-        <a
-          className={isQueuePage ? "active" : undefined}
-          onClick={onQueue ?? onMyTickets}
-          aria-label="My Queue"
-          title="My Queue"
-        >
-          <span className="nav-icon" aria-hidden="true">
-            ▣
-          </span>
-          <span className="nav-label">My Queue</span>
-        </a>
+        <>
+          <a
+            className={isQueuePage ? "active" : undefined}
+            onClick={() => navigate("/queue")}
+            aria-label="My Queue"
+            title="My Queue"
+          >
+            <span className="nav-icon" aria-hidden="true">
+              ▣
+            </span>
+            <span className="nav-label">My Queue</span>
+          </a>
+        </>
       ) : (
-        <a
-          className={currentPage === "/admin/users" ? "active" : undefined}
-          onClick={onAdmin}
-          aria-label="Admin"
-          title="User Management"
-        >
-          <span className="nav-icon" aria-hidden="true">
-            ▣
-          </span>
-          <span className="nav-label">Admin</span>
-        </a>
+        <>
+          <a
+            className={isAdminPage ? "active" : undefined}
+            onClick={() => navigate("/admin/users")}
+            aria-label="Admin"
+            title="User Management"
+          >
+            <span className="nav-icon" aria-hidden="true">
+              ▣
+            </span>
+            <span className="nav-label">Admin</span>
+          </a>
+
+          <a
+            className={isQueuePage ? "active" : undefined}
+            onClick={() => navigate("/queue")}
+            aria-label="My Queue"
+            title="My Queue"
+          >
+            <span className="nav-icon" aria-hidden="true">
+              ▣
+            </span>
+            <span className="nav-label">My Queue</span>
+          </a>
+        </>
       )}
-      <a className="profile" onClick={onChange}>
-        <span className="profile-name">
-          {(requester?.name ?? "Profile").split(/\s+/).map((part) => (
-            <span key={part}>{part}</span>
-          ))}
-        </span>
-        <span className="role-badge">{role.replaceAll("_", " ")}</span>
-      </a>
-      {/* <button type="button" onClick={onChange} aria-label="Log out">
-        Log out
-      </button> */}
+      <div className="profile-menu" ref={profileMenuRef}>
+        <button
+          type="button"
+          className="profile"
+          aria-haspopup="menu"
+          aria-expanded={isProfileMenuOpen}
+          aria-label={`Profile menu for ${requester?.name ?? "Profile"}`}
+          onClick={() => setIsProfileMenuOpen((open) => !open)}
+        >
+          <span className="profile-name">
+            {(requester?.name ?? "Profile").split(/\s+/).map((part) => (
+              <span key={part}>{part}</span>
+            ))}
+          </span>
+          <span className="role-badge">{role.replaceAll("_", " ")}</span>
+        </button>
+        {isProfileMenuOpen && (
+          <div className="profile-dropdown" role="menu" aria-label="Profile">
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => void handleLogout()}
+            >
+              Log out
+            </button>
+            {logoutError && <p className="error-message">{logoutError}</p>}
+          </div>
+        )}
+      </div>
     </nav>
   );
 }

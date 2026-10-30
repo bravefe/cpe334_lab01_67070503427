@@ -1,64 +1,78 @@
 import { describe, expect, it } from "vitest";
-import { isLegalStatusTransition } from "../../../src/lib/statusTransitions.js";
+import {
+  allowedNextStatuses,
+  canRoleTransition,
+  type Role,
+} from "../../../src/lib/statusTransitions.js";
 
-const legalPairs = [
-  ["New", "Open"],
-  ["New", "Cancelled"],
-  ["Open", "In Progress"],
-  ["Open", "Waiting for Requester"],
-  ["Open", "Cancelled"],
-  ["In Progress", "Waiting for Requester"],
-  ["In Progress", "Resolved"],
-  ["In Progress", "Cancelled"],
-  ["Waiting for Requester", "In Progress"],
-  ["Waiting for Requester", "Resolved"],
-  ["Waiting for Requester", "Cancelled"],
-  ["Resolved", "Closed"],
-  ["Resolved", "Reopened"],
-  ["Closed", "Reopened"],
-  ["Reopened", "Open"],
-  ["Reopened", "In Progress"],
-  ["Reopened", "Cancelled"],
-] as const;
+const expectedTransitions: Record<string, Record<string, Role[]>> = {
+  New: {
+    Open: ["IT_STAFF", "ADMINISTRATOR"],
+    Cancelled: ["REQUESTER", "IT_STAFF", "ADMINISTRATOR"],
+  },
+  Open: {
+    "In Progress": ["IT_STAFF", "ADMINISTRATOR"],
+    "Waiting for Requester": ["IT_STAFF", "ADMINISTRATOR"],
+    Cancelled: ["IT_STAFF", "ADMINISTRATOR"],
+  },
+  "In Progress": {
+    "Waiting for Requester": ["IT_STAFF", "ADMINISTRATOR"],
+    Resolved: ["IT_STAFF", "ADMINISTRATOR"],
+    Cancelled: ["IT_STAFF", "ADMINISTRATOR"],
+  },
+  "Waiting for Requester": {
+    "In Progress": ["IT_STAFF", "ADMINISTRATOR"],
+    Cancelled: ["IT_STAFF", "ADMINISTRATOR"],
+  },
+  Resolved: {
+    Closed: ["IT_STAFF", "ADMINISTRATOR"],
+    Reopened: ["REQUESTER", "IT_STAFF", "ADMINISTRATOR"],
+  },
+  Closed: {
+    Reopened: ["ADMINISTRATOR"],
+  },
+  Cancelled: {
+    Reopened: ["ADMINISTRATOR"],
+  },
+  Reopened: {
+    "In Progress": ["IT_STAFF", "ADMINISTRATOR"],
+    Cancelled: ["IT_STAFF", "ADMINISTRATOR"],
+  },
+};
 
-describe("status transition helpers", () => {
-  it("UNIT-05: recognizes every legal transition in the status matrix", () => {
-    for (const [from, to] of legalPairs) {
-      expect(isLegalStatusTransition(from, to)).toBe(true);
-    }
+const roles: Role[] = ["REQUESTER", "IT_STAFF", "ADMINISTRATOR"];
+const statuses = Object.keys(expectedTransitions);
 
-    const illegalPairs = [
-      ["New", "In Progress"],
-      ["New", "Resolved"],
-      ["Open", "Resolved"],
-      ["Open", "Closed"],
-      ["In Progress", "Open"],
-      ["Waiting for Requester", "Open"],
-      ["Resolved", "Open"],
-      ["Closed", "Open"],
-      ["Reopened", "Resolved"],
-      ["Cancelled", "Open"],
-    ] as const;
-
-    for (const [from, to] of illegalPairs) {
-      expect(isLegalStatusTransition(from, to)).toBe(false);
+describe("role-based status transitions", () => {
+  it("allows exactly the transitions assigned to each role", () => {
+    for (const from of statuses) {
+      for (const to of statuses) {
+        const allowedRoles = expectedTransitions[from][to] ?? [];
+        for (const role of roles) {
+          expect(canRoleTransition(from, to, role), `${role}: ${from} -> ${to}`)
+            .toBe(allowedRoles.includes(role));
+        }
+      }
     }
   });
 
-  it("UNIT-06: no statuses are legal after Cancelled", () => {
-    const allStatuses = [
-      "New",
-      "Open",
-      "In Progress",
-      "Waiting for Requester",
-      "Resolved",
-      "Closed",
-      "Reopened",
-      "Cancelled",
-    ] as const;
-
-    for (const next of allStatuses) {
-      expect(isLegalStatusTransition("Cancelled", next)).toBe(false);
+  it("returns each role's allowed next statuses", () => {
+    for (const from of statuses) {
+      for (const role of roles) {
+        const expected = Object.entries(expectedTransitions[from])
+          .filter(([, allowedRoles]) => allowedRoles.includes(role))
+          .map(([to]) => to);
+        expect(allowedNextStatuses(from, role), `${role} from ${from}`).toEqual(
+          expected,
+        );
+      }
     }
+  });
+
+  it("rejects unknown roles and statuses", () => {
+    expect(canRoleTransition("New", "Open", "SUPERVISOR")).toBe(false);
+    expect(allowedNextStatuses("New", "SUPERVISOR")).toEqual([]);
+    expect(canRoleTransition("Unknown", "Open", "ADMINISTRATOR")).toBe(false);
+    expect(allowedNextStatuses("Unknown", "ADMINISTRATOR")).toEqual([]);
   });
 });

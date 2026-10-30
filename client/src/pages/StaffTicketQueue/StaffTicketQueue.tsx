@@ -6,15 +6,14 @@ import {
 } from "../../api/referenceData";
 import { fetchStaffTickets } from "../../api/tickets";
 import { Category, Priority, Status } from "../../lib/reference";
+import { Requester } from "../../lib/requester";
 import { StaffTicket, StaffTicketQuery } from "../../lib/ticket";
 import { formatDate } from "../../lib/formatDate";
 import TopBar from "../TopBar";
 import "./StaffTicketQueue.css";
 
 interface StaffTicketQueueProps {
-  requester?: { id: number; name: string; email: string; isActive: boolean };
-  onLogout: () => void;
-  onQueue: () => void;
+  requester?: Requester;
   onOpenTicket: (ticketRef: string) => void;
 }
 
@@ -26,13 +25,28 @@ const initialQuery: StaffTicketQuery = {
   pageSize: 10,
 };
 
+function getInitialQuery(): StaffTicketQuery {
+  const params = new URLSearchParams(window.location.search);
+  const filter = params.get("filter");
+
+  return {
+    ...initialQuery,
+    status: params.get("status") || undefined,
+    itPriority: params.get("priority") || undefined,
+    owner:
+      filter === "unassigned"
+        ? "unassigned"
+        : filter === "my-assigned"
+          ? "me"
+          : undefined,
+  };
+}
+
 export default function StaffTicketQueue({
   requester,
-  onLogout,
-  onQueue,
   onOpenTicket,
 }: StaffTicketQueueProps) {
-  const [query, setQuery] = useState(initialQuery);
+  const [query, setQuery] = useState(getInitialQuery);
   const [draftSearch, setDraftSearch] = useState("");
   const [tickets, setTickets] = useState<StaffTicket[]>([]);
   const [meta, setMeta] = useState({
@@ -107,12 +121,7 @@ export default function StaffTicketQueue({
 
   return (
     <>
-      <TopBar
-        requester={requester}
-        role="IT_STAFF"
-        onChange={onLogout}
-        onQueue={onQueue}
-      />
+      <TopBar requester={requester} />
       <main className="page staff-queue-page">
         <header className="page-header">
           <div>

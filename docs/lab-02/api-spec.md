@@ -115,6 +115,7 @@ Creates a Ticket owned by the current Requester (FR-04).
       "relatedSystemId": 7,
       "requestedPriorityId": 2,
       "currentStatusId": 1,
+      "allowedNextStatuses": ["Cancelled"],
       "createdAt": "2026-08-22T09:14:00Z",
       "updatedAt": "2026-08-22T09:14:00Z"
     }
@@ -191,6 +192,9 @@ Full read-only detail for one owned Ticket (FR-11).
     }
   }
   ```
+- `allowedNextStatuses` contains the status names the authenticated Requester may transition to
+  from the Ticket's current status. The client uses this API value to decide whether to enable
+  the status control; the server validates every transition when submitted.
 - **Response 404:** Ticket not found, or exists but not owned by current Requester.
 
 ---

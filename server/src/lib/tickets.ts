@@ -21,11 +21,20 @@ export interface TicketQuery {
   categoryId?: number;
   priorityId?: number;
   statusId?: number;
+  statusIds?: number[];
 }
 
 function positiveInteger(value: unknown): number | undefined {
   const parsed = Number(value);
   return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+}
+
+function positiveIntegers(value: unknown): number[] | undefined {
+  if (typeof value !== "string" || !value) return undefined;
+  const parsed = value.split(",").map(Number);
+  return parsed.every((id) => Number.isInteger(id) && id > 0)
+    ? parsed
+    : undefined;
 }
 
 export function parseTicketQuery(req: Request): TicketQuery {
@@ -47,8 +56,13 @@ export function parseTicketQuery(req: Request): TicketQuery {
     sortBy,
     sortDir,
     search,
-    categoryId: positiveInteger(req.query.categoryId ?? req.query.category),
-    priorityId: positiveInteger(req.query.requestedPriorityId ?? req.query.priorityId),
+    categoryId: positiveInteger(
+      req.query.categoryId ?? req.query.category,
+    ),
+    priorityId: positiveInteger(
+      req.query.requestedPriorityId ?? req.query.priorityId,
+    ),
     statusId: positiveInteger(req.query.currentStatusId ?? req.query.statusId),
+    statusIds: positiveIntegers(req.query.currentStatusIds),
   };
 }

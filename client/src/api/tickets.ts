@@ -31,8 +31,11 @@ export function fetchTickets(query: TicketQuery) {
   if (query.currentStatusId) {
     params.set("currentStatusId", String(query.currentStatusId));
   }
+  if (query.currentStatusIds?.length) {
+    params.set("currentStatusIds", query.currentStatusIds.join(","));
+  }
 
-  return get<TicketPage>(`/api/tickets?${params}`);
+  return get<TicketPage>(`/api/tickets/?${params}`);
 }
 
 export function fetchStaffTickets(query: StaffTicketQuery) {
@@ -51,7 +54,7 @@ export function fetchStaffTickets(query: StaffTicketQuery) {
   if (query.itPriority) params.set("itPriority", query.itPriority);
   if (query.owner) params.set("owner", query.owner);
 
-  return get<StaffTicketPage>(`/api/staff/tickets?${params}`);
+  return get<StaffTicketPage>(`/api/staff/tickets/?${params}`);
 }
 
 export function createTicket(input: CreateTicketPayload) {
@@ -86,14 +89,15 @@ export function updateStaffPriority(ticketRef: string, itPriority: string) {
   );
 }
 
-export function updateStaffStatus(
+export function updateTicketStatus(
   ticketRef: string,
   status: string,
+  updatedAt: string,
   resolutionSummary?: string,
 ) {
   return patch<StaffTicket>(
     `/api/staff/tickets/${encodeURIComponent(ticketRef)}/status`,
-    { status, resolutionSummary },
+    { toStatus: status, updatedAt, resolutionSummary },
   );
 }
 

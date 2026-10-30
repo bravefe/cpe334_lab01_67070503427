@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { validateContent } from "../lib/content.js";
 import {
+  getStaffDashboardService,
   createStaffCommentOrNote,
   findPriorityByName,
   findStatusByName,
@@ -13,14 +14,38 @@ import {
   updateStaffTicketPriority,
   updateStaffTicketStatus,
 } from "../services/staffService.js";
+import {
+  isLegalStatusTransition,
+  canRoleTransition,
+  isResolvedGateMet,
+  Role,
+} from "../lib/statusTransitions.js";
+import { listActionsTaken } from "../services/actionTakenService.js";
+
+function isTransitionAllowed(from: string, to: string): boolean {
+  return isLegalStatusTransition(from, to);
+}
+
+export {
+  createAction,
+  getActions,
+  updateAction,
+} from "./actionTakenController.js";
 
 function sendError(
   res: Response,
   status: number,
   code: string,
   message: string,
+  extra?: Record<string, unknown>,
 ) {
-  return res.status(status).json({ error: { code, message } });
+  return res.status(status).json({
+    error: {
+      code,
+      message,
+      ...extra,
+    },
+  });
 }
 
 function parsePositiveId(value: unknown): number | null {
@@ -54,6 +79,18 @@ function formatTicket(ticket: any) {
 
 async function resolveTicketRef(value: string | undefined) {
   return resolveStaffTicket(value);
+}
+
+export async function getStaffDashboard(req: Request, res: Response) {
+  try {
+    const userId = Number((req as any).user.id); // reuse this file's existing session-user access
+    res.status(200).json(await getStaffDashboardService(userId));
+  } catch (err) {
+    console.error("staff dashboard error:", err);
+    res.status(500).json({
+      error: { code: "INTERNAL_ERROR", message: "Something went wrong." },
+    });
+  }
 }
 
 export async function listStaffTickets(
@@ -274,36 +311,81 @@ export async function updateStatus(req: Request, res: Response): Promise<void> {
     return;
   }
 
-  const target =
-    typeof req.body?.status === "string"
-      ? req.body.status.trim().replace(/_/g, " ")
-      : "";
-
-  const status = await findStatusByName(target);
-
-  if (!status) {
-    sendError(res, 404, "NOT_FOUND", "Ticket or status not found.");
+  if (
+    req.user!.role === "REQUESTER" &&
+    ticket.requesterId !== req.user!.id
+  ) {
+    sendError(res, 404, "NOT_FOUND", "Ticket not found.");
     return;
   }
 
-  const allowed = transitionMap[ticket.currentStatus.name] ?? [];
-  if (!allowed.includes(status.name)) {
+  const raw = req.body?.toStatus; // doc says toStatus, not status
+  const target = typeof raw === "string" ? raw.trim().replace(/_/g, " ") : "";
+  const status = target ? await findStatusByName(target) : null;
+  if (!status) {
+    sendError(res, 400, "VALIDATION_ERROR", "Unknown status value."); // 400, not 404
+    return;
+  }
+
+  const from = ticket.currentStatus.name;
+  const to = status.name;
+  const role = req.user!.role as Role; // adapt to your auth middleware
+
+  if (!isTransitionAllowed(from, to)) {
     sendError(
       res,
       409,
       "INVALID_TRANSITION",
-      `Status may change from ${ticket.currentStatus.name} to: ${allowed.join(", ") || "none"}.`,
+      `Cannot move from ${from} to ${to}.`,
     );
+    return;
+  }
+
+  if (!canRoleTransition(from, to, role)) {
+    sendError(
+      res,
+      403,
+      "FORBIDDEN",
+      "Your role may not perform this transition.",
+    );
+    return;
+  }
+
+  if (to === "Resolved") {
+    const actions = await listActionsTaken(ticket.id); // see assumption below
+    if (!isResolvedGateMet(actions)) {
+      sendError(
+        res,
+        409,
+        "RESOLVED_GATE",
+        "A Resolved-result Action Taken is required before resolving.",
+      );
+      return;
+    }
+  }
+
+  const expected = new Date(req.body?.updatedAt);
+  if (Number.isNaN(expected.getTime())) {
+    sendError(res, 400, "VALIDATION_ERROR", "updatedAt is required.");
     return;
   }
 
   const updated = await updateStaffTicketStatus(
     ticket.id,
     status.id,
-    typeof req.body.resolutionSummary === "string"
-      ? req.body.resolutionSummary.trim()
-      : undefined,
+    expected,
+    {
+      resolutionSummary:
+        typeof req.body.resolutionSummary === "string"
+          ? req.body.resolutionSummary.trim()
+          : undefined,
+      resetResolvedFlag: to === "Reopened",
+    },
   );
+  if (!updated) {
+    sendError(res, 409, "STALE_TICKET", "Ticket was modified by someone else.");
+    return;
+  }
 
   res.status(200).json(formatTicket(updated));
 }
